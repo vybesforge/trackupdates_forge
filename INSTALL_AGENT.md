@@ -50,8 +50,9 @@ Delete `$AC\content\tracks\zw_rpm` and rename the newest `zw_rpm.bak_*` back to 
 1. Load each layout once in practice (VR).
 2. Curbs should NOT trigger cuts; four wheels on grass SHOULD (server race).
 3. Short layout: sector 1/2 and lap timing work.
-4. Visual check: new timing tower size (may be too small), brake boards 3/2/1 before the last right-hander, marshal hut, grandstands, flagpole, ground blending, trees, water, props.
-5. Short-course main straight vs. real drag strip position.
+4. VR2 surfaces: tent paddock feels gravel (slow, dusty, no flag); access roads outside the track look like jointed concrete; grass runs to the track edge at corners (no brick/cobble look).
+5. Visual check: larger timing tower (~15x10 m), brake boards 3/2/1, marshal hut, grandstands with closed risers, flagpole, Poly Haven tree billboards, armco/tire/tent specular, ground blending, water, props.
+6. Short-course main straight vs. real drag strip position.
 Report any issue back to the user's Grok Bot.
 
 ## Credits / license
