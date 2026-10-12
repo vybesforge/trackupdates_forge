@@ -210,3 +210,4 @@ zw_ext.kn5,ext_street_190.dds,174920,new,low,DONE north extension,procedural / p
 zw_ext.kn5,ext_allway.dds,87528,new,low,DONE north extension,procedural / project-made (north extension),CC0 1.0 https://creativecommons.org/publicdomain/zero/1.0/,
 zw_ext.kn5,(geometry),,new,low,DONE north extension,"OSM centrelines/footprints (ODbL, attributed in CREDITS.md); USGS 3DEP 1 m DEM (public domain)",https://www.openstreetmap.org/copyright,
 zw_dragexit.kn5,drag_exit_asphalt.dds,1398248,new,low,DONE drag exit,ambientCG Asphalt012 (lightened to NAIP grey) + procedural tyre marks,CC0 1.0 https://docs.ambientcg.com/license/,1024x2048 DXT1 mips12
+zw_rpm.kn5,tentcok.dds,1398256,new,brand (permission),DONE Vybes Forge tent,Vybes Forge logo (owner Dylan Cruse; used with permission) + Space Grotesk (OFL 1.1) + procedural fabric,Proprietary brand used with permission; font OFL 1.1 https://openfontlicense.org,1024x1024 DXT5 mips11 (alpha cut-out kept)

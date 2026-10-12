@@ -32,3 +32,7 @@ All medium/high/unknown-risk textures were replaced (see `docs/assets.csv`, colu
 - Terrain: USGS 3DEP 1 m DEM (IA_WesternIA_2020), public domain.
 - Ground imagery: USDA NAIP 2021, public domain.
 - Asphalt012 etc.: ambientCG, CC0. Stop sign per MUTCD (public domain design).
+
+## Vybes Forge branding (one paddock tent)
+- "Vybes Forge" name, VF monogram logo and palette: © Vybes Forge, owned by Dylan Cruse; used with permission on one paddock tent (tentcok.dds slot, material tent_coke). Not covered by the project's CC0/open licence — do not reuse outside this track without the owner's permission.
+- Font: Space Grotesk (Florian Karsten), SIL Open Font License 1.1 (assets_src/brand/SpaceGrotesk_OFL.txt), via Google Fonts.

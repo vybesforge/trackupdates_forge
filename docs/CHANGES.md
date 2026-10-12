@@ -140,3 +140,7 @@ NAIP 2021 (0.6 m) + Apple Maps show four paved turnoffs from the 1DRAGstrip shut
 - West armco gaps (visual + 1WALL_armco): z -636..-620 (A), -808..-794 (B), -960..-944 (C).
 - Exit asphalt lightened to NAIP crossover grey (~176/174/165; NAIP ≈189/187/177), tyre streaks kept but lighter.
 - Clearance: ≥159 m from short AI; pit lanes far; main AI only meets stub E at the circuit edge (the real crossover). AI files unchanged.
+
+## Vybes Forge tent
+- The small paddock tent nearest the racing/pit lines (tentm_SUB3 at x 40, z 67; formerly the Coca-Cola tent, plain fabric since the textures round) is now branded Vybes Forge: dark #02060F fabric, VF logo on each roof panel, "VYBES FORGE" (Space Grotesk) on the roof eave, valance and skirt, vybesforge.com, cyan #29D5E9 / magenta #BF338A trim.
+- Only `tentcok.dds` changed (used solely by material tent_coke); other tents untouched. UV layout respected (roof triangle top half, walls bottom half, original alpha cut-out kept), text not mirrored on outer faces; DXT5, 256 → 1024 px. tools/vf_tent.py; backup /workspace/rpotm/backup/zw_rpm.kn5.pre_vftent.
