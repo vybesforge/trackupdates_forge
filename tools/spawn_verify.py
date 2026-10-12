@@ -1,3 +1,4 @@
+# VR9: footprint flatness limit 6 cm over the 5.2 m box (lidar paddock grade up to ~1 %; was 2 cm on zwiss's flat paddock)
 import sys,numpy as np,collections
 import os;sys.path.insert(0,os.path.dirname(os.path.abspath(__file__)));import kn5patch as K,kn5tree as T
 from physraster import physmeshes,raster
@@ -17,7 +18,7 @@ for lay,files in [('main',['zw_rpm.kn5','zw_rpm_physical.kn5','zw_rpm_gp.kn5','z
                 q=p+a*f+b*r;ii=int(round((q[0]-xs[0])/res));jj=int(round((q[2]-zs[0])/res))
                 hs.append(H[jj,ii]);ks.add(names[KEY[jj,ii]] if KEY[jj,ii]>=0 else None)
         hs=np.array(hs);flat=np.nanmax(hs)-np.nanmin(hs);clear=p[1]-np.nanmax(hs)
-        good=(ks=={'1GRAVEL_PADDOCK'}) and flat<0.02 and 0.2<clear<1.0 and UP[int(round((p[2]-zs[0])/res)),int(round((p[0]-xs[0])/res))]
+        good=(ks=={'1GRAVEL_PADDOCK'}) and flat<0.06 and 0.2<clear<1.0 and UP[int(round((p[2]-zs[0])/res)),int(round((p[0]-xs[0])/res))]
         ok+=good;worst=max(worst,flat)
         if not good: print(lay,'PIT',i,ks,flat,clear)
     print(lay,'footprint OK',ok,'/36, max height variation %.3f m, dummy clearance %.2f m'%(worst,clear))

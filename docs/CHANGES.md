@@ -351,3 +351,64 @@ Mapping: both images were registered to AC x/z. Image A was matched by hand agai
   - Contact shadows moved with them. They are static and visual only.
 - **Aerial alignment:** the NAIP aerial is about 18 m east and 13 m south of the models in this area (+18 x, +13 z), so vr8_people.png draws the model footprints with that shift applied.
 - **Preview:** docs_preview/vr8_people.png (aerial with markers + ground-level close-up). All kn5 files parse.
+
+## VR9: reactive two-lane drag tree, lidar re-drape, v1.0.0-rc1 prep
+Backup before this round: `/workspace/rpotm/backup/pre_vr9/zw_rpm` (full track). The flat-stage copy of `zw_draglaunch.kn5` before the lane split is kept as `backup/pre_vr9/zw_draglaunch_unsplit.kn5`.
+
+### Reactive drag tree
+- **Shared logic:** `apps/python/i29_dragtree/dragtree_logic.py`. It is pure Python and Python 3.3-safe, and is ported 1:1 into `extension/drag_tree.lua`.
+  - **Geometry:** stage beam at z −347.5 and pre-stage beam 0.178 m behind it. A beam counts as broken when the front-tyre contact midpoint is within 0.30 m of it. Lanes are west/left x −255.75 and east/right x −246.75, each ±2.4 m. A car counts as "in the lanes" from 25 m behind the line.
+  - **Tree:** sportsman tree. It drops when every occupied lane has been staged for 1.0 s. If one lane is staged and the other is occupied but not staged, it runs solo after 8 s. Ambers come 0.5 s apart and green 0.5 s after amber 3.
+  - **Timing:**
+    - The ET clock starts when the stage beam clears, using sub-frame interpolation.
+    - RT = beam clear − green. Leaving before green gives a red light, and only that lane's red bulb lights.
+    - Splits are 60 ft, 330 ft and the 1/8-mile ET (660 ft). Trap speed is measured over 594–660 ft (mph and km/h).
+    - A run is aborted if the car leaves the lane or 30 s pass. The tree resets 4 s after every lane is done.
+- **Vanilla AC app:** `apps/python/i29_dragtree/i29_dragtree.py`. Its window draws both bulb columns with GL quads, plus a status line and the last timeslip.
+  - It tracks every connected car, so the opponent in the other lane can be an online player.
+  - Front contact comes from `acsys.CS.TyreContactPoint` FL/FR. If that is unavailable, it falls back to the car position plus 1.3 m along the velocity.
+  - It is active only when the track is `zw_rpm`.
+- **CSP pole tree:** `extension/drag_tree.lua`, rewritten.
+  - The bulb meshes are now split per lane (`tools/vr9_tree_lanes.py`): `drtree_<group>_W` / `_E`, 14 meshes. The ext_config SHADER_REPLACEMENT and EXTRA_FX lists were updated to match.
+  - Cars come from `ac.getCar(i).wheels[0/1].contactPoint` (fallback: `position + look*1.3`).
+  - The timeslip goes to `ac.setMessage` (if present) and `ac.debug`.
+  - **Idle loop (decision):** the old 60 s attract loop is kept, but only when the tree is idle AND no car has been within 60 m of the line for 10 s. It stops immediately when a car comes back.
+  - A scoreboard display on the gantry was not done; results go to the on-screen message instead.
+- **VR:** vanilla AC draws Python app windows on the monitor only, not in the headset. So without CSP, VR players do not see the app. The pole tree (CSP) is the VR solution. This has not been verified in a headset.
+- **Tests:** `tests/test_dragtree.py`, 9 tests, all OK.
+  - Simulated constant-acceleration runs, with analytic checks of RT, 60 ft, 1/8 ET and mph.
+  - Red light, bulb sequence, solo after the wait, lane assignment, and abort.
+  - The Lua logic (Lua 5.5 via lupa) gives identical results to Python, to 1e-6.
+  - The full Lua script runs under LuaJIT 2.1 against a mocked CSP API.
+  - The Python app runs against stub `ac`/`acsys` modules.
+  - LuaJIT `loadstring` syntax check OK. The app has no syntax that needs Python newer than 3.3 (AST check).
+- Preview: docs_preview/vr9_tree_lanes.png (left lane staged + green, right lane red light).
+
+### Lidar re-drape (USGS 3DEP 2020 1 m DEM)
+- **Script:** `tools/vr9_lidar.py`. Input is the flat stage `backup/pre_vr9/zw_rpm`; output is `zw_rpm/`.
+  - **Warp field D(x,z):** a normalised convolution of the DEM over the paved cells (σ 10 m), blended with the σ 25 m terrain, then σ 6 m smoothing.
+  - **Taper:** full within 120 m of pavement, fading to 0 at 400 m. It also fades to 0 within 25–85 m of the north-extension roads, so `zw_ext.kn5` is copied unchanged.
+  - **Datum:** D = 0 at start/finish (−224.27, −291.61).
+  - **Applied to:** every vertex of every visual and physics mesh, in world space (back to local), so visual and physics stay identical. AC_ dummies (spawns, timing) are shifted by the same D.
+  - **Refinement:** flat coarse meshes got conforming red-green refinement so they can follow the field: drivable surfaces 4 m, visuals 16 m, and grass 4/10/50 m by distance to pavement.
+  - Bumps, surfaces and flags are untouched: surface keys are the same, apart from 31 trivial boundary cells.
+- **Result on paved cells:** RMS change vs zwiss is 0.137 m (min −0.415, max +0.355 m). Off the pavement the terrain moves up to −2.37/+2.08 m (RMS 0.58 m), mostly at the ponds, the I-29 embankment and the field edges.
+- **Checks (`tools/vr9_verify.py`):**
+  - Residual vs the field is ≤ 4.3 mm.
+  - No new steps over 1 cm at joins (max 7.4 mm).
+  - Added grade is ≤ 1.51 %.
+  - Down-facing drivable faces: zwiss's original 24 → 0 (flipped, and slivers under 0.01 m² dropped).
+  - AI lines re-heighted: `vr7_ai_validate.py` gives ALL OK on both layouts.
+  - Spawns: `spawn_verify.py` gives 36/36 on both layouts. Its flatness threshold was raised from 0.02 to 0.06 m because the paddock now has real grade (max 0.052 m).
+- **Areas of concern:**
+  - The ground by the extension road near x −405, z 230 (embankment; this is why the extension is excluded).
+  - The paddock and boxes now have a real slope of a few cm per car.
+  - Mesh counts went up: 1GRASS about 124k tris, 1CONCRETE about 14k, 1DRAGstrip about 14.5k, ponds about 14k, highway_SUB0 about 14.7k. Check the VR frame rate.
+  - Normals were not recomputed. Slopes are ≤ 1.5 %, so the shading change is negligible.
+  - Any older generator (vr4–vr8) that is re-run writes flat geometry. Afterwards, copy its output into the flat stage and re-run `vr9_lidar.py`.
+- Preview: docs_preview/vr9_lidar_delta.png (D map plus the DEM).
+
+### Release prep (local only)
+- `tools/build_release.py` builds `/workspace/rpotm/release/I-29_Speedway_v1.0.0-rc1.zip` (+ .sha256), containing `content/tracks/zw_rpm`, `apps/python/i29_dragtree` and the docs. It refuses LFS pointers and forbidden branding strings.
+- Release notes: `docs/RELEASE_NOTES_v1.0.0-rc1.md`. Announcement drafts (not posted): `docs/announce_draft.md`.
+- No GitHub Release was created, and no tag was pushed.
