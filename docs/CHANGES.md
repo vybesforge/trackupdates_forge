@@ -101,3 +101,11 @@ Those roads are not meshes. They come from the ground material `google` (1GRASS)
 - Tree billboards at distance and up close (alpha edges, brightness vs v0.9).
 - Armco/tyre/tent specular under sun. If ksPerPixelMultiMap_AT shows untextured or pink, revert grdr*/tent_* to their original shaders in `vr2_apply.py`.
 - Bigger tower vs surrounding fences/flagpole (no clipping).
+
+# Gates opened (`tools/open_gates.py`, zw_rpm.kn5; backup `/workspace/rpotm/backup/zw_rpm.kn5.pre_gates`)
+Gate meshes found: `gate_01`, `gate_02` (material Gate_02) and `drag_gate002` (Gate_01; 4 leaves in one mesh). All other kn5s have none; posts `gate_poles_01/02` are untouched. None of them is a physics mesh (no `1` prefix), so gates are visual only. Gates are not separate pivot nodes; vertices are in world space. Each closed leaf is therefore folded 180° about its hinge post in place: positions, normals and tangents are rotated; vertex/index counts are unchanged. Each leaf now lies back along the fence line outside the opening, offset 8 cm.
+- **Pit exit → tent lot / paddock** (drag_gate002, opening at about x −30, z 38): the inner leaf (−29.6,36.2)–(−26.3,34.1) was closed and is now folded to (−26.3,34.1)–(−23.0,32.0) along the armco. The outer leaf at post (−34.3,40) was already open in v0.9 and is unchanged.
+- **Double gate in the fence by the return road** (drag_gate002, about x 190, z −107): both leaves are folded outward to (194.1,−109.5)–(198.1,−111.8) and (186.0,−104.9)–(182.0,−102.6). The opening is now clear.
+- **gate_01** (concrete road SE of the gravel paddock, x 154–159, z 219.5): folded about post (159.0,219.5) to (159.0,219.5)–(164.3,219.4), off the roadway.
+- **gate_02** (west entrance from the county road, x −378.7, z −326..−318): folded about post (−378.8,−325.9) to (−378.8,−325.9)–(−378.9,−334.0), off the roadway.
+The top-view check shows no leaf across a road, the pit exit or the track (`docs_preview/gates_before_after.png`). **Recheck in VR:** gate leaves against the fence/armco (no z-fighting or poking through), and gate posts still stand where expected.
