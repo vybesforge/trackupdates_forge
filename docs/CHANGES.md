@@ -117,3 +117,10 @@ The top-view check shows no leaf across a road, the pit exit or the track (`docs
 - I-29 interchange visual only, behind invisible `1WALL_EXT` walls (x -335 / z -3000 / x -1000).
 - zw_rpm.kn5: 43 zwiss Berm tris hidden (north band + US-34 berm crossing 188th St).
 - Tools: tools/north_ext/*. 88k tris, 173 meshes.
+
+## Release: north extension merged + short-course transition bumps
+- North extension (zw_ext.kn5) merged into release-clean. Cleanup: canopy fascia signs now read correctly from both sides; lot outlines smoothed (no pixel stair-steps); duplicate stop sign at the US-34 median removed (4 signs); assets.csv rows for all zw_ext textures + geometry sources.
+- Short-course transition bumps (physics only, zw_rpm_physical.kn5 1ROAD_003/007 vertex heights; tools/short_bumps.py, backup kept):
+  - T1 (short layout only, leaving the drag strip east edge x≈-214.5, z -418..-378): 2 cm seam lip at the concrete/asphalt edge + 4 cm hump (4 m long) 5 m into the infield road. Main layout line (x<-224) untouched.
+  - T5 (merge back onto the drag strip, south end z≈-98; also on the main layout path): 2 cm seam lip + 3 cm hump 8 m before it.
+  - Visual mesh unchanged (≤4 cm); AI lines unchanged.

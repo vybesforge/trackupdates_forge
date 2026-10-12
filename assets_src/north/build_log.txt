@@ -1,4 +1,4 @@
-lots: loves 32237 m2, bp 13014 m2, ne_yard 1396 m2, ne_yard 27857 m2
+lots: loves 32188 m2, bp 12261 m2, bp 686 m2, ne_yard 1355 m2, ne_yard 27866 m2
 roads: 16 drivable ribbons (+gravel shoulders), 12 visual (I-29/ramps/US-34 east)
 bridge v52482647: 8 m
 bridge v52482673: 8 m
@@ -14,5 +14,5 @@ Love's-type travel store: 1044 m2 footprint, 7.0 m high
 BP-type store: 519 m2 footprint, 5.2 m high
 tire/service shop: 732 m2 footprint, 8.0 m high
 4-way stop: 3 carriageway crossings, 4 stop signs + ALL WAY plaques
-zw_ext.kn5: 173 meshes, 88272 tris, 43 textures, 39.6 MB; invisible wall meshes 1
-tris by group: 1GRASS 47840, xline 15234, 1GRAVEL 8075, xshoulder 4156, 1XROAD 4012, xfence 2216, xroad 2078, xpoles 1344, xbridges 1140, 1WALL 1036, xpumps 220, 1XLOT 157, xlotlights 154, xposts 132, xcolumns 130, xislands 110, xroofs 72, xcanopies 48, xstore 44, xfascia 20, xstop 20, xallway 10, xshop 8, xsign 8, xglass 4, xstreet188 4
+zw_ext.kn5: 174 meshes, 88538 tris, 43 textures, 39.7 MB; invisible wall meshes 1
+tris by group: 1GRASS 47840, xline 15234, 1GRAVEL 8122, xshoulder 4156, 1XROAD 4012, xfence 2216, xroad 2078, xpoles 1344, xbridges 1140, 1WALL 1036, 1XLOT 284, xlotlights 264, xpumps 220, xcolumns 130, xposts 120, xislands 110, xroofs 72, xcanopies 48, xstore 44, xfascia 20, xstop 16, xshop 8, xsign 8, xallway 8, xglass 4, xstreet188 4

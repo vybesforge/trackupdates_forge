@@ -72,7 +72,7 @@ for nm,(a0,a1,b0,b1),surf in LOTS:
     for c in cs:
         pts=px2ac(c[:,0,0].astype(float),c[:,0,1].astype(float))
         if len(pts)<4: continue
-        pg=sg.Polygon(pts).buffer(0).simplify(1.2)
+        pg=sg.Polygon(pts).buffer(0).buffer(3,join_style=1).buffer(-6,join_style=1).buffer(3,join_style=1).simplify(0.4)  # smooth pixel stair-steps
         if pg.area<400: continue
         for g in getattr(pg,'geoms',[pg]): lotpolys.append((nm,g,surf))
 LOG.append('lots: '+', '.join(f'{n} {p.area:.0f} m2' for n,p,_ in lotpolys))
@@ -229,8 +229,8 @@ for wid,(lab,clr,pumps,who) in CANOP.items():
     # fascia signs on both long sides
     perp=np.array([ax[1],-ax[0]])
     for sgn in(1,-1):
-        q=cen+perp*sgn*(Wd/2+0.03);a=q-ax*Lg*0.3;b=q+ax*Lg*0.3;yy=y0+clr+0.1
-        (mfas_ts if who=='ts' else mfas_f).quad([[a[0],yy,a[1]],[b[0],yy,b[1]],[b[0],yy+0.7,b[1]],[a[0],yy+0.7,a[1]]],[perp[0]*sgn,0,perp[1]*sgn],[(0,1),(1,1),(1,0),(0,0)] if sgn>0 else [(1,1),(0,1),(0,0),(1,0)])
+        q=cen+perp*sgn*(Wd/2+0.03);n_=perp*sgn;r_=np.array([n_[1],-n_[0]]);a=q-r_*Lg*0.3;b=q+r_*Lg*0.3;yy=y0+clr+0.1  # r_ = viewer's right -> text reads correctly on both sides
+        (mfas_ts if who=='ts' else mfas_f).quad([[a[0],yy,a[1]],[b[0],yy,b[1]],[b[0],yy+0.7,b[1]],[a[0],yy+0.7,a[1]]],[n_[0],0,n_[1]],[(0,1),(1,1),(1,0),(0,0)])
     LOG.append(f'{lab} ({who}): {Lg:.0f}x{Wd:.0f} m, clearance {clr} m, {ncol} columns' + (f', {ncol} islands/{2*ncol} dispensers' if pumps else ''))
 for wid,(lab,h,mm_,who) in STORES.items():
     pg=footprint(wid);cen=np.array(pg.centroid.coords[0]);y0=lot_y(cen)
@@ -256,9 +256,8 @@ emit('xfascia_ts','ext_fascia_ts',mfas_ts,1200);emit('xfascia_fuel','ext_fascia_
 def panel(m,c,y,w,h,yaw,double=True):
     co,si=math.cos(yaw),math.sin(yaw);ax=np.array([co,-si]);n=np.array([si,co])
     for sgn in((1,-1) if double else (1,)):
-        p=c+n*sgn*0.15;a=p-ax*w/2;b=p+ax*w/2;uv=[(0,1),(1,1),(1,0),(0,0)] if sgn>0 else [(1,1),(0,1),(0,0),(1,0)]
-        if sgn<0: a,b=b,a;uv=[(0,1),(1,1),(1,0),(0,0)]
-        m.quad([[a[0],y,a[1]],[b[0],y,b[1]],[b[0],y+h,b[1]],[a[0],y+h,a[1]]],[n[0]*sgn,0,n[1]*sgn],uv)
+        nn=n*sgn;r_=np.array([nn[1],-nn[0]]);p=c+nn*0.15;a=p-r_*w/2;b=p+r_*w/2
+        m.quad([[a[0],y,a[1]],[b[0],y,b[1]],[b[0],y+h,b[1]],[a[0],y+h,a[1]]],[nn[0],0,nn[1]],[(0,1),(1,1),(1,0),(0,0)])
 mts=M();mfs=M();mpost=M()
 c=np.array([-662.0,-2652.0]);y0=lot_y(c);[mpost.cyl((c[0]+o,y0,c[1]),0.35,18,10,3) for o in(-2,2)];panel(mts,c,y0+12,6.5,6.5,0.0);mpost.box((c[0],y0+11.6,c[1]),(7.0,0.4,0.5),uvscale=2)
 c=np.array([-603.0,-2650.0]);y0=lot_y(c);mpost.box((c[0],y0,c[1]),(3.4,1.0,0.7),uvscale=1);panel(mfs,c,y0+1.0,3.2,1.6,0.0)
@@ -291,7 +290,7 @@ if len(cross)>=2:
         right=np.array([-trav[1],trav[0]])*-1  # right-hand side of travel in AC frame (x east, z south)
         right=np.array([trav[1],-trav[0]])*-1
         pos=p-trav*(hw_+4)+np.array([-trav[1],trav[0]])*(-(3.5+1.8));stop_sign(pos,-trav)
-    for p,R,k,hw_ in cross:
+    for p,R,k,hw_ in (cross[0],cross[-1]):  # one sign per US-34 approach (skip median carriageway duplicate)
         T_=R[min(k+1,len(R)-1)]-R[max(k-1,0)];T_/=np.linalg.norm(T_)
         pos=p-T_*(3.5+4)+np.array([-T_[1],T_[0]])*(-(hw_+1.8));stop_sign(pos,-T_)
     LOG.append(f'4-way stop: {len(cross)} carriageway crossings, 4 stop signs + ALL WAY plaques')

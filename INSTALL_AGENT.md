@@ -36,7 +36,7 @@ Copy-Item "$Work\zw_rpm" $Dest -Recurse
 ```
 
 ## Verify
-- `$Dest\models_main.ini` and `models_short.ini` exist, and `zw_rpm_own.kn5` is present.
+- `$Dest\models_main.ini` and `models_short.ini` exist, and `zw_rpm_own.kn5` and `zw_ext.kn5` (~40 MB, north extension) are present.
 - `$Dest\ui\main\ui_track.json` and `$Dest\ui\short\ui_track.json` exist.
 - In Content Manager → Drive → Track, "Raceway Park of the Midlands" shows two layouts: main (3.590 km) and D Course (2.380 km). If it doesn't appear, restart Content Manager.
 
@@ -53,6 +53,8 @@ Delete `$AC\content\tracks\zw_rpm` and rename the newest `zw_rpm.bak_*` back to 
 4. VR2 surfaces: tent paddock feels gravel (slow, dusty, no flag); access roads outside the track look like jointed concrete; grass runs to the track edge at corners (no brick/cobble look).
 5. Visual check: larger timing tower (~15x10 m), brake boards 3/2/1, marshal hut, grandstands with closed risers, flagpole, Poly Haven tree billboards, armco/tire/tent specular, ground blending, water, props.
 6. Short-course main straight vs. real drag strip position.
+7. North extension (both layouts): drive off-course north via 190th St / 188th St to the two fuel stations; no flags or cuts on these roads (XROAD/XLOT); four-way stop at US-34 (4 stop signs, readable); canopy signs readable from both sides; lots smooth-edged; invisible walls stop you at the I-29 interchange (east), north and west edges; ground colour seam at the old track boundary; VR frame rate.
+8. Short-course bumps: T1 (turning off the drag strip) has a small seam lip + gentle hump; T5 (back onto the drag strip) a lip + slight hump. Should be felt in FFB/suspension, not unsettle the car; main layout straight unaffected at T1; AI still drives normally.
 Report any issue back to the user's Grok Bot.
 
 ## Credits / license
