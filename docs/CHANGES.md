@@ -109,3 +109,11 @@ Gate meshes found: `gate_01`, `gate_02` (material Gate_02) and `drag_gate002` (G
 - **gate_01** (concrete road SE of the gravel paddock, x 154–159, z 219.5): folded about post (159.0,219.5) to (159.0,219.5)–(164.3,219.4), off the roadway.
 - **gate_02** (west entrance from the county road, x −378.7, z −326..−318): folded about post (−378.8,−325.9) to (−378.8,−325.9)–(−378.9,−334.0), off the roadway.
 The top-view check shows no leaf across a road, the pit exit or the track (`docs_preview/gates_before_after.png`). **Recheck in VR:** gate leaves against the fence/armco (no z-fighting or poking through), and gate posts still stand where expected.
+
+## North extension (branch feature/north-extension, not released)
+- New `zw_ext.kn5` (MODEL_5 in models_main/short.ini): 1.8 x 0.45 km band north of the track on USGS 1 m DEM (2020) + NAIP 2021 ground.
+- Drivable off-course roads (surfaces XROAD 0.97 / XLOT 0.95, IS_VALID_TRACK=0, no black flag): 190th St frontage road, 188th St, US-34 crossing as all-way stop, station lots; gravel shoulders/yard on GRAVEL.
+- Two generic fuel stations (no trade dress) at real OSM footprint scale: travel stop (store, diesel + car canopies) and fuel/deli store (canopies, tire shop); pylon + monument signs, stop signs, street blades, poles, fence, unlit lot lights.
+- I-29 interchange visual only, behind invisible `1WALL_EXT` walls (x -335 / z -3000 / x -1000).
+- zw_rpm.kn5: 43 zwiss Berm tris hidden (north band + US-34 berm crossing 188th St).
+- Tools: tools/north_ext/*. 88k tris, 173 meshes.

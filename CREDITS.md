@@ -26,3 +26,9 @@ All medium/high/unknown-risk textures were replaced (see `docs/assets.csv`, colu
 - **Poly Haven** (CC0 1.0, https://polyhaven.com/license): tree models `tree_small_02` (Rico Cilliers) and `island_tree_01` (Rob Tuytel, Rico Cilliers), rendered to the `tree2.dds`/`tree3.dds` billboard atlases by `tools/vr2_tree_billboards.py`.
 - **ambientCG** (CC0 1.0): Gravel022 (paddock gravel + normal/maps), Concrete034 (jointed road concrete `concrete_seams.dds`, concrete maps), Fabric026 (tent normal), Metal032 / PaintedPlaster017 (own-model normals and maps).
 - **USDA NAIP 2021** (public domain): ground-mask revision and gravel-vs-concrete check.
+
+## North extension data
+- Road centrelines and building footprints © OpenStreetMap contributors, ODbL 1.0 (https://www.openstreetmap.org/copyright).
+- Terrain: USGS 3DEP 1 m DEM (IA_WesternIA_2020), public domain.
+- Ground imagery: USDA NAIP 2021, public domain.
+- Asphalt012 etc.: ambientCG, CC0. Stop sign per MUTCD (public domain design).
