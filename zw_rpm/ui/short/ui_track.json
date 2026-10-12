@@ -1,6 +1,6 @@
 {
-  "name": "Raceway Park of the Midlands - D Course",
-  "description": "Scratch build. Now we have a version that looks and feels like the real track.",
+  "name": "I-29 Speedway Short Course",
+  "description": "Short course of I-29 Speedway (formerly Raceway Park of the Midlands), Pacific Junction, Iowa. Uses the drag strip as the main straight, with T1/T5 transition bumps. 36 paddock pit boxes. Based on zwiss's v0.9 scratch build; open source (Apache-2.0).",
   "tags": [
     "circuit",
     "Zwiss"

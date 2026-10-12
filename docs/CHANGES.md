@@ -412,3 +412,11 @@ Backup before this round: `/workspace/rpotm/backup/pre_vr9/zw_rpm` (full track).
 - `tools/build_release.py` builds `/workspace/rpotm/release/I-29_Speedway_v1.0.0-rc1.zip` (+ .sha256), containing `content/tracks/zw_rpm`, `apps/python/i29_dragtree` and the docs. It refuses LFS pointers and forbidden branding strings.
 - Release notes: `docs/RELEASE_NOTES_v1.0.0-rc1.md`. Announcement drafts (not posted): `docs/announce_draft.md`.
 - No GitHub Release was created, and no tag was pushed.
+
+## VR9b: layout names
+- Both layouts now use the venue's current official name, checked on i29speedway.com (Oct 2026): "I-29 Speedway", 19340 Jesup Ave, Pacific Junction, IA; the dragstrip is branded "I-29 Dragway".
+  - `ui/main` = "I-29 Speedway Long Course" (unchanged).
+  - `ui/short` = "I-29 Speedway Short Course" (was "Raceway Park of the Midlands - D Course"), with a new description.
+- The track folder id `zw_rpm` is unchanged, so installs and servers keep working.
+- The release notes, the announcement drafts and INSTALL_AGENT were updated to match.
+- The X draft no longer says "no CSP needed": the pole tree, and VR, need CSP; the vanilla app shows on the monitor only.
