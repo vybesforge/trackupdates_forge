@@ -295,3 +295,46 @@ Mapping: both images were registered to AC x/z. Image A was matched by hand agai
     - Physics: zw_rpm_physical.kn5 (157k tris) is ~100% zwiss.
     - Project-made: about 118k tris (north extension, own models, exits, launch, tents, VR5/VR6 props).
 - **Untested in game:** the light look, performance and the NIGHT_SMOOTH condition name; decal z-fighting; the tree on the pole from the driver's eye; the dark overlay seams at distance.
+
+## VR7: regenerated AI lines, long-course cut detection, people moved under the verandah
+- **AI lines:** all four files were rebuilt programmatically from the current physics by `tools/vr7_ai.py`:
+  - `main/ai/fast_lane.ai`, `main/ai/pit_lane.ai`
+  - `short/ai/fast_lane.ai`, `short/ai/pit_lane.ai`
+- The zwiss 2023 originals are backed up in `assets_src/ai_zwiss_orig/` and `/workspace/rpotm/backup/pre_vr7/`.
+- **Fast lane method:**
+  - zwiss's recorded line is used only as a seed: it sets the lateral reference and the driving direction.
+  - The road corridor comes from a 0.5 m physics raster that counts only ROAD and CURB. The line is relaxed toward minimum curvature inside the corridor, keeping 1.1–1.4 m from the edges, using a smoothed offset field so there are no kinks.
+  - Height is the physics surface + 0.40 m, the same offset zwiss used.
+  - Speeds come from curvature (μ = 1.55) plus an acceleration pass (7.5 m/s², fading with speed) and a braking pass (11 m/s²). Gas and brake values come from those passes.
+  - sideLeft and sideRight are measured from the raster. Camber, normal and grade are copied from the nearest zwiss sample.
+
+  | Layout | Fast lane | Speed |
+  |---|---|---|
+  | main (long) | 3552 m, 2360 points | 55–222 km/h |
+  | short | 2348 m, 1559 points | 54–179 km/h |
+
+- **Pit lane route:** pit-in and the zwiss pit lane are kept, then the route leaves via the east concrete link, runs along the paddock lane in front of the 36 paddock boxes (z ≈ 66), and returns via the west concrete link to the zwiss pit exit.
+  - Routed with A* on drivable physics, staying 1.1 m from edges with a cost that prefers the centre. The parked-car footprints are blocked.
+  - Speed limits: 60 km/h in the pit lane, 25 km/h on the links, 15 km/h at the boxes.
+  - 1104 m, 736 points; the same route is used on both layouts.
+- **Validator:** `tools/vr7_ai_validate.py` checks:
+  - format: v7 header, counts, exact file size, finite values, ids, monotonic length
+  - spacing (0.5–3 m), heading jumps, and that the fast lane is closed
+  - direction against zwiss's line (100 %)
+  - that each point and ±1 m sideways is on valid physics, with height 0.25–0.55 m above it
+  - that the pit lane ends on the fast lane and passes within 18 m of every box
+
+  Result: **ALL OK** for both layouts.
+- **Long course:** the existing `main` layout already IS the long course. It uses zwiss's `zw_rpm_gp.kn5`, where `Cones_gp` close the short-course T1 hairpin (`short` uses `cones_SH` across the straights instead), and it has its own timing gates, sections and map. So no cloned `long` layout was created.
+  - New: `zw_vr7_longcut.kn5` (MODEL_11, main only). It is an invisible physics copy (+1 cm, bumps kept, 3857 tris) of the hairpin road, `1SCUT_hairpin`, with KEY `SCUT` (SURFACE_12 in `main/data/surfaces.ini`: same grip, IS_VALID_TRACK=0). Cutting through the short course on the long layout now counts as off-track. The straights keep their full width.
+  - `ui/main/ui_track.json` was renamed to "I-29 Speedway Long Course", with a new description and length 3.644 km (centreline from the physics corridor). It keeps 36 pit boxes.
+- **People:** the 2 VR5b figures are gone. 2 copies of zwiss's corner-worker model (`marsh001`, 908 tris) now stand under the large verandah canopy of the green paddock building, at (99.0, 23.2) and (97.7, 23.7), y 0.0.
+  - Each has its own recoloured atlas: blue shirt and grey shirt. The trousers, head and hands keep the corner-worker look.
+  - Contact-shadow decals were moved with them. They are static and visual only, built by `tools/vr7_people.py` into zw_vr6.kn5.
+- **Checks:** all 13 kn5 files parse, the ini/json files parse, and spawn_verify gives 36/36 for both layouts.
+- **Previews:** docs_preview/vr7_ai.png (both layouts on the NAIP aerial; the aerial UV fit is approximate, ±a few m), vr7_long.png, vr7_people.png.
+- **Limitations / untested:**
+  - These lines are geometric, not driven. An in-game AI recording (or CM AI-line tweaks) would still be better: braking points, the T1/T5 bumps and kerb use are estimates.
+  - The ai grid tail is written empty (hasGrid=0, like zwiss's main pit_lane). AC builds its own grid at load, but this was not checked in game.
+  - Whether AC AI actually leaves the paddock boxes along the new pit_lane, and how cars in the second box row get out (it runs 17 m from them), is untested.
+  - The SCUT off-track behaviour in game (cut warnings, and whether CSP or a server "allowed tyres out" setting changes it) is untested.

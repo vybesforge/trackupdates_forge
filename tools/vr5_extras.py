@@ -108,7 +108,8 @@ if __name__=='__main__':
         V,I=L.quad((x0,y0,zc),(x1,y0,zc),(x1,y1,zc),(x0,y1,zc),uv=((0,1),(1,1),(1,0),(0,0)))
         ME.append(dict(name=f'vr5_billboard_end_{gi}',mat_index=mi['billboard_adhere'],verts=V.astype('<f4'),idx=I.astype('<u2')))
     # VR6: the blocky pickup is replaced by the Blender-modelled one in zw_vr6.kn5 (tools/vr6_props.py)
-    for pi,(x,z,r,h,sh) in enumerate([(90.2,17.0,0.6,1.78,'shirt_a'),(92.4,18.2,np.pi+0.9,1.70,'shirt_b')]):
+    # VR7: the 2 simple VR5b figures are replaced by recoloured corner-worker figures (tools/vr7_people.py -> zw_vr6.kn5)
+    for pi,(x,z,r,h,sh) in enumerate([]):
         for m,(V,I) in person(x,z,r,h,sh).items(): ME.append(dict(name=f'vr5_person{pi}_{m}',mat_index=mi[f'vr5_{m}'],verts=V,idx=I))
     W.write_kn5(f'{Z}/zw_vr5.kn5',T,mats,ME,rootname='zw_vr5');print('zw_vr5.kn5',len(ME),'meshes')
     for ini in('models_main.ini','models_short.ini'):

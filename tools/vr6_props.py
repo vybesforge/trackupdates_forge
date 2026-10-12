@@ -7,7 +7,7 @@
   heads on those and on zwiss's 10 drag-strip light towers (x≈-280, z -362..-945, heads y 15.4). CSP lights are
   written by this script into extension/ext_config.ini ([LIGHT_VR6_*] block between '; >>> VR6 lights' markers)."""
 import sys,os,struct,numpy as np
-sys.path.insert(0,os.path.dirname(__file__));import kn5patch as K,kn5write as W,vr5_meshlib as L,build_open_textures as B,vr4_paddock as VP
+sys.path.insert(0,os.path.dirname(__file__));import kn5patch as K,kn5write as W,vr5_meshlib as L,build_open_textures as B,vr4_paddock as VP,vr7_people as PPL
 from PIL import Image,ImageFilter
 ROOT=os.path.abspath(os.path.join(os.path.dirname(__file__),'..'));Z=f'{ROOT}/zw_rpm';A=f'{ROOT}/assets_src/pickup';SRC=f'{Z}/zw_rpm.kn5'
 G=-0.10;PK=(-279.7,-331.8)
@@ -90,7 +90,10 @@ if __name__=='__main__':
     ME=[dict(name=f'vr6_pickup_{k}',mat_index=mi[k],verts=V,idx=I) for k,(V,I) in PM.items()]
     sh=[decal(PK[0],PK[1],6.6,2.7,y=-0.0999)]
     for n,x,z,k in VP.TENTS: sh.append(decal(x,z,8.8,8.8))
-    sd=[decal(90.2,17.0,0.9,0.9),decal(92.4,18.2,0.9,0.9)]
+    sd=[decal(x,z,0.95,0.95,y=PPL.Y+0.003) for x,z,*_ in PPL.PEOPLE]   # VR7: people moved under the green building's verandah
+    PT,PM7=PPL.people_meshes();T+=PT
+    for nm,tx,V,I in PM7:
+        mi[nm]=len(mats);mats.append(m(nm,tx,ksAmbient=0.5,ksDiffuse=0.5,ksSpecular=0.05,ksSpecularEXP=8,ksEmissive=(0,0,0)));ME.append(dict(name=nm,mat_index=mi[nm],verts=V,idx=I))
     V,I=L.merge(sh);ME.append(dict(name='vr6_contact_shadow_rect',mat_index=mi['blob_r'],verts=V,idx=I))
     V,I=L.merge(sd);ME.append(dict(name='vr6_contact_shadow_people',mat_index=mi['blob_o'],verts=V,idx=I))
     (PV,PI),(HV,HI)=pole_meshes();ME.append(dict(name='vr6_light_poles',mat_index=mi['pole'],verts=PV,idx=PI));ME.append(dict(name='vr6_lamp_glow',mat_index=mi['lens'],verts=HV,idx=HI))

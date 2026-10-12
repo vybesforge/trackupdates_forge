@@ -1,6 +1,6 @@
 {
-  "name": "Raceway Park of the Midlands",
-  "description": "Scratch build. Now we have a version that looks and feels like the real track.",
+  "name": "I-29 Speedway Long Course",
+  "description": "Full long course of I-29 Speedway (formerly Raceway Park of the Midlands), Pacific Junction, Iowa. Cones close the short-course T1 hairpin; cutting through it counts as off-track. 36 paddock pit boxes. Based on zwiss's v0.9 scratch build; open source (Apache-2.0).",
   "tags": [
     "circuit",
     "Zwiss"
@@ -11,7 +11,7 @@
   ],
   "country": "USA",
   "city": "Pacific Junction",
-  "length": "3.590 km",
+  "length": "3.644 km",
   "width": "12 m",
   "pitboxes": "36",
   "run": "clockwise",
