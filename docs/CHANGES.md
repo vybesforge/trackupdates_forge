@@ -420,3 +420,23 @@ Backup before this round: `/workspace/rpotm/backup/pre_vr9/zw_rpm` (full track).
 - The track folder id `zw_rpm` is unchanged, so installs and servers keep working.
 - The release notes, the announcement drafts and INSTALL_AGENT were updated to match.
 - The X draft no longer says "no CSP needed": the pole tree, and VR, need CSP; the vanilla app shows on the monitor only.
+
+## VR9c HOTFIX: cars fell through grass and other ground after the lidar re-drape
+Backup: `/workspace/rpotm/backup/pre_vr9b_holefix/zw_rpm.kn5` (004b983 state).
+- **Root cause:** the re-drape refined the grass so it could follow the lidar. That turned `1GRASS` into ONE physics mesh of 104,526 triangles, about 26× zwiss's 4,006. AC's collision does not reliably handle single physical objects above about 64k triangles: modders report blank spots you fall through, and ksEditor caps meshes at about 60–64k. Every other physics mesh is at most 21,000 triangles (the north-extension grass was already split at 21,000).
+  - The heights themselves were fine: no NaN or nodata, no vertex below a sane floor, all ground faces facing up. The top-down collision coverage was identical to pre-VR9.
+  - The lidar data never fed a nodata/0/NaN value into any vertex: the field is a normalised convolution over valid DEM cells only, and verts get D (not raw DEM).
+- **Fix 1:** `tools/vr9_split_phys.py` splits `1GRASS` into 8 meshes `1GRASS_00..07` of about 13k triangles each. They are cut by spatial bisection, and shared border vertices are duplicated at identical positions, so there are no seams. KEY `GRASS` still prefix-matches. The tool caps every physics mesh at 20k triangles.
+- **Fix 2:** `tools/vr9_holecheck.py` is a full-map 1 m top-down collision raster over all kn5s of both layouts. It covers x −1530..1220, z −3005..1170, including the north extension at z −2400..−3000, the exits and the drag exits. The earlier VR9 check box missed the extension.
+  - It found holes that existed before VR9: ponds with no physical bed, about 15k m² of gaps beside the north-extension road (r792783752) where it cuts through the railway embankment (x −441..−371, z 342..992), a gap under the I-29 highway (x 178..328, z −1151..−528), and slivers at x ≈ 330.
+  - `tools/vr9_fill_holes.py` closes all of them, spliced into zw_rpm.kn5:
+    - **Floors:** `1GRASS_FILL_00..03` (47k tris, visible with the grass material and the same planar UVs). Height per cell = the nearest LOW boundary cell, so the floor is level with the road or bank and never 0 or nodata. Each fill extends 1 cell under its neighbours (5 cm lower), so there is no seam.
+    - **Pond bed:** `1GRASS_PONDBED_00` (6k tris, invisible), flat at the pond mesh minimum −0.3 m (−3.7/−3.8 m).
+- **Verification:**
+  - Enclosed hole cells: main 0, short 0, union 0. Only the exterior beyond the map edge is open.
+  - At 0.25 m in the paddock and drag strip: one 0.002 m² sliver (road/grass seam).
+  - Physics meshes: max 21,000 triangles, all fill faces facing up.
+  - New drop-offs over 0.3 m between drivable cells are only pond banks (to the pond bed) and the fill beside the railway-embankment cut, which is a real 8 m embankment edge, plus a few at 0.30–0.31 m from lidar grade.
+  - spawn_verify 36/36 on both layouts, AI validator ALL OK, down faces 0.
+- **Pipeline order now:** `vr9_lidar.py` → `vr9_split_phys.py zw_rpm/zw_rpm.kn5` → `vr9_holecheck.py fix zw_rpm` → `vr9_fill_holes.py /workspace/vr9/cov_fix.npz zw_rpm/zw_rpm.kn5` → `vr9_holecheck.py`.
+- **Untested in game:** the fall-through fix itself (the root cause matches the community-reported AC limit, but it is not reproduced here), how the fill floors look beside the embankment cut and under I-29, and driving into a pond (the car now drops onto the bed instead of falling forever).

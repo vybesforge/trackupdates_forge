@@ -71,6 +71,7 @@ Delete `$AC\content\tracks\zw_rpm` and rename the newest `zw_rpm.bak_*` back to 
 12. VR9 lidar: the track now follows real ground heights (±0.4 m on the road). Look for steps or floating/buried kerbs, cars rolling in the pit boxes (paddock now sloped), and the VR frame rate (denser meshes).
 13. VR9 drag tree (CSP): roll into a lane. Your lane's pre-stage and stage bulbs should light; hold 1 s, ambers, then green. Jumping early gives that lane's red. A timeslip message appears after 1/8 mile. With nobody near for 10 s the demo loop runs.
 14. VR9 drag tree app (vanilla AC, monitor): same tree and timeslip in the window. Check whether it is visible in the headset (expected: not without CSP), and try a run with a second (online) car in the other lane.
+15. VR9c hotfix: drive off-road onto grass everywhere (both layouts), the pit exit / exit road to the public road, the north-extension road where it passes the railway embankment (step off the road sideways), and into a pond. You must never fall through the world.
 Report any issue back to the user's Grok Bot.
 
 ## Credits / license

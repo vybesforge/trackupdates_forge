@@ -26,6 +26,7 @@ Custom Shaders Patch is recommended (0.2.x). It enables the live drag tree on th
 - **Surfaces:** curbs are valid, grass flags cuts, and the paddock is gravel.
 
 ## Known limitations / please test
+- Fixed in this build: cars fell through the grass after the lidar re-drape (one oversize grass collision mesh). It is now split, and the old holes (ponds, the railway-embankment cut beside the extension road, under I-29) are filled. Please confirm in game.
 - The AI lines are geometric, not recorded from driving. Braking points are estimates.
 - Drag tree: the app's VR visibility (vanilla AC shows app windows on the monitor only), the CSP car-position API, and online opponents are all untested in game.
 - The higher mesh density after the lidar re-drape needs a VR frame-rate check.
