@@ -55,7 +55,7 @@ Delete `$AC\content\tracks\zw_rpm` and rename the newest `zw_rpm.bak_*` back to 
 6. Short-course main straight vs. real drag strip position.
 7. North extension (both layouts): drive off-course north via 190th St / 188th St to the two fuel stations; no flags or cuts on these roads (XROAD/XLOT); four-way stop at US-34 (4 stop signs, readable); canopy signs readable from both sides; lots smooth-edged; invisible walls stop you at the I-29 interchange (east), north and west edges; ground colour seam at the old track boundary; VR frame rate.
 8. Short-course bumps: T1 (turning off the drag strip) has a small seam lip + gentle hump; T5 (back onto the drag strip) a lip + slight hump. Should be felt in FFB/suspension, not unsettle the car; main layout straight unaffected at T1; AI still drives normally.
-9. Drag strip (1/8 mile, west strip): after the run, turn LEFT through the armco gap (~z -628) onto the exit lane, curve back south on the return road to the staging/pit lot; drivable, no flags; edges blend into grass; tyre-mark texture looks right; no wall collision in the gap, armco intact elsewhere.
+9. Drag strip (1/8 mile, west strip): exits A (~mid-shutdown), B (later) and C (strip end) turn LEFT through armco gaps onto crossovers and the return road back south to staging/pits; E is a short stub RIGHT to the circuit just past the east armco end. All drivable, no flags, light-grey asphalt matching the ground photo, edges blend, no wall contact in gaps, armco intact elsewhere; racing on the main straight unaffected near E.
 Report any issue back to the user's Grok Bot.
 
 ## Credits / license

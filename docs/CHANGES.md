@@ -131,3 +131,12 @@ The top-view check shows no leaf across a road, the pit exit or the track (`docs
 - Texture `drag_exit_asphalt.dds`: CC0 ambientCG Asphalt012 base + procedural rubber grooves/tyre streaks (CC0), Asphalt012 normal map.
 - 16 m gap cut in the west drag-strip armco (visual armco000/armco000BACK + physics 1WALL_armco) at z -636..-620, matching the real opening.
 - Clearance: ≥23 m from main fast_lane, 159 m from short fast_lane, far from pit lanes; AI files unchanged. Backups: /workspace/rpotm/backup/*.pre_dragexit.
+
+## Drag-strip exits: all real turnoffs (supersedes the single curved lane)
+NAIP 2021 (0.6 m) + Apple Maps show four paved turnoffs from the 1DRAGstrip shutdown area/end; all modelled in `zw_dragexit.kn5` (tools/drag_exit.py, 4,128 tris, KEY XROAD: drivable, not valid track, no black flag):
+- A (west, z≈-628.5, 8 m), B (west, z≈-801, 7 m), C (west, north end z≈-952, 6.5 m): straight crossovers (5 m flare at the strip) to the N-S return road.
+- Return road x≈-298, 8 m, z -956 → staging/pit lot (-548, widens to 11.5 m). Replaces the earlier invented R12 curve; real junctions are T-shaped.
+- E (east, z≈-735.5, 6 m): short paved stub from the strip to the circuit edge, just north of where the east strip armco ends (no armco cut needed; no wall on the circuit side there).
+- West armco gaps (visual + 1WALL_armco): z -636..-620 (A), -808..-794 (B), -960..-944 (C).
+- Exit asphalt lightened to NAIP crossover grey (~176/174/165; NAIP ≈189/187/177), tyre streaks kept but lighter.
+- Clearance: ≥159 m from short AI; pit lanes far; main AI only meets stub E at the circuit edge (the real crossover). AI files unchanged.
