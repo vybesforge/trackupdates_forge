@@ -90,7 +90,7 @@ if __name__=='__main__':
     ME=[dict(name=f'vr6_pickup_{k}',mat_index=mi[k],verts=V,idx=I) for k,(V,I) in PM.items()]
     sh=[decal(PK[0],PK[1],6.6,2.7,y=-0.0999)]
     for n,x,z,k in VP.TENTS: sh.append(decal(x,z,8.8,8.8))
-    sd=[decal(x,z,0.95,0.95,y=PPL.Y+0.003) for x,z,*_ in PPL.PEOPLE]   # VR7: people moved under the green building's verandah
+    sd=[decal(x,z,0.95,0.95,y=PPL.Y+0.003) for x,z,*_ in PPL.PEOPLE]   # VR8: people under the shed overhang next to the green building
     PT,PM7=PPL.people_meshes();T+=PT
     for nm,tx,V,I in PM7:
         mi[nm]=len(mats);mats.append(m(nm,tx,ksAmbient=0.5,ksDiffuse=0.5,ksSpecular=0.05,ksSpecularEXP=8,ksEmissive=(0,0,0)));ME.append(dict(name=nm,mat_index=mi[nm],verts=V,idx=I))

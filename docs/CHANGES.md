@@ -338,3 +338,16 @@ Mapping: both images were registered to AC x/z. Image A was matched by hand agai
   - The ai grid tail is written empty (hasGrid=0, like zwiss's main pit_lane). AC builds its own grid at load, but this was not checked in game.
   - Whether AC AI actually leaves the paddock boxes along the new pit_lane, and how cars in the second box row get out (it runs 17 m from them), is untested.
   - The SCUT off-track behaviour in game (cut warnings, and whether CSP or a server "allowed tyres out" setting changes it) is untested.
+
+## VR8: people without helmets, moved under the shed overhang
+- **Heads:** the marshal model's helmeted head (all triangles above 1.44 m) is removed. In its place there is a self-made bare head: a skin-tone neck, an ellipsoid head, and a hair shell with a hairline (dark brown for blue, near-black for grey).
+  - Own solid textures: `vr8_skin.dds`, `vr8_hair_*.dds`.
+  - The body, shirts (blue / grey) and trousers are unchanged.
+  - Built by `tools/vr7_people.py` into zw_vr6.kn5.
+- **Position:** both people moved to the spot marked in the user's crop, which I matched against docs_preview/vr7_ai.png (template match score 0.83).
+  - The spot is the open east end of the small shed `paddock_bulds_SUB7/SUB8` (x 64..82, z 34..42). Its roof runs on past the walls (x 74.3..82.4) as an overhang.
+  - The large building directly east is `paddock_bulds` (x 84..117, z 17..46; green walls, grey roof).
+  - New AC positions: blue (79.6, 37.4), grey (78.3, 38.6), y 0.0 on 1CONCRETE_001. They face each other.
+  - Contact shadows moved with them. They are static and visual only.
+- **Aerial alignment:** the NAIP aerial is about 18 m east and 13 m south of the models in this area (+18 x, +13 z), so vr8_people.png draws the model footprints with that shift applied.
+- **Preview:** docs_preview/vr8_people.png (aerial with markers + ground-level close-up). All kn5 files parse.
