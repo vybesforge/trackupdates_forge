@@ -32,5 +32,5 @@ for f in FILES:
                 except Exception as e: print('tex fail',tex,e);tn=None
                 texdone[key]=tn
             tn=texdone[key]
-        np.savez(f'{O}/m{k:04d}.npz',V=V,I=I,tex=str(tn),at=('_AT' in M['shader']) or M['name'].startswith(('tree','grass')),name=name,mat=M['name']);k+=1
+        np.savez(f'{O}/m{k:04d}.npz',V=V,I=I,tex=str(tn),at=('_AT' in M['shader']) or M['name'].startswith(('tree','grass','drag_rubber')),name=name,mat=M['name']);k+=1
 print(k,'meshes',len(texdone),'tex')

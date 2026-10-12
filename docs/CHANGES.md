@@ -210,3 +210,40 @@ Mapping: both images were registered to AC x/z. Image A was matched by hand agai
 - Physics untouched: zw_rpm_physical.kn5 is byte-identical (md5 check), so the T1/T5 bumps and valid-road status are kept.
 - Drag-strip exits (1XROAD_dragexit_A/B/C/E/return) and their exit-asphalt texture are byte-identical to before.
 - All 9 kn5 parse. Preview: docs_preview/vr4b_shortcourse.png (top-down + close-ups of T1 hairpin, SE pit-in, S pit-out).
+
+## VR5a: drag-strip launch grip + automatic Christmas tree
+- **Launch grip (physics):** the flat triangles of `1DRAGstrip` (zw_rpm.kn5) are clipped at z −339 / −363.3 / −375.5 / −391. The cuts interpolate the full vertex, so UVs and heights are continuous with no steps or gaps. The pieces moved to new meshes in `zw_draglaunch.kn5` (MODEL_8, main + short), same `dragroad` material. The run goes toward −z and the start line / tree is at z −347.5.
+
+  | Mesh | z range | Distance | KEY | Friction |
+  |---|---|---|---|---|
+  | `1LAUNCHA_strip` | −339 … −363.3 | just behind the beams → 60 ft | LAUNCHA | 1.14 |
+  | `1LAUNCHB_strip` | −363.3 … −375.5 | 60 → 100 ft | LAUNCHB | 1.08 |
+  | `1LAUNCHC_strip` | −375.5 … −391 | ≈150 ft taper | LAUNCHC | 1.03 |
+
+  After that it is `1DRAGstrip` (DRAG 0.98) again.
+  - New SURFACE_9..11 in main/short `data/surfaces.ini`. Flags are the same as DRAG (IS_VALID_TRACK=0, BLACK_FLAG_TIME=5).
+  - Check: 0.25 m raster over the strip shows no holes. Every launch/strip surface is at y −0.10 with normals up. The only down-facing tris are the 2 bottom faces of zwiss's small centre block (z −356, buried at y −0.2), which were already there.
+- **Rubbered-in lanes (visual):** `drag_rubber_L/R` are alpha-blended decals, 3.4 m wide per lane (lane centres x −255.75 / −246.75), z −341 → −400, sitting +1.5 cm. Self-made texture `drag_rubber.dds`: two dark tyre tracks per lane plus haze, fading out after ~60 m. Source: assets_src/drag_rubber.png.
+- **Christmas tree (visual, self-made):** on the centre line inside zwiss's tree enclosure (x −251.25, z −347.5). zwiss's tiny mini-tree head `Drag_tent` is hidden.
+  - Galvanised pole and black housing (y 1.65–3.65).
+  - Per lane: 2 pre-stage, 2 stage, 3 amber, 1 green and 1 red bulb with visors, facing the staging cars.
+  - One mesh per bulb group, shared by both lanes: `drtree_prestage/stage/amber1/amber2/amber3/green/red`.
+- **Animation:** CSP track Lua script `extension/drag_tree.lua`, loaded by `[SCRIPT_DRAG_TREE]` in ext_config.ini. It accumulates `script.update(dt)` sim time, so a paused sim pauses the tree. It sets `ksEmissive` on the bulb meshes through `ac.findMeshes(...):setMaterialProperty`, at intensity 40 so the bulbs read in daylight and bloom at night / in VR.
+  - `[SHADER_REPLACEMENT_...] FIXED_EMISSIVE=1` stops WeatherFX from dimming them. `[EXTRA_FX_EMISSIVE_...]` (range 3 m) makes them cast light.
+  - 60 s sportsman loop:
+
+    | Time | State |
+    |---|---|
+    | 0 s | off |
+    | 2 s | pre-stage |
+    | 4 s | stage |
+    | 6.0 / 6.5 / 7.0 s | amber 1 / 2 / 3 (0.5 s each) |
+    | 7.5 s | green |
+    | 9 s | stage bulbs off |
+    | 12 s | green off, reset |
+
+    Red is never lit in the auto loop.
+  - Each client runs its own clock, so different players are not in sync. The tree is decorative and does not start or time a run.
+- **CSP requirement:** CSP with track Lua scripts, 0.1.79 or newer (0.2.x recommended). Without CSP the bulbs simply stay dark.
+- Previews: docs_preview/drag_launch.png (sections + rubber), docs_preview/drag_tree.png (8 states, night). Tools: tools/vr5_drag.py (rerunnable from /workspace/rpotm/backup/pre_vr5/), tools/vr5_meshlib.py. The preview renderer gained VR5_EMIT / VR5_NIGHT options.
+- **Untested in game:** the script (only checked with a Lua stub runner), emissive brightness, grip feel (1.14 may be strong for street tyres), and decal z-fighting at distance.

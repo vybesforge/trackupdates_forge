@@ -16,6 +16,8 @@ Goal: install this Assetto Corsa track from GitHub so the user only has to launc
    If not there, read Steam library folders from
    `C:\Program Files (x86)\Steam\steamapps\libraryfolders.vdf` and look for `steamapps\common\assettocorsa`.
 4. Recommended: Content Manager + Custom Shaders Patch (CSP) 0.2.x or newer (grass FX, ext_config).
+   **Required for the animated drag-strip Christmas tree:** CSP 0.1.79 or newer with track Lua scripts enabled
+   (`extension/ext_config.ini` → `[SCRIPT_DRAG_TREE]` → `extension/drag_tree.lua`). Without CSP the track still loads; the tree bulbs just stay dark.
 
 ## Install (PowerShell)
 ```powershell
