@@ -1,0 +1,22 @@
+{
+  "name": "Raceway Park of the Midlands",
+  "description": "Scratch build. Now we have a version that looks and feels like the real track.",
+  "tags": [
+    "circuit",
+    "Zwiss"
+  ],
+  "geotags": [
+    "41° 01′ 27″ N",
+    "95° 49′ 58″ W"
+  ],
+  "country": "USA",
+  "city": "Pacific Junction",
+  "length": "3.590 km",
+  "width": "12 m",
+  "pitboxes": "36",
+  "run": "clockwise",
+  "author": "Zwiss",
+  "version": "0.9",
+  "url": null,
+  "year": 2022
+}

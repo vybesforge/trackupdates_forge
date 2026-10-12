@@ -1,0 +1,148 @@
+file,texture,size,likely_origin,license_risk,replacement_plan,source,license_url,new_format
+zw_rpm.kn5,metal_001.dds,1398256,replaced,low,DONE textures/open,ambientCG Metal032,CC0 1.0 https://docs.ambientcg.com/license/,2048x2048 DXT5 mips12
+zw_rpm.kn5,black_2.dds,312,stock,low,Generic detail/normal map; regenerate from CC0 to be safe,,,
+zw_rpm.kn5,metal1.dds,43832,replaced,low,DONE textures/open: darkened,ambientCG Metal032,CC0 1.0 https://docs.ambientcg.com/license/,512x512 DXT1 mips10
+zw_rpm.kn5,glass2.dds,1488,replaced,low,"DONE textures/open: flat glass tint, alpha level kept as a number",procedural,"CC0 1.0 (procedural, project-made) https://creativecommons.org/publicdomain/zero/1.0/",32x32 DXT5 mips6
+zw_rpm.kn5,drag_boot_roof.dds,349680,own/zwiss,low,Keep under project asset license (zwiss reuse approval); spot-check for embedded photos,,,
+zw_rpm.kn5,drag_boot_roof_NM.dds,349680,own/zwiss,low,Keep under project asset license (zwiss reuse approval); spot-check for embedded photos,,,
+zw_rpm.kn5,concretebasic6m.dds,174904,replaced,low,DONE textures/open,ambientCG Concrete034,CC0 1.0 https://docs.ambientcg.com/license/,1024x1024 DXT1 mips11
+zw_rpm.kn5,concwalla_n.dds,696448,replaced,low,DONE textures/open,ambientCG Concrete034 NormalDX,CC0 1.0 https://docs.ambientcg.com/license/,2048x2048 DXT1 mips12
+zw_rpm.kn5,barrel.dds,349712,replaced,low,DONE textures/open: UV atlas: 1/16-res colour layout only,ambientCG PaintedMetal004 + coarse colour layout,CC0 1.0 https://docs.ambientcg.com/license/,256x1024 DXT5 mips11
+zw_rpm.kn5,barrel_b.dds,349712,replaced,low,DONE textures/open,ambientCG PaintedMetal004 NormalDX,CC0 1.0 https://docs.ambientcg.com/license/,512x2048 DXT5 mips12
+zw_rpm.kn5,wood.dds,699216,replaced,low,DONE textures/open,ambientCG Planks021,CC0 1.0 https://docs.ambientcg.com/license/,1024x2048 DXT5 mips12
+zw_rpm.kn5,wood_NORM.dds,699216,replaced,low,DONE textures/open,ambientCG Planks021 NormalDX,CC0 1.0 https://docs.ambientcg.com/license/,1024x2048 DXT5 mips12
+zw_rpm.kn5,concwallc_n.dds,699192,replaced,low,DONE textures/open,ambientCG Concrete034 NormalDX,CC0 1.0 https://docs.ambientcg.com/license/,2048x2048 DXT1 mips12
+zw_rpm.kn5,rocky.dds,174904,replaced,low,DONE textures/open,ambientCG Rock030,CC0 1.0 https://docs.ambientcg.com/license/,1024x1024 DXT1 mips11
+zw_rpm.kn5,z_rocky_nm.dds,174720,replaced,low,DONE textures/open,ambientCG Rock030 NormalDX,CC0 1.0 https://docs.ambientcg.com/license/,1024x1024 DXT1 mips11
+zw_rpm.kn5,rpm_grass2.dds,5592560,own/zwiss,low,Keep under project asset license (zwiss reuse approval); spot-check for embedded photos,,,
+zw_rpm.kn5,waterbump2.dds,174904,stock,low,Generic detail/normal map; regenerate from CC0 to be safe,,,
+zw_rpm.kn5,twallb02.dds,87512,replaced,low,DONE textures/open: black tire stacks per trackday notes,procedural,"CC0 1.0 (procedural, project-made) https://creativecommons.org/publicdomain/zero/1.0/",1024x512 DXT1 mips11
+zw_rpm.kn5,twallb02_NM.dds,174928,replaced,low,DONE textures/open: tire-stack normal,procedural,"CC0 1.0 (procedural, project-made) https://creativecommons.org/publicdomain/zero/1.0/",1024x512 DXT5 mips11
+zw_rpm.kn5,tower_door.dds,43832,own/zwiss,low,Keep under project asset license (zwiss reuse approval); spot-check for embedded photos,,,
+zw_rpm.kn5,tower_door_NM.dds,43832,own/zwiss,low,Keep under project asset license (zwiss reuse approval); spot-check for embedded photos,,,
+zw_rpm.kn5,towerpaint.dds,87536,own/zwiss,low,Keep under project asset license (zwiss reuse approval); spot-check for embedded photos,,,
+zw_rpm.kn5,props_post-toilette-cabin_d.dds,5592560,replaced,low,DONE textures/open: UV atlas: 1/32-res colour layout only,ambientCG Plastic006 + coarse colour layout,CC0 1.0 https://docs.ambientcg.com/license/,2048x2048 DXT5 mips12
+zw_rpm.kn5,props_post-toilette-cabin_n.dds,2796344,replaced,low,DONE textures/open,ambientCG Plastic006 NormalDX,CC0 1.0 https://docs.ambientcg.com/license/,2048x2048 DXT1 mips12
+zw_rpm.kn5,props_post-toilette-cabin_maps.dds,2796344,replaced,low,DONE textures/open: flat spec/gloss/refl values (channel means only),procedural,"CC0 1.0 (procedural, project-made) https://creativecommons.org/publicdomain/zero/1.0/",2048x2048 DXT1 mips12
+zw_rpm.kn5,NULL.dds,136,stock,low,Generic detail/normal map; regenerate from CC0 to be safe,,,
+zw_rpm.kn5,vesi_normalmap.dds,1048704,stock,low,Generic detail/normal map; regenerate from CC0 to be safe,,,
+zw_rpm.kn5,vesi_NM_2.dds,4194432,replaced,low,DONE textures/open: water ripple normal,procedural,"CC0 1.0 (procedural, project-made) https://creativecommons.org/publicdomain/zero/1.0/",1024x1024 RAW mips1
+zw_rpm.kn5,jarvi_map.dds,2432,replaced,low,DONE textures/open: flat values (channel means only),procedural,"CC0 1.0 (procedural, project-made) https://creativecommons.org/publicdomain/zero/1.0/",24x24 RAW mips1
+zw_rpm.kn5,jarvi_ref.dds,2432,replaced,low,DONE textures/open: flat values (channel means only),procedural,"CC0 1.0 (procedural, project-made) https://creativecommons.org/publicdomain/zero/1.0/",24x24 RAW mips1
+zw_rpm.kn5,roadsf_new.dds,43920,own/zwiss,low,Keep under project asset license (zwiss reuse approval); spot-check for embedded photos,,,
+zw_rpm.kn5,line.dds,82048,stock,low,Generic detail/normal map; regenerate from CC0 to be safe,,,
+zw_rpm.kn5,door_d1_1 - Copy.dds,21952,replaced,low,DONE textures/open: door,ambientCG Metal032 + procedural,CC0 1.0 https://docs.ambientcg.com/license/,256x512 DXT1 mips10
+zw_rpm.kn5,window_d7_1.dds,11040,replaced,low,DONE textures/open: window,procedural,"CC0 1.0 (procedural, project-made) https://creativecommons.org/publicdomain/zero/1.0/",256x256 DXT1 mips9
+zw_rpm.kn5,drag_enter_wall1.dds,87536,own/zwiss,low,Keep under project asset license (zwiss reuse approval); spot-check for embedded photos,,,
+zw_rpm.kn5,banner02.dds,699216,replaced,low,DONE textures/open: neutral track banner,procedural,"CC0 1.0 (procedural, project-made) https://creativecommons.org/publicdomain/zero/1.0/",2048x1024 DXT5 mips12
+zw_rpm.kn5,Puit vana DIFF.dds,696448,replaced,low,DONE textures/open,ambientCG Planks021,CC0 1.0 https://docs.ambientcg.com/license/,2048x2048 DXT1 mips12
+zw_rpm.kn5,RPM_adds_02.dds,2796368,own/zwiss,low,Keep under project asset license (zwiss reuse approval); spot-check for embedded photos,,,
+zw_rpm.kn5,rpm_adds_01.dds,1398256,own/zwiss,low,Keep under project asset license (zwiss reuse approval); spot-check for embedded photos,,,
+zw_rpm.kn5,wood_02.dds,1398256,replaced,low,DONE textures/open: cut-out alpha from 1/8-res threshold of original (shape only),ambientCG Wood049,CC0 1.0 https://docs.ambientcg.com/license/,1024x1024 DXT5 mips11
+zw_rpm.kn5,grass_nm.dds,2796328,stock,low,Generic detail/normal map; regenerate from CC0 to be safe,,,
+zw_rpm.kn5,tentroof.dds,699216,own/zwiss,low,Keep under project asset license (zwiss reuse approval); spot-check for embedded photos,,,
+zw_rpm.kn5,signs_new.dds,699216,own/zwiss,low,Keep under project asset license (zwiss reuse approval); spot-check for embedded photos,,,
+zw_rpm.kn5,cables.dds,349680,replaced,low,DONE textures/open: alpha: blurred 1/4-res shape of original,procedural,"CC0 1.0 (procedural, project-made) https://creativecommons.org/publicdomain/zero/1.0/",512x512 DXT5 mips10
+zw_rpm.kn5,containers.dds,1398256,replaced,low,DONE textures/open: UV atlas: 1/32-res colour layout only,ambientCG CorrugatedSteel005 + coarse colour layout,CC0 1.0 https://docs.ambientcg.com/license/,1024x1024 DXT5 mips11
+zw_rpm.kn5,commissario_new.dds,174720,replaced,low,DONE textures/open: UV atlas: 1/16-res colour layout only,ambientCG Fabric026 + coarse colour layout,CC0 1.0 https://docs.ambientcg.com/license/,512x512 DXT1 mips10
+zw_rpm.kn5,containers_a_02_d.dds,699192,replaced,low,DONE textures/open: UV atlas: 1/32-res colour layout only,ambientCG CorrugatedSteel005 + coarse colour layout,CC0 1.0 https://docs.ambientcg.com/license/,1024x1024 DXT1 mips11
+zw_rpm.kn5,gurdrc.dds,11152,replaced,low,DONE textures/open: alpha: blurred 1/4-res shape of original,ambientCG Metal032,CC0 1.0 https://docs.ambientcg.com/license/,256x32 DXT3 mips9
+zw_rpm.kn5,oil_build_vag4.dds,21952,replaced,low,DONE textures/open: tinted to original average colour,ambientCG CorrugatedSteel005,CC0 1.0 https://docs.ambientcg.com/license/,256x512 DXT1 mips10
+zw_rpm.kn5,roofe.dds,349680,replaced,low,DONE textures/open: alpha: blurred 1/4-res shape of original,ambientCG CorrugatedSteel005,CC0 1.0 https://docs.ambientcg.com/license/,512x512 DXT3 mips10
+zw_rpm.kn5,wwindows03_duvan01.dds,11040,replaced,low,DONE textures/open: window,procedural,"CC0 1.0 (procedural, project-made) https://creativecommons.org/publicdomain/zero/1.0/",256x256 DXT1 mips9
+zw_rpm.kn5,door_blue.dds,43856,replaced,low,DONE textures/open: door,ambientCG Metal032 + procedural,CC0 1.0 https://docs.ambientcg.com/license/,256x512 DXT5 mips10
+zw_rpm.kn5,paddock02.dds,87536,own/zwiss,low,Keep under project asset license (zwiss reuse approval); spot-check for embedded photos,,,
+zw_rpm.kn5,paddock01.dds,87536,own/zwiss,low,Keep under project asset license (zwiss reuse approval); spot-check for embedded photos,,,
+zw_rpm.kn5,wall_hoken_03.dds,43776,replaced,low,DONE textures/open: tinted to original average colour,ambientCG PaintedPlaster017,CC0 1.0 https://docs.ambientcg.com/license/,512x512 DXT1 mips10
+zw_rpm.kn5,marshwood.dds,1398256,replaced,low,DONE textures/open: cut-out alpha from 1/8-res threshold of original (shape only),ambientCG WoodSiding008,CC0 1.0 https://docs.ambientcg.com/license/,1024x1024 DXT5 mips11
+zw_rpm.kn5,detail_arlan_02.dds,21952,replaced,low,DONE textures/open: tinted to original average colour,ambientCG CorrugatedSteel005,CC0 1.0 https://docs.ambientcg.com/license/,256x512 DXT1 mips10
+zw_rpm.kn5,wall_prantaren4.1.dds,21952,replaced,low,DONE textures/open: tinted to original average colour,ambientCG WoodSiding008,CC0 1.0 https://docs.ambientcg.com/license/,512x256 DXT1 mips10
+zw_rpm.kn5,roof_larkan_01.dds,43776,replaced,low,DONE textures/open: tinted to original average colour,ambientCG RoofingTiles008,CC0 1.0 https://docs.ambientcg.com/license/,512x512 DXT1 mips10
+zw_rpm.kn5,metal_blanco.dds,1398256,replaced,low,DONE textures/open: brightened (grandstand seats),ambientCG Metal032,CC0 1.0 https://docs.ambientcg.com/license/,2048x2048 DXT5 mips12
+zw_rpm.kn5,RPM_marsh_signs.dds,174992,own/zwiss,low,Keep under project asset license (zwiss reuse approval); spot-check for embedded photos,,,
+zw_rpm.kn5,cone.dds,1512,replaced,low,DONE textures/open: UV atlas: 1/4-res colour layout only,ambientCG Plastic006 + coarse colour layout,CC0 1.0 https://docs.ambientcg.com/license/,32x64 DXT1 mips7
+zw_rpm.kn5,highway.dds,349672,own/zwiss,low,Keep under project asset license (zwiss reuse approval); spot-check for embedded photos,,,
+zw_rpm.kn5,wall_lagmannen_02.dds,43776,replaced,low,DONE textures/open: tinted to original average colour,ambientCG CorrugatedSteel005,CC0 1.0 https://docs.ambientcg.com/license/,512x512 DXT1 mips10
+zw_rpm.kn5,factory_logo_1.dds,174904,placeholder,low,"DONE r2: neutral grey panel, 512x512 DXT1",,,
+zw_rpm.kn5,factory_w.dds,349672,own/zwiss,low,Keep under project asset license (zwiss reuse approval); spot-check for embedded photos,,,
+zw_rpm.kn5,vag_d1_1.dds,43776,replaced,low,DONE textures/open: tinted to original average colour,ambientCG CorrugatedSteel005,CC0 1.0 https://docs.ambientcg.com/license/,512x512 DXT1 mips10
+zw_rpm.kn5,green.dds,256,stock,low,Generic detail/normal map; regenerate from CC0 to be safe,,,
+zw_rpm.kn5,door_tower.dds,43856,own/zwiss,low,Keep under project asset license (zwiss reuse approval); spot-check for embedded photos,,,
+zw_rpm.kn5,logomam.dds,174920,own/Fanapryde (track logo),low,KEPT: Mid America Motorplex start/finish banner logo by Fanapryde; credit,,,
+zw_rpm.kn5,black_1.dds,312,stock,low,Generic detail/normal map; regenerate from CC0 to be safe,,,
+zw_rpm.kn5,gryslate.dds,21888,replaced,low,DONE textures/open: tinted to original average colour,ambientCG RoofingTiles008,CC0 1.0 https://docs.ambientcg.com/license/,512x256 DXT1 mips10
+zw_rpm.kn5,JoeHunt.dds,87528,placeholder,low,"DONE r2: neutral grey panel, 512x256 DXT1",,,
+zw_rpm.kn5,pittent01.dds,699192,own/zwiss,low,Keep under project asset license (zwiss reuse approval); spot-check for embedded photos,,,
+zw_rpm.kn5,ambwheel.dds,2872,replaced,low,DONE textures/open: UV atlas: 1/4-res colour layout only,ambientCG PaintedMetal004 + coarse colour layout,CC0 1.0 https://docs.ambientcg.com/license/,64x64 DXT1 mips7
+zw_rpm.kn5,ambwheeltire.dds,824,replaced,low,DONE textures/open: UV atlas: 1/4-res colour layout only,ambientCG Plastic006 + coarse colour layout,CC0 1.0 https://docs.ambientcg.com/license/,32x32 DXT1 mips6
+zw_rpm.kn5,amb1.dds,43848,replaced,low,DONE textures/open: UV atlas: 1/16-res colour layout only,ambientCG PaintedMetal004 + coarse colour layout,CC0 1.0 https://docs.ambientcg.com/license/,512x128 DXT1 mips10
+zw_rpm.kn5,crane1.dds,174888,replaced,low,DONE textures/open: UV atlas: 1/16-res colour layout only,ambientCG PaintedMetal004 + coarse colour layout,CC0 1.0 https://docs.ambientcg.com/license/,512x512 DXT1 mips10
+zw_rpm.kn5,google2.dds,44739408,NAIP 2021 (USDA FSA),low,"DONE r2: RGB replaced with USDA NAIP 2021 0.6 m (ia_m_4109558_sw/se_15_060_20210817, public domain), registered to original UV frame; original alpha kept",,,
+zw_rpm.kn5,google_mask.dds,44739408,replaced,low,"DONE textures/open: R=vegetation,G=bare soil (NDVI<0.25),B=road/gravel (bright,low sat),A=water",USDA NAIP 2021 (RGB+NIR) classification,Public domain (USDA FSA) https://naip-usdaonline.hub.arcgis.com/,8192x4096 DXT5 mips14
+zw_rpm.kn5,rpm_grass1.dds,2785408,own/zwiss,low,Keep under project asset license (zwiss reuse approval); spot-check for embedded photos,,,
+zw_rpm.kn5,Muld Detailne.dds,1398256,replaced,low,DONE textures/open,ambientCG Ground054,CC0 1.0 https://docs.ambientcg.com/license/,2048x2048 DXT5 mips12
+zw_rpm.kn5,gravelroad.dds,174904,replaced,low,DONE textures/open,ambientCG Gravel022,CC0 1.0 https://docs.ambientcg.com/license/,1024x1024 DXT1 mips11
+zw_rpm.kn5,mud2.dds,1398256,replaced,low,DONE textures/open,ambientCG Ground037,CC0 1.0 https://docs.ambientcg.com/license/,2048x2048 DXT5 mips12
+zw_rpm.kn5,rmblb2_NEW.dds,87528,own/zwiss,low,Keep under project asset license (zwiss reuse approval); spot-check for embedded photos,,,
+zw_rpm.kn5,rmbl_NEW_msk.dds,174928,own/zwiss,low,Keep under project asset license (zwiss reuse approval); spot-check for embedded photos,,,
+zw_rpm.kn5,0tarmac-detail6.dds,1398256,stock,low,Generic detail/normal map; regenerate from CC0 to be safe,,,
+zw_rpm.kn5,rmblb2_NEW_NM.dds,174928,own/zwiss,low,Keep under project asset license (zwiss reuse approval); spot-check for embedded photos,,,
+zw_rpm.kn5,track_cracksa.dds,2796368,own/zwiss,low,Keep under project asset license (zwiss reuse approval); spot-check for embedded photos,,,
+zw_rpm.kn5,rpm_road_pits_mask.dds,174928,own/zwiss,low,Keep under project asset license (zwiss reuse approval); spot-check for embedded photos,,,
+zw_rpm.kn5,rpm_cracks_02.dds,1398256,own/zwiss,low,Keep under project asset license (zwiss reuse approval); spot-check for embedded photos,,,
+zw_rpm.kn5,001tarmac-noise.dds,1396864,stock,low,Generic detail/normal map; regenerate from CC0 to be safe,,,
+zw_rpm.kn5,001tarmac-noise_nm.dds,349312,stock,low,Generic detail/normal map; regenerate from CC0 to be safe,,,
+zw_rpm.kn5,road_vara_04.dds,43824,replaced,low,DONE textures/open,ambientCG Asphalt012,CC0 1.0 https://docs.ambientcg.com/license/,512x512 DXT1 mips10
+zw_rpm.kn5,tarmacmask5.dds,87568,stock,low,Generic detail/normal map; regenerate from CC0 to be safe,,,
+zw_rpm.kn5,rpm_cracks_01.dds,5592560,own/zwiss,low,Keep under project asset license (zwiss reuse approval); spot-check for embedded photos,,,
+zw_rpm.kn5,0tarmac-detail5_nm2.dds,1396864,stock,low,Generic detail/normal map; regenerate from CC0 to be safe,,,
+zw_rpm.kn5,dragroad.dds,5592592,own/zwiss,low,Keep under project asset license (zwiss reuse approval); spot-check for embedded photos,,,
+zw_rpm.kn5,001tarmac_mask-2.dds,174928,stock,low,Generic detail/normal map; regenerate from CC0 to be safe,,,
+zw_rpm.kn5,001white-line.dds,1396864,stock,low,Generic detail/normal map; regenerate from CC0 to be safe,,,
+zw_rpm.kn5,rpm_road_new.dds,1398256,own/zwiss,low,Keep under project asset license (zwiss reuse approval); spot-check for embedded photos,,,
+zw_rpm.kn5,roadpit.dds,349648,own/zwiss,low,Keep under project asset license (zwiss reuse approval); spot-check for embedded photos,,,
+zw_rpm.kn5,rpm_road_detail.dds,1396864,own/zwiss,low,Keep under project asset license (zwiss reuse approval); spot-check for embedded photos,,,
+zw_rpm.kn5,rpm_road01.dds,2796368,own/zwiss,low,Keep under project asset license (zwiss reuse approval); spot-check for embedded photos,,,
+zw_rpm.kn5,rpm_road_mak_nerpm_roadmask_new.dds,349312,own/zwiss,low,Keep under project asset license (zwiss reuse approval); spot-check for embedded photos,,,
+zw_rpm.kn5,usa.dds,412928,own (procedural US flag),low,"DONE r2: procedurally drawn US flag (public-domain design), 800x516 DXT5",,,
+zw_rpm.kn5,rpm_road_line2.dds,87696,own/zwiss,low,Keep under project asset license (zwiss reuse approval); spot-check for embedded photos,,,
+zw_rpm.kn5,rpm_road_line2_NM.dds,87696,own/zwiss,low,Keep under project asset license (zwiss reuse approval); spot-check for embedded photos,,,
+zw_rpm.kn5,RPM_armco_BL.dds,699216,own/zwiss,low,Keep under project asset license (zwiss reuse approval); spot-check for embedded photos,,,
+zw_rpm.kn5,RPM_armco_NM.dds,699216,own/zwiss,low,Keep under project asset license (zwiss reuse approval); spot-check for embedded photos,,,
+zw_rpm.kn5,RPM_armco.dds,699216,own/zwiss,low,Keep under project asset license (zwiss reuse approval); spot-check for embedded photos,,,
+zw_rpm.kn5,RPM_frame_01RED.dds,699216,own/zwiss,low,Keep under project asset license (zwiss reuse approval); spot-check for embedded photos,,,
+zw_rpm.kn5,RPM_frame_01_NM.dds,699216,own/zwiss,low,Keep under project asset license (zwiss reuse approval); spot-check for embedded photos,,,
+zw_rpm.kn5,RPM_frame_01.dds,699216,own/zwiss,low,Keep under project asset license (zwiss reuse approval); spot-check for embedded photos,,,
+zw_rpm.kn5,gate_01.dds,174848,own/zwiss,low,Keep under project asset license (zwiss reuse approval); spot-check for embedded photos,,,
+zw_rpm.kn5,gate_02.dds,174848,own/zwiss,low,Keep under project asset license (zwiss reuse approval); spot-check for embedded photos,,,
+zw_rpm.kn5,dragboard.dds,699216,own/zwiss,low,Keep under project asset license (zwiss reuse approval); spot-check for embedded photos,,,
+zw_rpm.kn5,fence_stands.dds,699216,own/zwiss,low,Keep under project asset license (zwiss reuse approval); spot-check for embedded photos,,,
+zw_rpm.kn5,loves.dds,349680,placeholder,low,"DONE r2: neutral grey SPONSOR panel, same 512x512 DXT5 10 mips, alpha kept",,,
+zw_rpm.kn5,fence_track.dds,699216,own/zwiss,low,Keep under project asset license (zwiss reuse approval); spot-check for embedded photos,,,
+zw_rpm.kn5,fence_outside.dds,699216,own/zwiss,low,Keep under project asset license (zwiss reuse approval); spot-check for embedded photos,,,
+zw_rpm.kn5,skid1.dds,22032,replaced,low,DONE textures/open: tyre skid streaks,procedural,"CC0 1.0 (procedural, project-made) https://creativecommons.org/publicdomain/zero/1.0/",128x512 DXT5 mips10
+zw_rpm.kn5,1a_rail.dds,21952,replaced,low,DONE textures/open: alpha: blurred 1/4-res shape of original,ambientCG Metal032,CC0 1.0 https://docs.ambientcg.com/license/,128x128 DXT3 mips8
+zw_rpm.kn5,rpm_horizon.dds,2796432,own/zwiss,low,Keep under project asset license (zwiss reuse approval); spot-check for embedded photos,,,
+zw_rpm.kn5,tentmars.dds,21888,replaced,low,DONE textures/open: plain unbranded tent fabric; alpha 1/4-res shape,ambientCG Fabric026,CC0 1.0 https://docs.ambientcg.com/license/,256x256 DXT5 mips9
+zw_rpm.kn5,tentchndp.dds,21888,replaced,low,DONE textures/open: plain unbranded tent fabric; alpha 1/4-res shape,ambientCG Fabric026,CC0 1.0 https://docs.ambientcg.com/license/,256x256 DXT5 mips9
+zw_rpm.kn5,tentcok.dds,21888,replaced,low,DONE textures/open: plain unbranded tent fabric; alpha 1/4-res shape,ambientCG Fabric026,CC0 1.0 https://docs.ambientcg.com/license/,256x256 DXT5 mips9
+zw_rpm.kn5,tentcl.dds,21888,replaced,low,DONE textures/open: plain unbranded tent fabric; alpha 1/4-res shape,ambientCG Fabric026,CC0 1.0 https://docs.ambientcg.com/license/,256x256 DXT5 mips9
+zw_rpm.kn5,grass_blend.dds,349664,stock,low,Generic detail/normal map; regenerate from CC0 to be safe,,,
+zw_rpm.kn5,red01.dds,87536,stock,low,Generic detail/normal map; regenerate from CC0 to be safe,,,
+zw_rpm_gp.kn5,props_post-toilette-cabin_d.dds,5592560,replaced,low,DONE textures/open: UV atlas: 1/32-res colour layout only,ambientCG Plastic006 + coarse colour layout,CC0 1.0 https://docs.ambientcg.com/license/,2048x2048 DXT5 mips12
+zw_rpm_gp.kn5,props_post-toilette-cabin_n.dds,2796344,replaced,low,DONE textures/open,ambientCG Plastic006 NormalDX,CC0 1.0 https://docs.ambientcg.com/license/,2048x2048 DXT1 mips12
+zw_rpm_gp.kn5,props_post-toilette-cabin_maps.dds,2796344,replaced,low,DONE textures/open: flat spec/gloss/refl values (channel means only),procedural,"CC0 1.0 (procedural, project-made) https://creativecommons.org/publicdomain/zero/1.0/",2048x2048 DXT1 mips12
+zw_rpm_gp.kn5,NULL.dds,136,stock,low,Generic detail/normal map; regenerate from CC0 to be safe,,,
+zw_rpm_gp.kn5,racegroove.dds,43776,replaced,low,"DONE textures/open: rubbered-in racing groove, alpha procedural",procedural,"CC0 1.0 (procedural, project-made) https://creativecommons.org/publicdomain/zero/1.0/",512x256 DXT5 mips10
+zw_rpm_gp.kn5,commissario_new.dds,174720,replaced,low,DONE textures/open: UV atlas: 1/16-res colour layout only,ambientCG Fabric026 + coarse colour layout,CC0 1.0 https://docs.ambientcg.com/license/,512x512 DXT1 mips10
+zw_rpm_gp.kn5,cone.dds,1512,replaced,low,DONE textures/open: UV atlas: 1/4-res colour layout only,ambientCG Plastic006 + coarse colour layout,CC0 1.0 https://docs.ambientcg.com/license/,32x64 DXT1 mips7
+zw_rpm_gp.kn5,red01.dds,87536,stock,low,Generic detail/normal map; regenerate from CC0 to be safe,,,
+zw_rpm_physical.kn5,grass_nm.dds,2796328,stock,low,Generic detail/normal map; regenerate from CC0 to be safe,,,
+zw_rpm_sh.kn5,racegroove.dds,43776,replaced,low,"DONE textures/open: rubbered-in racing groove, alpha procedural",procedural,"CC0 1.0 (procedural, project-made) https://creativecommons.org/publicdomain/zero/1.0/",512x256 DXT5 mips10
+zw_rpm_sh.kn5,signs_new.dds,699216,own/zwiss,low,Keep under project asset license (zwiss reuse approval); spot-check for embedded photos,,,
+zw_rpm_sh.kn5,cone.dds,1512,replaced,low,DONE textures/open: UV atlas: 1/4-res colour layout only,ambientCG Plastic006 + coarse colour layout,CC0 1.0 https://docs.ambientcg.com/license/,32x64 DXT1 mips7
+zw_rpm_sh.kn5,red01.dds,87536,stock,low,Generic detail/normal map; regenerate from CC0 to be safe,,,
+zw_vegetation.kn5,rpm_grasses.dds,699216,own/zwiss,low,Keep under project asset license (zwiss reuse approval); spot-check for embedded photos,,,
+zw_vegetation.kn5,rpm_treeline2.dds,2796432,own/zwiss,low,Keep under project asset license (zwiss reuse approval); spot-check for embedded photos,,,
+zw_vegetation.kn5,tree2.dds,22369776,replaced,low,DONE textures/open: procedural foliage inside 1/32-res billboard silhouette,procedural,"CC0 1.0 (procedural, project-made) https://creativecommons.org/publicdomain/zero/1.0/",4096x4096 DXT5 mips13
+zw_vegetation.kn5,tree3.dds,22369776,replaced,low,DONE textures/open: procedural foliage inside 1/32-res billboard silhouette,procedural,"CC0 1.0 (procedural, project-made) https://creativecommons.org/publicdomain/zero/1.0/",4096x4096 DXT5 mips13

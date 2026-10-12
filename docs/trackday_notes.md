@@ -1,0 +1,11 @@
+# Short course reference (Dylan's "October Tack Day" video, 14:15+, 4 clean laps ~1:25)
+- Flat site, no visible crests/dips/banking. Runoff all grass, no gravel.
+- Main straight = drag strip (concrete center, asphalt edges, seams). Armco on left full length; light-blue timing tower w/ external stairs, metal grandstands, tall US flag on left. Cones + skid marks at T1 braking.
+- T1 90deg left off drag strip, no curbs, grass outside.
+- T2 long right sweeper, red/white curb inside from mid-apex.
+- T3 medium left, curb inside; long curb on left lining chute to T4.
+- T4 medium right, curb inside + outside exit (left).
+- Back straight: white corner-worker hut w/ awning on right; armco starts halfway on left; black brake boards "3","2" on left armco.
+- T5 sharp slow right back onto drag strip, curb inside.
+- Pit return: gap in armco on left just after T1, return road parallel separated by black tire stacks, into paved paddock.
+- All curbs red/white.

@@ -1,0 +1,8 @@
+LICENSE: PENDING
+
+License choice not yet made. Suggested:
+- MIT for configs, scripts and code (data/*.ini, extension/*.ini, tools/)
+- CC BY-SA 4.0 for 3D models, textures and other art assets
+
+Until finalized, all rights remain with the respective original authors (see CREDITS.md).
+Upstream assets of unclear origin are excluded from any open license until cleared.
