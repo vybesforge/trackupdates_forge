@@ -79,7 +79,10 @@ def zone_tris(x,z,fn,nm):
             if lim is not None: m&=lim(x,z)
             sel|=m
     return sel
-for fn_,pref_ in(('zw_rpm_physical.kn5',('1ROAD',)),('zw_rpm.kn5',('ROAD_pitin','ROAD_pitout'))):
+# VR4b (Dylan): no light overlays on the short-course turns / pit roads any more -> the original darker track asphalt shows
+# everywhere (T1/T5 + T1 hairpin top + pit-in/pit-out). Physics (incl. T1/T5 bumps) untouched. Set SHORT_OVERLAYS=True to restore.
+SHORT_OVERLAYS=False
+for fn_,pref_ in((('zw_rpm_physical.kn5',('1ROAD',)),('zw_rpm.kn5',('ROAD_pitin','ROAD_pitout'))) if SHORT_OVERLAYS else ()):
   d_=open(f'{Z}/{fn_}','rb').read()
   for nm_,o_,l_,c_ in K.scan(f'{Z}/{fn_}')[1]:
     if c_!=2 or not nm_.startswith(pref_): continue

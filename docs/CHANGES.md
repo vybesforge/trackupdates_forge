@@ -203,3 +203,10 @@ Mapping: both images were registered to AC x/z. Image A was matched by hand agai
 - Pit roads are draped on their visual meshes. The physics meshes sit a few cm lower and are wider, so draping on them showed through only at the edges. All overlays are now +2 cm (was 1.2 cm): enough for a clean layer, too small to see a gap. The VR3 T1/T5 overlays are unchanged otherwise.
 - Previews: docs_preview/vr4_paddock.png, docs_preview/vr4_shortcourse.png (top-down + close-ups; at full-overview distance the renderer shows some speckle on the overlays, the close-ups are representative). Tools: tools/vr4_preview_export.py, tools/vr4_render_blender.py, tools/vr4_annotate.py.
 - **Test in VR:** the overlay texture's tyre grooves run along z, so on the E-W hairpin top they cross the road. If that looks wrong, the UVs can be rotated per zone. Also try the double-row spawn and leaving from the back row.
+
+## VR4b (feedback on 52d88c8): short-course turns and pit roads back to the original track asphalt
+- Paddock tents and spawns from VR4: unchanged (approved).
+- Removed every light `shortT_overlay_*` patch from zw_dragexit.kn5: the VR4 SE pit-in (`ROAD_pitin`) and S pit-out merge (`ROAD_pitout`) patches, the VR4 T1 hairpin-top patch and the VR3 T1/T5 transition patches. The original darker zwiss track asphalt now shows there, so these sections blend with the main track. The zone data stays in tools/vr4_shortcourse_zones.json; tools/drag_exit.py has `SHORT_OVERLAYS=False` (set True to restore).
+- Physics untouched: zw_rpm_physical.kn5 is byte-identical (md5 check), so the T1/T5 bumps and valid-road status are kept.
+- Drag-strip exits (1XROAD_dragexit_A/B/C/E/return) and their exit-asphalt texture are byte-identical to before.
+- All 9 kn5 parse. Preview: docs_preview/vr4b_shortcourse.png (top-down + close-ups of T1 hairpin, SE pit-in, S pit-out).

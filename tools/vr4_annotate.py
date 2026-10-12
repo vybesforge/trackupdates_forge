@@ -35,7 +35,7 @@ else:
         a=np.array(pts);x0,z0=a.min(0)-8;x1,z1=a.max(0)+8;D.rectangle([P(x0,z0),P(x1,z1)],outline=(200,60,255),width=4)
         lab(P(x0,z1+2),{'T1_hairpin':'T1 hairpin (short-course link)','pit_in_SE':'SE pit-in branch','pit_out_S':'S pit-out merge'}[n],(230,150,255))
     lab(P(-230,-110),'T5 (VR3)',(230,150,255))
-    lab((20,20),'exit-road asphalt overlays (drag_exit_asphalt), physics unchanged',(255,255,255))
+    lab((20,20),os.environ.get('VR4_TITLE','exit-road asphalt overlays (drag_exit_asphalt), physics unchanged'),(255,255,255))
 if mode!='paddock' and len(sys.argv)>4:   # optional close-up insets appended below (T1, SE, S)
     ins=[Image.open(f).convert('RGB').resize((im.width//3,im.width//3*1000//1600)) for f in sys.argv[4:7]];h=ins[0].height
     c=Image.new('RGB',(im.width,im.height+h));c.paste(im,(0,0))
