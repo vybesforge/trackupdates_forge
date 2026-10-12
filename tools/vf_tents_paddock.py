@@ -48,6 +48,12 @@ def art(kind,sx=1.0):
         logo(330,N//2,240,0.74)
         ctext(N//2,543,'VYBES FORGE',font(40),TX)
         ctext(N//2,930,'vybesforge.com',font(84,700),CY);ctext(N//2,990,'VYBES FORGE',font(28,500),TX)
+    elif kind=='adhere':   # VR4 placeholder advertising tent (same VF fabric/trim, no brand)
+        ctext(N//2,265,'YOUR AD',font(120,700),CY,tsy=0.74)
+        ctext(N//2,365,'HERE',font(120,700),TX,tsy=0.74)
+        D.rectangle([N//2-180,425,N//2+180,430],fill=MG)
+        ctext(N//2,543,'ADVERTISE HERE',font(38),TX)
+        ctext(N//2,915,'YOUR AD HERE',font(80,700),CY);ctext(N//2,985,'ADVERTISE HERE',font(30,500),TX)
     elif kind=='neutral':
         logo(150,N//2,330,0.74)   # small mark only, plain fabric
     rgba=np.dstack([np.array(im),alpha]);Image.fromarray(rgba).save(f'{OUT}/tent_{kind}{"_wide" if sx!=1 else ""}.png')

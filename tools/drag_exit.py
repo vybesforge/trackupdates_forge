@@ -61,16 +61,34 @@ def P_(props,**kw): return [(p,struct.pack('<f',kw[p])+r[4:]) if p in kw else (p
 MAT=[dict(name='drag_exit_asphalt',shader='ksPerPixelMultiMap',ab=MMp['ab'],at=MMp['at'],dm=MMp['dm'],props=P_(MMp['props'],ksAmbient=0.3,ksDiffuse=0.3,ksSpecular=0.15,ksSpecularEXP=25),
      samplers=[('txDiffuse',0,'drag_exit_asphalt.dds'),('txNormal',1,'ext_asphalt_nm.dds'),('txMaps',2,'ext_asphalt_maps.dds'),('txDetail',3,'ext_flat_nm.dds')])]
 # VR3: short-course T1/T5 transition overlays (visual only) in exit asphalt, following the physics bump heights
-def zone_tris(x,z): return ((x>-216.5)&(x<-203)&(z>-420)&(z<-376))|((x>-230)&(x<-210)&(z>-106)&(z<-78))
-d_=open(f'{Z}/zw_rpm_physical.kn5','rb').read()
-for nm_,o_,l_,c_ in K.scan(f'{Z}/zw_rpm_physical.kn5')[1]:
-    if c_!=2 or not nm_.startswith('1ROAD'): continue
+# VR4: + Dylan's purple marks (tools/vr4_shortcourse_zones.json, AC x/z points registered from his aerial overlay):
+#   T1 hairpin top (x -216.5..-124: main west straight and inner leg keep their asphalt), SE pit-in road, south pit-out road
+import json;from scipy.spatial import cKDTree
+ZN=json.load(open(os.path.join(os.path.dirname(__file__),'vr4_shortcourse_zones.json')));ZT={k:cKDTree(np.array(v)) for k,v in ZN.items()}
+# zone -> (source kn5, mesh names/prefixes, radius around the marks, extra x/z limit). Pit roads are draped on their VISUAL
+# meshes (the wider physics 1PITS_IN/1ROAD_pitout sit up to a few cm under ROAD_pitin/ROAD_pitout); racing line not repainted.
+ZS={'T1_hairpin':('zw_rpm_physical.kn5',('1ROAD',),9.0,lambda x,z:(x>-216.5)&(x<-124)),
+    'pit_in_SE':('zw_rpm.kn5',('ROAD_pitin',),14.0,None),'pit_out_S':('zw_rpm.kn5',('ROAD_pitout',),8.0,None)}
+def zone_tris(x,z,fn,nm):
+    sel=np.zeros(len(x),bool)
+    if fn=='zw_rpm_physical.kn5' and nm.startswith('1ROAD'):   # VR3 T1/T5 boxes
+        sel|=((x>-216.5)&(x<-203)&(z>-420)&(z<-376))|((x>-230)&(x<-210)&(z>-106)&(z<-78))
+    for k,(f,pre,r,lim) in ZS.items():
+        if f==fn and nm.startswith(pre):
+            m=ZT[k].query(np.c_[x,z])[0]<r
+            if lim is not None: m&=lim(x,z)
+            sel|=m
+    return sel
+for fn_,pref_ in(('zw_rpm_physical.kn5',('1ROAD',)),('zw_rpm.kn5',('ROAD_pitin','ROAD_pitout'))):
+  d_=open(f'{Z}/{fn_}','rb').read()
+  for nm_,o_,l_,c_ in K.scan(f'{Z}/{fn_}')[1]:
+    if c_!=2 or not nm_.startswith(pref_): continue
     q_=o_+l_+8;nv_,=struct.unpack_from('<I',d_,q_);Vp=np.frombuffer(d_,'<f4',nv_*11,q_+4).reshape(nv_,11);q2_=q_+4+nv_*44;ni_,=struct.unpack_from('<I',d_,q2_);Ip=np.frombuffer(d_,'<u2',ni_,q2_+4).reshape(-1,3)
-    C=Vp[Ip][:,:,[0,2]].mean(1);sel=Ip[zone_tris(C[:,0],C[:,1])]
+    C=Vp[Ip][:,:,[0,2]].mean(1);sel=Ip[zone_tris(C[:,0],C[:,1],fn_,nm_)]
     if not len(sel): continue
-    u_,inv=np.unique(sel,return_inverse=True);Vo=Vp[u_].copy();Vo[:,1]+=0.012;Vo[:,3:6]=[0,1,0];Vo[:,6]=Vo[:,0]/7.5;Vo[:,7]=Vo[:,2]/16.0;Vo[:,8:11]=[1,0,0]
+    u_,inv=np.unique(sel,return_inverse=True);Vo=Vp[u_].copy();Vo[:,1]+=0.02;Vo[:,3:6]=[0,1,0];Vo[:,6]=Vo[:,0]/7.5;Vo[:,7]=Vo[:,2]/16.0;Vo[:,8:11]=[1,0,0]
     Io=inv.reshape(-1,3);g=np.cross(Vo[Io[:,1],:3]-Vo[Io[:,0],:3],Vo[Io[:,2],:3]-Vo[Io[:,0],:3]);bd=g[:,1]<0;Io[bd]=Io[bd][:,[0,2,1]]
-    MESHES.append(dict(name=f'shortT_overlay_{nm_[6:]}',mat_index=0,verts=Vo.astype(np.float32),idx=Io,lod_out=0));print('overlay',nm_,len(Io),'tris')
+    MESHES.append(dict(name=f'shortT_overlay_{nm_[6:] if nm_.startswith("1ROAD_0") else nm_}',mat_index=0,verts=Vo.astype(np.float32),idx=Io,lod_out=0));print('overlay',nm_,len(Io),'tris')
 W.write_kn5(f'{Z}/zw_dragexit.kn5',TEX,MAT,MESHES,rootname='zw_dragexit')
 print('zw_dragexit.kn5 tris',sum(len(m['idx']) for m in MESHES))
 np.save('/tmp/dragexit_P.npy',np.vstack(PW))
