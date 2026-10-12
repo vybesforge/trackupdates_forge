@@ -78,10 +78,9 @@ zw_rpm.kn5,ambwheeltire.dds,824,replaced,low,DONE textures/open: UV atlas: 1/4-r
 zw_rpm.kn5,amb1.dds,43848,replaced,low,DONE textures/open: UV atlas: 1/16-res colour layout only,ambientCG PaintedMetal004 + coarse colour layout,CC0 1.0 https://docs.ambientcg.com/license/,512x128 DXT1 mips10
 zw_rpm.kn5,crane1.dds,174888,replaced,low,DONE textures/open: UV atlas: 1/16-res colour layout only,ambientCG PaintedMetal004 + coarse colour layout,CC0 1.0 https://docs.ambientcg.com/license/,512x512 DXT1 mips10
 zw_rpm.kn5,google2.dds,44739408,NAIP 2021 (USDA FSA),low,"DONE r2: RGB replaced with USDA NAIP 2021 0.6 m (ia_m_4109558_sw/se_15_060_20210817, public domain), registered to original UV frame; original alpha kept",,,
-zw_rpm.kn5,google_mask.dds,44739408,replaced,low,"DONE textures/open: R=vegetation,G=bare soil (NDVI<0.25),B=road/gravel (bright,low sat),A=water",USDA NAIP 2021 (RGB+NIR) classification,Public domain (USDA FSA) https://naip-usdaonline.hub.arcgis.com/,8192x4096 DXT5 mips14
+zw_rpm.kn5,google_mask.dds,44739408,replaced,low,DONE VR2,NAIP 2021 classification + grass zone around track (VR2),Public domain (USDA FSA) https://naip-usdaonline.hub.arcgis.com/,8192x4096 DXT5 mips14
 zw_rpm.kn5,rpm_grass1.dds,2785408,own/zwiss,low,Keep under project asset license (zwiss reuse approval); spot-check for embedded photos,,,
 zw_rpm.kn5,Muld Detailne.dds,1398256,replaced,low,DONE textures/open,ambientCG Ground054,CC0 1.0 https://docs.ambientcg.com/license/,2048x2048 DXT5 mips12
-zw_rpm.kn5,gravelroad.dds,174904,replaced,low,DONE textures/open,ambientCG Gravel022,CC0 1.0 https://docs.ambientcg.com/license/,1024x1024 DXT1 mips11
 zw_rpm.kn5,mud2.dds,1398256,replaced,low,DONE textures/open,ambientCG Ground037,CC0 1.0 https://docs.ambientcg.com/license/,2048x2048 DXT5 mips12
 zw_rpm.kn5,rmblb2_NEW.dds,87528,own/zwiss,low,Keep under project asset license (zwiss reuse approval); spot-check for embedded photos,,,
 zw_rpm.kn5,rmbl_NEW_msk.dds,174928,own/zwiss,low,Keep under project asset license (zwiss reuse approval); spot-check for embedded photos,,,
@@ -144,5 +143,25 @@ zw_rpm_sh.kn5,cone.dds,1512,replaced,low,DONE textures/open: UV atlas: 1/4-res c
 zw_rpm_sh.kn5,red01.dds,87536,stock,low,Generic detail/normal map; regenerate from CC0 to be safe,,,
 zw_vegetation.kn5,rpm_grasses.dds,699216,own/zwiss,low,Keep under project asset license (zwiss reuse approval); spot-check for embedded photos,,,
 zw_vegetation.kn5,rpm_treeline2.dds,2796432,own/zwiss,low,Keep under project asset license (zwiss reuse approval); spot-check for embedded photos,,,
-zw_vegetation.kn5,tree2.dds,22369776,replaced,low,DONE textures/open: procedural foliage inside 1/32-res billboard silhouette,procedural,"CC0 1.0 (procedural, project-made) https://creativecommons.org/publicdomain/zero/1.0/",4096x4096 DXT5 mips13
-zw_vegetation.kn5,tree3.dds,22369776,replaced,low,DONE textures/open: procedural foliage inside 1/32-res billboard silhouette,procedural,"CC0 1.0 (procedural, project-made) https://creativecommons.org/publicdomain/zero/1.0/",4096x4096 DXT5 mips13
+zw_vegetation.kn5,tree2.dds,22369776,replaced,low,DONE VR2,Poly Haven tree_small_02 / island_tree_01 renders (VR2),CC0 1.0 https://polyhaven.com/license,4096x4096 DXT5 mips13
+zw_vegetation.kn5,tree3.dds,22369776,replaced,low,DONE VR2,Poly Haven tree_small_02 / island_tree_01 renders (VR2),CC0 1.0 https://polyhaven.com/license,4096x4096 DXT5 mips13
+zw_rpm.kn5,concrete_seams.dds,699192,new,low,DONE VR2,ambientCG Concrete034 + procedural joints (VR2; replaces gravelroad.dds),CC0 1.0 https://docs.ambientcg.com/license/,1024x1024 DXT1 mips11
+zw_rpm.kn5,rubber_maps.dds,174904,new,low,DONE VR2,procedural (VR2),"CC0 1.0 (procedural, project-made) https://creativecommons.org/publicdomain/zero/1.0/",512x512 DXT1 mips10
+zw_rpm.kn5,armco_maps.dds,87528,new,low,DONE VR2,procedural (VR2),"CC0 1.0 (procedural, project-made) https://creativecommons.org/publicdomain/zero/1.0/",256x512 DXT1 mips10
+zw_rpm.kn5,concrete_maps.dds,174904,new,low,DONE VR2,ambientCG Concrete034 roughness (VR2),CC0 1.0 https://docs.ambientcg.com/license/,512x512 DXT1 mips10
+zw_rpm.kn5,fabric_nm.dds,699192,new,low,DONE VR2,ambientCG Fabric026 NormalDX (VR2),CC0 1.0 https://docs.ambientcg.com/license/,1024x1024 DXT1 mips11
+zw_rpm.kn5,fabric_maps.dds,174904,new,low,DONE VR2,procedural (VR2),"CC0 1.0 (procedural, project-made) https://creativecommons.org/publicdomain/zero/1.0/",512x512 DXT1 mips10
+zw_rpm_own.kn5,own_gravel.dds,2796344,new,low,DONE VR2,ambientCG Gravel022 (VR2),CC0 1.0 https://docs.ambientcg.com/license/,2048x2048 DXT1 mips12
+zw_rpm_own.kn5,own_gravel_nm.dds,2796344,new,low,DONE VR2,ambientCG Gravel022 (VR2),CC0 1.0 https://docs.ambientcg.com/license/,2048x2048 DXT1 mips12
+zw_rpm_own.kn5,own_gravel_maps.dds,699192,new,low,DONE VR2,ambientCG Gravel022 (VR2),CC0 1.0 https://docs.ambientcg.com/license/,1024x1024 DXT1 mips11
+zw_rpm_own.kn5,own_tower_paint_maps.dds,699192,new,low,DONE VR2,ambientCG PaintedPlaster017 (VR2),CC0 1.0 https://docs.ambientcg.com/license/,1024x1024 DXT1 mips11
+zw_rpm_own.kn5,own_galv_nm.dds,699192,new,low,DONE VR2,ambientCG Metal032 (VR2),CC0 1.0 https://docs.ambientcg.com/license/,1024x1024 DXT1 mips11
+zw_rpm_own.kn5,own_galv_maps.dds,699192,new,low,DONE VR2,ambientCG Metal032 (VR2),CC0 1.0 https://docs.ambientcg.com/license/,1024x1024 DXT1 mips11
+zw_rpm_own.kn5,own_alu_nm.dds,699192,new,low,DONE VR2,ambientCG Metal032 (VR2),CC0 1.0 https://docs.ambientcg.com/license/,1024x1024 DXT1 mips11
+zw_rpm_own.kn5,own_alu_maps.dds,699192,new,low,DONE VR2,ambientCG Metal032 (VR2),CC0 1.0 https://docs.ambientcg.com/license/,1024x1024 DXT1 mips11
+zw_rpm_own.kn5,own_hut_white_nm.dds,699192,new,low,DONE VR2,ambientCG PaintedPlaster017 (VR2),CC0 1.0 https://docs.ambientcg.com/license/,1024x1024 DXT1 mips11
+zw_rpm_own.kn5,own_hut_white_maps.dds,699192,new,low,DONE VR2,ambientCG PaintedPlaster017 (VR2),CC0 1.0 https://docs.ambientcg.com/license/,1024x1024 DXT1 mips11
+zw_rpm_own.kn5,own_awning_nm.dds,699192,new,low,DONE VR2,ambientCG Fabric026 (VR2),CC0 1.0 https://docs.ambientcg.com/license/,1024x1024 DXT1 mips11
+zw_rpm_own.kn5,own_awning_maps.dds,174904,new,low,DONE VR2,procedural (VR2),"CC0 1.0 (procedural, project-made) https://creativecommons.org/publicdomain/zero/1.0/",512x512 DXT1 mips10
+zw_rpm_own.kn5,own_glass_maps.dds,2872,new,low,DONE VR2,procedural (VR2),"CC0 1.0 (procedural, project-made) https://creativecommons.org/publicdomain/zero/1.0/",64x64 DXT1 mips7
+zw_rpm_own.kn5,flat_nm.dds,2872,new,low,DONE VR2,procedural (VR2),"CC0 1.0 (procedural, project-made) https://creativecommons.org/publicdomain/zero/1.0/",64x64 DXT1 mips7

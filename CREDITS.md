@@ -21,3 +21,8 @@ All medium/high/unknown-risk textures were replaced (see `docs/assets.csv`, colu
 - **USDA NAIP 2021** (public domain): `google_mask.dds` redrawn from NAIP RGB+NIR land classification (NDVI).
 - **Procedural** (project-made, CC0): tire stacks + normal, water normal, windows, doors, banner, skid marks, racing groove, foliage for tree billboards, flat value maps.
 - UV-atlas textures (toilet cabin, containers, ambulance, crane, barrel, cone, marshal figure) keep only a 1/16–1/32-resolution colour layout of the original so the UVs still read correctly; no original detail, text or logos survive. Flagged for redraw if a stricter policy is wanted.
+
+## VR2 round
+- **Poly Haven** (CC0 1.0, https://polyhaven.com/license): tree models `tree_small_02` (Rico Cilliers) and `island_tree_01` (Rob Tuytel, Rico Cilliers), rendered to the `tree2.dds`/`tree3.dds` billboard atlases by `tools/vr2_tree_billboards.py`.
+- **ambientCG** (CC0 1.0): Gravel022 (paddock gravel + normal/maps), Concrete034 (jointed road concrete `concrete_seams.dds`, concrete maps), Fabric026 (tent normal), Metal032 / PaintedPlaster017 (own-model normals and maps).
+- **USDA NAIP 2021** (public domain): ground-mask revision and gravel-vs-concrete check.

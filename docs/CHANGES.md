@@ -54,3 +54,50 @@ Confirms Dylan's notes: site is flat. Main lane 290.71–291.25 m (0.54 m range,
 69 texture slots (60 unique textures) across zw_rpm.kn5 (59), zw_rpm_gp.kn5 (6), zw_rpm_sh.kn5 (2), zw_vegetation.kn5 (2) replaced via `tools/kn5patch.py`; all files re-parse; backups `/workspace/rpotm/backup/*.pre_textures_open`. Formats (DXT1/3/5, uncompressed BGRA32) and alpha usage kept; tiling textures ≤1024 upscaled 2× (power-of-two kept), atlases/cut-outs kept at original size. Branded tents (Mars, Chip'n'Dip, Coca-Cola, Castle) are now plain fabric.
 google_mask.dds redrawn from NAIP classification: R=vegetation (default), G=bare soil, B=road/gravel, A=water.
 **Test in-game:** ground blend (mask classes vs detail textures), water look, tree billboards (procedural foliage is plainer than photo trees — consider CC0 Poly Haven tree atlases later), atlas props (blurred look by design), tire walls, doors/windows scale.
+
+# VR2 round (`release-clean`): VR feedback, "as true to life as possible"
+Backups of all kn5s before this round: `/workspace/rpotm/backup/vr2/`. Scripts (rerunnable, read from the backups): `tools/vr2_split_paddock.py` → `tools/vr2_textures.py` → `tools/build_own_kn5.py` → `tools/vr2_apply.py`; previews `tools/vr2_previews.py`. Generic kn5 texture/material rewriter: `tools/kn5mat.py` (byte-identical round trip verified on all 6 kn5s). Every kn5 re-parses; all sampler textures resolve and decode.
+
+## 1. Paddock / tent lot → gravel
+NAIP 2021: the lot with the tents west of the pit buildings is unpaved gravel (dusty grey-tan, patchy); the E–W access road along its south edge and the pit-side lanes are bright, uniform concrete.
+- `1CONCRETE_001` (zw_rpm.kn5, material Concrete01) covered both. Its 5 large lot triangles (≈27,000 m², x −28..159, z 48..228) are now degenerate (index buffer only; the other 149 triangles, i.e. access road, pit-side lanes and drag-strip staging pad, stay concrete).
+- The same 5 triangles are now `1GRAVEL_PADDOCK` in zw_rpm_own.kn5: material `own_gravel`, ksPerPixelMultiMap, ambientCG Gravel022 desaturated to the NAIP crushed-limestone tone, plus NormalDX and maps. World-planar UV with a 2 m tile.
+- Physics: new `SURFACE_6 KEY=GRAVEL` in `main/` and `short/data/surfaces.ini`:
+  - FRICTION 0.80, DAMPING 0.02, DIRT_ADDITIVE 1, SIN_HEIGHT 0.02/0.3, grass.wav;
+  - IS_VALID_TRACK=0;
+  - BLACK_FLAG_TIME=0 (off-course area, never part of a lap).
+- CRLF line endings were kept.
+
+## 2. Roads outside the track → concrete
+Those roads are not meshes. They come from the ground material `google` (1GRASS), mask channel B → detail texture `gravelroad.dds` (Gravel022 pebbles). That texture is replaced by `concrete_seams.dds`: ambientCG Concrete034, light grey, 2×2 slabs per tile with expansion joints. The `google` sampler was renamed to match. Bright low-saturation NAIP areas (county roads, I-29, drag-strip staging, pit-side lots) now render as jointed concrete.
+
+## 3. "Brick" at corners → grass
+- No brick/cobble/paver texture or material exists in any kn5 or in assets.csv. RoofingTiles008 is only used on roofs.
+- Curbs match the trackday notes (none at short-course T1).
+- Cause: the NAIP-derived mask marked worn, dry run-off at several corners as B (gravel) and G (soil). The Gravel022 pebble detail read as cobbles/bricks in VR.
+- Fix: google_mask is now forced to R (grass) over the whole infield and an ≈18 m border around every road/pit/curb/drag mesh, with a soft 3 px edge (`vr2_textures.py: ground_mask`).
+- Physics there was already `1GRASS` → KEY=GRASS (unchanged; the mask is visual only).
+
+## 4. Asset uplevel
+- **Trees:** `tree2.dds` and `tree3.dds` (4096² DXT5, same 2×2 layout) are now Cycles renders of Poly Haven CC0 models `tree_small_02` and `island_tree_01`, from several angles. Alpha is hardened for ksTree alpha-test, and colour is bled into transparent pixels to avoid mip fringes.
+- **ksPerPixelMultiMap (normal + maps R=spec, G=gloss, B=reflection):**
+  - tire walls `twallb02` (rubber maps);
+  - armco `grdr01` and `grdr_blue` (→ ksPerPixelMultiMap_AT, galvanised maps);
+  - grandstand concrete `Beton_01` and `Concrete02`;
+  - big pit tent `bigtent` and the 4 small tents (→ _AT) with a Fabric026 normal;
+  - all own models (tower, grandstands, hut, flagpole metal, gravel). Brake boards and the flag stay ksPerPixel.
+- **Timing tower:** enlarged from 7×5 m to 15×10 m, matching the v0.9 footprint (x −253..−243, z −310..−294). Changes:
+  - 5 front windows per floor plus side windows, and a second door;
+  - roof parapet railing, downpipes, door canopy and 2 AC units.
+  - Same placement (−248, −302.1, yaw −90).
+- **Grandstands:** closed riser boards between rows.
+- Tire-stack and armco diffuse/normal layouts are unchanged; only the shading model and maps changed.
+
+**Recheck in VR:**
+- Paddock gravel scale (2 m tile) and colour. Seam where the gravel meets the concrete access road (Concrete01 and own_gravel use different textures, same height).
+- Driving onto the paddock: slow, dusty, no flag.
+- Concrete joint scale on roads (the detail tiling is set by the google material).
+- Grass now running right to the track edge at corners. Check no unwanted hard mask edge.
+- Tree billboards at distance and up close (alpha edges, brightness vs v0.9).
+- Armco/tyre/tent specular under sun. If ksPerPixelMultiMap_AT shows untextured or pink, revert grdr*/tent_* to their original shaders in `vr2_apply.py`.
+- Bigger tower vs surrounding fences/flagpole (no clipping).

@@ -38,15 +38,16 @@ def setuv_rect(o,uvrect):  # map +/-Y facing faces' bounding to a uv rect (u0,v0
             for li in p.loop_indices: uv.data[li].uv=(uvrect[0]+0.001,uvrect[1]+0.001)  # edges: black border area
 # ---------------- models (origin = ground centre, +Y = facing track side) ----------------
 def tower():
-    W,D=7.0,5.0
+    W,D=15.0,10.0  # VR2: enlarged to the v0.9 tower footprint (~10 x 16 m)
     obj('tower_body',lambda bm:(box(bm,0,0,1.6,W,D,3.2),box(bm,0,0,4.8,W,D,3.2)),'own_tower_paint',2)
     obj('tower_cab',lambda bm:(box(bm,0,0,6.4+0.5,W+1,D+1,1.0),box(bm,0,0,9.3,W+1,D+1,0.8)),'own_tower_paint',2)
     obj('tower_glass',lambda bm:box(bm,0,0,8.15,W+0.9,D+0.9,1.5),'own_tower_glass',2)
     obj('tower_roof',lambda bm:box(bm,0,0,9.9,W+2.4,D+2.4,0.35),'own_galv',3)
     def windows(bm):
         for z in (1.8,5.0):
-            for x in (-2.2,0,2.2): box(bm,x,D/2+0.02,z,1.2,0.05,1.0)
-        box(bm,-W/2-0.02,1.2,1.1,0.05,1.0,2.2)  # door
+            for x in (-5.4,-2.7,0,2.7,5.4): box(bm,x,D/2+0.02,z,1.4,0.05,1.1)
+            for y in (-2.5,2.5): box(bm,-W/2-0.02,y,z,0.05,1.2,1.0)
+        box(bm,-W/2-0.02,0,1.1,0.05,1.0,2.2);box(bm,W/2+0.02,-3.0,1.1,0.05,1.0,2.2)  # doors
     obj('tower_windows',windows,'own_tower_glass',2)
     def stairs(bm):  # external switchback stair on +X side
         x0=W/2+0.75;steps=11;rise=3.2/2/steps
@@ -60,6 +61,18 @@ def tower():
         for (x,y) in((x0-0.5,-D/2),(x0+1.6,-D/2),(x0-0.5,D/2),(x0+1.6,D/2)): box(bm,x,y,3.2,0.1,0.1,6.4)  # posts
         for z in (1.0,2.6,4.2,5.8): box(bm,x0+1.65,0,z+1.0,0.05,D,0.05)  # rails
     obj('tower_stairs',stairs,'own_galv',1)
+    def details(bm):  # VR2: roof parapet rail, AC units, downpipes, canopy over ground-floor door
+        zr=10.1
+        for x in [i*(W+2)/10-(W+2)/2 for i in range(11)]:
+            for y in (-(D+2)/2,(D+2)/2): box(bm,x,y,zr+0.5,0.06,0.06,1.0)
+        for y in [i*(D+2)/6-(D+2)/2 for i in range(7)]:
+            for x in (-(W+2)/2,(W+2)/2): box(bm,x,y,zr+0.5,0.06,0.06,1.0)
+        for y in (-(D+2)/2,(D+2)/2): box(bm,0,y,zr+1.0,W+2,0.05,0.05)
+        for x in (-(W+2)/2,(W+2)/2): box(bm,x,0,zr+1.0,0.05,D+2,0.05)
+        for x in (-6.8,6.8): box(bm,x,-D/2-0.1,3.2,0.12,0.12,6.4)
+        box(bm,-W/2-0.6,0,2.6,1.2,1.6,0.08)
+    obj('tower_details',details,'own_galv',1)
+    obj('tower_ac',lambda bm:(box(bm,-3,-D/2-0.45,0.45,1.0,0.8,0.9),box(bm,3,-D/2-0.45,0.45,1.0,0.8,0.9)),'own_hut_white',1)
     obj('tower_antenna',lambda bm:cyl(bm,-2.5,-1.5,10.0,13.3,0.04,0.02,6),'own_galv',1)
 def grandstand():
     L=20.0;rows=8;rise=0.40;depth=0.75
@@ -68,6 +81,9 @@ def grandstand():
             z=0.45+r*rise;y=-r*depth
             box(bm,0,y,z,L,0.30,0.05);box(bm,0,y-0.35,z-0.2,L,0.25,0.03)  # seat + foot plank
     obj('gs_seats',seats,'own_alu',2)
+    def risers(bm):  # VR2: closed riser boards between rows
+        for r in range(1,rows): box(bm,0,-r*depth+depth/2-0.02,0.45+r*rise-rise/2,L,0.02,rise)
+    obj('gs_risers',risers,'own_alu',2)
     def frame(bm):
         for x in [-L/2+0.2+i*(L-0.4)/5 for i in range(6)]:
             for r in range(rows):
