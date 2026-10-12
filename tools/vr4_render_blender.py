@@ -31,6 +31,12 @@ for spec in [x for x in os.environ.get('VR5_EMIT','').split(';') if x]:
     b.inputs['Emission Color'].default_value=(*c,1);b.inputs['Emission Strength'].default_value=25
     for o in sc.objects:
         if o.name.startswith(nm): o.data.materials.clear();o.data.materials.append(em)
+import json   # VR6: VR6_LIGHTS=<json [[pos,dir,spot_deg,range,rgb,k],..]> (AC coords) -> Blender spot lights (night previews)
+if os.environ.get('VR6_LIGHTS'):
+    for i,(p,dv,spot,rng,col,k) in enumerate(json.load(open(os.environ['VR6_LIGHTS']))):
+        ld=bpy.data.lights.new(f'L{i}','SPOT');ld.energy=k*400;ld.color=col;ld.spot_size=math.radians(spot);ld.spot_blend=0.5;ld.use_custom_distance=True;ld.cutoff_distance=rng
+        lo=bpy.data.objects.new(f'L{i}',ld);sc.collection.objects.link(lo);lo.location=(p[0],-p[2],p[1])
+        lo.rotation_euler=mathutils.Vector((dv[0],-dv[2],dv[1])).to_track_quat('-Z','Y').to_euler()
 w=bpy.data.worlds.new('w');sc.world=w;w.use_nodes=True;w.node_tree.nodes['Background'].inputs[0].default_value=(0.55,0.68,0.85,1);w.node_tree.nodes['Background'].inputs[1].default_value=0.03 if os.environ.get('VR5_NIGHT') else 0.8
 s=bpy.data.lights.new('sun','SUN');s.energy=0.15 if os.environ.get('VR5_NIGHT') else 3.5;so=bpy.data.objects.new('sun',s);so.rotation_euler=(math.radians(25),0,math.radians(-35));sc.collection.objects.link(so)
 sc.render.engine='CYCLES';sc.cycles.samples=48;sc.cycles.device='CPU';sc.render.resolution_x=1600;sc.render.resolution_y=int(__import__('os').environ.get('VR4_RESY','1000'))

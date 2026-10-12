@@ -1,4 +1,25 @@
 # Credits
+
+The project is licensed under the **Apache License 2.0** (LICENSE). Copyright 2026 vybesforge. See NOTICE.
+
+## Summary of sources
+- **zwiss**: *Raceway Park Of The Midlands* v0.9 (2023) is the base. zwiss shared it on condition that it stays open source. zwiss-derived parts that remain in this release:
+  - `zw_rpm.kn5` (track, terrain, buildings, pit/paddock, drag strip, grandstand shells; textures replaced)
+  - `zw_rpm_physical.kn5` (physics surfaces)
+  - `zw_rpm_gp.kn5`, `zw_rpm_sh.kn5`
+  - `zw_vegetation.kn5` placement (billboard textures replaced)
+  - the AI lines and section layout
+- **© OpenStreetMap contributors** (ODbL 1.0): road and building data used for the north extension (`zw_ext.kn5`).
+- **USGS 3DEP** (public domain): elevation. **USDA NAIP** (public domain): ground imagery and masks.
+- **ambientCG** and **Poly Haven** (CC0 1.0): textures and tree models.
+- **CNDS 2024** remodel (Geronimo Designs / MoxyShredz / Temple Productions): **reference only**. No geometry or textures were taken from it.
+- Project-made (vybesforge, Apache-2.0):
+  - `zw_rpm_own.kn5`, `zw_ext.kn5` models
+  - `zw_dragexit.kn5`, `zw_draglaunch.kn5`, `zw_tents.kn5`, `zw_vr5.kn5`, `zw_vr6.kn5` (including the Blender pickup, `assets_src/pickup/`)
+  - `tools/`
+  - extension Lua and config
+
+## Detailed history
 - **zwiss** — 2023 scratch-built AC track (v0.9), base of this project
 - **Fanapryde** — sections file and logo (zwiss v0.9)
 - **Geronimo Designs** — 2024 CNDS remodel (reference)
@@ -34,5 +55,5 @@ All medium/high/unknown-risk textures were replaced (see `docs/assets.csv`, colu
 - Asphalt012 etc.: ambientCG, CC0. Stop sign per MUTCD (public domain design).
 
 ## Vybes Forge branding (one paddock tent)
-- "Vybes Forge" name, VF monogram logo and palette: © Vybes Forge, owned by Dylan Cruse; used with permission on one paddock tent (tentcok.dds slot, material tent_coke). Not covered by the project's CC0/open licence — do not reuse outside this track without the owner's permission.
+- "Vybes Forge" name, VF monogram logo and palette: © Vybes Forge, owned by Dylan Cruse; used with permission on one paddock tent (tentcok.dds slot, material tent_coke). Not covered by the project's Apache-2.0 licence (trademark, see NOTICE) — do not reuse outside this track without the owner's permission.
 - Font: Space Grotesk (Florian Karsten), SIL Open Font License 1.1 (assets_src/brand/SpaceGrotesk_OFL.txt), via Google Fonts.

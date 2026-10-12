@@ -261,3 +261,37 @@ Mapping: both images were registered to AC x/z. Image A was matched by hand agai
 - **People:** 2 static, simple self-made figures (1.78 m blue shirt, 1.70 m red shirt) under the open scrutineering shed (`paddock_scrut`, x 87..96, z 13..21) next to the large green paddock building. They stand on concrete at y −0.10. Visual only.
 - New `zw_vr5.kn5` = MODEL_9 (main + short). Tools: tools/vr5_extras.py (rerunnable from /workspace/rpotm/backup/pre_vr5b/ and pre_vr5/). All kn5 files parse; paddock spawns re-verified 36/36.
 - Previews: docs_preview/vr5_billboards.png, vr5_exits.png, vr5_entrance.png, vr5_people.png.
+
+## VR6: dark turn-offs, tree on the I-29 pole, Blender pickup, contact shadows, night lights, Apache-2.0
+- **Short-course turn-offs (T1 hairpin top and the T1/T5 transitions):** these now use visual overlays (`shortT_overlay_001/003/007`, 4424 tris, +2 cm) in zw_dragexit.kn5.
+  - Material: a copy of zwiss's pit-in asphalt `road_pitin` (`road_vara_04.dds`), named `shortT_pitin_dark`.
+  - Numeric comparison (texture mean RGB, ksDiffuse):
+
+    | Material | Mean RGB | ksDiffuse | Note |
+    |---|---|---|---|
+    | road_pitin | 48/49/47 | 0.3 | darkest, chosen |
+    | road_pitout | 52/54/58 | 0.4 | |
+    | track road01 | 167/162/157 | 0.3 | |
+
+  - Only triangles with all three corners inside the zone are used, so nothing spikes onto the grass.
+  - Physics is byte-identical: zw_rpm_physical.kn5 is unchanged, and the bumps are kept.
+- **Christmas tree:** now mounted on the existing I-29 sign pole at the drag start (`drag_metal_SUB0`, x −251.67, z −368.27).
+  - The housing runs from y 1.35 to 3.35 m, above the sign, faces the staging lanes, and is fixed with brackets and a post extension. The old ground pole is gone.
+  - Mesh names are unchanged, so drag_tree.lua and ext_config need no edits.
+- **Pickup:** the blocky VR5b truck is replaced by a generic, unbranded full-size 4-door crew-cab modelled procedurally in Blender 4.2.3 (`tools/vr6_pickup_blender.py`).
+  - 5476 faces. Bevelled body, boolean wheel arches and bed, glass, pillars, door seams and handles, mirrors, grille, lights, bumpers, spoked wheels.
+  - AO and colour were baked at 2048 into `pickup_diffuse` (own textures). Sources are in `assets_src/pickup/`.
+  - Same spot (−279.7, −331.8). Visual only.
+- **Shadows and AO:** soft contact-shadow decals under the pickup, the 6 tents and the 2 people. The pickup has baked AO. All new meshes have castShadows=1.
+- **Night lighting:** 22 CSP `[LIGHT_VR6_*]` spot lights (6 pit, 6 paddock, 10 drag strip), with `CONDITION=NIGHT_SMOOTH`, `FADE_AT=700` and ranges of 40–60 m.
+  - They sit on 12 new light poles (pits and paddock, x 3 / 161) and the 10 existing zwiss drag towers.
+  - Emissive lamp heads `vr6_lamp_glow` use `[MATERIAL_ADJUSTMENT_VR6_LAMP_HEADS]`.
+  - The light block is generated into ext_config.ini between the `; >>> VR6 lights` markers.
+- New `zw_vr6.kn5` = MODEL_10 (main + short). All kn5 files parse, physics is unchanged, and spawn_verify gives 36/36 for both layouts.
+- Previews: docs_preview/vr6_turnoff.png, vr6_tree.png, vr6_truck.png, vr6_night_pits.png, vr6_night_drag.png. The night previews are Blender approximations of the CSP lights. The turn-off preview does not apply ksDiffuse or multilayer, so in game the contrast is larger than shown.
+- **License:** the whole repo is now Apache-2.0 (LICENSE is the official text, plus a NOTICE file). CREDITS.md and README were updated.
+  - zwiss-derived geometry still present, measured by triangle count in the shipped kn5 files:
+    - Visual: zw_rpm.kn5 (357k tris), gp, sh and vegetation placement come to about 365k of 483k visual tris (~76%).
+    - Physics: zw_rpm_physical.kn5 (157k tris) is ~100% zwiss.
+    - Project-made: about 118k tris (north extension, own models, exits, launch, tents, VR5/VR6 props).
+- **Untested in game:** the light look, performance and the NIGHT_SMOOTH condition name; decal z-fighting; the tree on the pole from the driver's eye; the dark overlay seams at distance.

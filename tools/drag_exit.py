@@ -89,17 +89,25 @@ def zone_tris(x,z,fn,nm):
     return sel
 # VR4b (Dylan): no light overlays on the short-course turns / pit roads any more -> the original darker track asphalt shows
 # everywhere (T1/T5 + T1 hairpin top + pit-in/pit-out). Physics (incl. T1/T5 bumps) untouched. Set SHORT_OVERLAYS=True to restore.
-SHORT_OVERLAYS=False
-for fn_,pref_ in((('zw_rpm_physical.kn5',('1ROAD',)),('zw_rpm.kn5',('ROAD_pitin','ROAD_pitout'))) if SHORT_OVERLAYS else ()):
+# VR6 (Dylan): turn-off sections must match the VERY DARK pit-road asphalt -> overlays back on for T1/T5 + T1 hairpin top only,
+# using a copy of zwiss's pit-in material `road_pitin` (road_vara_04.dds, mean RGB 48/49/47 x diffuse 0.3 = darkest exit road;
+# pit-out road_pitout 52/54/58 x 0.4, track road01 167/162/157). Pit roads themselves keep their own meshes (no overlay).
+SHORT_OVERLAYS=True;ZS={k:v for k,v in ZS.items() if k=='T1_hairpin'}
+_PM=W.read_materials(f'{BK}/pre_vr5/zw_rpm/zw_rpm.kn5')['road_pitin']
+MAT.append(dict(name='shortT_pitin_dark',**{k_:_PM[k_] for k_ in('shader','ab','at','dm','props','samplers')}))
+TEX+=[(t_,K.get_tex(f'{BK}/pre_vr5/zw_rpm/zw_rpm.kn5',t_)) for _,_,t_ in _PM['samplers'] if t_ not in [x[0] for x in TEX]]
+for fn_,pref_ in((('zw_rpm_physical.kn5',('1ROAD',)),) if SHORT_OVERLAYS else ()):
   d_=open(f'{Z}/{fn_}','rb').read()
   for nm_,o_,l_,c_ in K.scan(f'{Z}/{fn_}')[1]:
     if c_!=2 or not nm_.startswith(pref_): continue
     q_=o_+l_+8;nv_,=struct.unpack_from('<I',d_,q_);Vp=np.frombuffer(d_,'<f4',nv_*11,q_+4).reshape(nv_,11);q2_=q_+4+nv_*44;ni_,=struct.unpack_from('<I',d_,q2_);Ip=np.frombuffer(d_,'<u2',ni_,q2_+4).reshape(-1,3)
-    C=Vp[Ip][:,:,[0,2]].mean(1);sel=Ip[zone_tris(C[:,0],C[:,1],fn_,nm_)]
+    C=Vp[Ip][:,:,[0,2]].mean(1);ok_=zone_tris(C[:,0],C[:,1],fn_,nm_)
+    for j_ in range(3): ok_&=zone_tris(Vp[Ip[:,j_],0],Vp[Ip[:,j_],2],fn_,nm_)   # VR6: all 3 corners in zone -> no sawtooth spikes onto grass
+    sel=Ip[ok_]
     if not len(sel): continue
-    u_,inv=np.unique(sel,return_inverse=True);Vo=Vp[u_].copy();Vo[:,1]+=0.02;Vo[:,3:6]=[0,1,0];Vo[:,6]=Vo[:,0]/7.5;Vo[:,7]=Vo[:,2]/16.0;Vo[:,8:11]=[1,0,0]
+    u_,inv=np.unique(sel,return_inverse=True);Vo=Vp[u_].copy();Vo[:,1]+=0.02;Vo[:,3:6]=[0,1,0];Vo[:,6]=Vo[:,0]/8.0;Vo[:,7]=Vo[:,2]/8.0;Vo[:,8:11]=[1,0,0]
     Io=inv.reshape(-1,3);g=np.cross(Vo[Io[:,1],:3]-Vo[Io[:,0],:3],Vo[Io[:,2],:3]-Vo[Io[:,0],:3]);bd=g[:,1]<0;Io[bd]=Io[bd][:,[0,2,1]]
-    MESHES.append(dict(name=f'shortT_overlay_{nm_[6:] if nm_.startswith("1ROAD_0") else nm_}',mat_index=0,verts=Vo.astype(np.float32),idx=Io,lod_out=0));print('overlay',nm_,len(Io),'tris')
+    MESHES.append(dict(name=f'shortT_overlay_{nm_[6:] if nm_.startswith("1ROAD_0") else nm_}',mat_index=1,verts=Vo.astype(np.float32),idx=Io,lod_out=0));print('overlay',nm_,len(Io),'tris')
 W.write_kn5(f'{Z}/zw_dragexit.kn5',TEX,MAT,MESHES,rootname='zw_dragexit')
 print('zw_dragexit.kn5 tris',sum(len(m['idx']) for m in MESHES))
 np.save('/tmp/dragexit_P.npy',np.vstack(PW))

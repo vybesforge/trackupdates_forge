@@ -8,7 +8,7 @@ Geometry (1DRAGstrip, run toward -z, strip x -260..-242, flat y -0.10, start lin
     1LAUNCHC_strip  z -375.5 .. -391  (taper, ~150 ft)              KEY LAUNCHC  FRICTION 1.03
   then 1DRAGstrip (DRAG, 0.98) again. The small centre block (z -356) of 1DRAGstrip is untouched.
 - drag_rubber_L/R: visual alpha-blended dark rubber decal per lane (3.4 m wide, z -341 .. -400, fades out), +1.5 cm.
-- Christmas tree (visual only) on the centre line at the old mini-tree spot (Drag_tent hidden): pole + housing + per lane
+- Christmas tree (visual only; VR6: mounted on the existing I-29 sign pole at z -368.3, Drag_tent mini head hidden): housing + per lane
   2 pre-stage, 2 stage, 3 amber, 1 green, 1 red bulb (facing the staging cars, +z). One mesh per bulb group, both lanes:
   drtree_prestage, drtree_stage, drtree_amber1..3, drtree_green, drtree_red -> animated by extension/drag_tree.lua."""
 import sys,os,struct,numpy as np
@@ -54,16 +54,20 @@ def rubber_tex():
     rgb=np.dstack([np.full((H,Wd),12),np.full((H,Wd),12),np.full((H,Wd),13)]).astype(np.uint8)
     Image.fromarray(np.dstack([rgb,(a*255).astype(np.uint8)])).save(f'{ROOT}/assets_src/drag_rubber.png')
     import build_open_textures as B;return B.write_dds(np.dstack([rgb,(a*255).astype(np.uint8)]),'DXT5',11,None)
+# VR6: tree mounted on zwiss's existing pole with the small I-29 sign (drag_metal_SUB0 post x -251.67, z -368.27, top y 2.43;
+# sign adds_drag_SUB1 y 0.59..1.19), housing y 1.35..3.35 on the pole's +z face (facing the staging cars), sign stays visible.
+PX,PZ,HY=-251.67,-368.27,1.35
 def tree_parts():
     P={'pole':[],'housing':[],'visor':[]}
-    P['pole'].append(L.box((TX,Y0+0.85,TZ),(0.16,1.9,0.16)))
-    P['pole'].append(L.box((TX,Y0+0.03,TZ),(0.6,0.06,0.6)))
-    hz=TZ;P['housing'].append(L.box((TX,2.65,hz),(0.86,2.0,0.22)))      # y 1.65..3.65
-    P['housing'].append(L.box((TX,3.72,hz),(0.5,0.14,0.18)))
+    P['pole'].append(L.box((PX,2.43+0.47,PZ),(0.12,0.94,0.06)))                                  # post extension behind housing
+    for y in(1.55,2.35,3.15): P['pole'].append(L.box((PX,y,PZ+0.07),(0.30,0.06,0.10)))            # mounting brackets
+    hz=PZ+0.23;cy=HY+1.0
+    P['housing'].append(L.box((PX,cy,hz),(0.86,2.0,0.22)));P['housing'].append(L.box((PX,HY+2.07,hz),(0.5,0.14,0.18)))
     fz=hz+0.111;bulbs={k:[] for k in('prestage','stage','amber1','amber2','amber3','green','red')}
-    rows=[('prestage',3.48,0.055,2),('stage',3.30,0.055,2),('amber1',3.02,0.10,1),('amber2',2.70,0.10,1),('amber3',2.38,0.10,1),('green',2.06,0.10,1),('red',1.78,0.10,1)]
+    d=cy-2.65
+    rows=[('prestage',3.48+d,0.055,2),('stage',3.30+d,0.055,2),('amber1',3.02+d,0.10,1),('amber2',2.70+d,0.10,1),('amber3',2.38+d,0.10,1),('green',2.06+d,0.10,1),('red',1.78+d,0.10,1)]
     for sx in(-1,1):        # -1: west (left) lane column, +1: east lane
-        cx=TX+sx*0.21
+        cx=PX+sx*0.21
         for k,y,r,nb in rows:
             xs=[cx-0.06,cx+0.06] if nb==2 else [cx]
             for x in xs:

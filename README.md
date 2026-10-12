@@ -12,3 +12,13 @@ Reuse approved by the original authors on condition the result stays open source
 
 ## Planned fixes over v0.9
 Real elevation (USGS 3DEP 2020 lidar), corrected curbs, working cut detection, highway traffic, rain/grass FX, renamed layout/branding.
+
+## License
+Apache License 2.0. Copyright 2026 vybesforge. See `LICENSE` and `NOTICE`.
+
+This track is based on zwiss's *Raceway Park Of The Midlands* v0.9, which was shared on condition that it stays open source. It also includes:
+- © OpenStreetMap contributors data (ODbL)
+- USGS 3DEP and USDA NAIP public-domain data
+- CC0 textures from ambientCG and Poly Haven
+
+The CNDS 2024 remodel was used for reference only. See `CREDITS.md` for full attribution. The Vybes Forge name and logo are trademarks and are not licensed.

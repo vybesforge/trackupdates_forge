@@ -1,0 +1,101 @@
+"""VR6 props -> zw_rpm/zw_vr6.kn5 (MODEL_10, main + short). Rerunnable (inputs: assets_src/pickup/*, tools/vr5_* data).
+- Blender-modelled crew-cab pickup (tools/vr6_pickup_blender.py -> assets_src/pickup/pickup.obj + baked AO/colour) at the
+  VR5 spot (-279.7, -331.8), nose -x (toward the west gate). One texture atlas (colour x AO), per-part materials for spec.
+- Contact-shadow decals (alpha-blended, self-made soft blob texture, +1.2 cm): under the pickup, the 6 paddock tents,
+  the 2 people. (AC real-time shadows: every new mesh is written with castShadows=1.)
+- Night lighting props: 6 pit-lane poles (SE side of the pit lane), 6 paddock poles (lot west/east edges), emissive lamp
+  heads on those and on zwiss's 10 drag-strip light towers (x≈-280, z -362..-945, heads y 15.4). CSP lights are
+  written by this script into extension/ext_config.ini ([LIGHT_VR6_*] block between '; >>> VR6 lights' markers)."""
+import sys,os,struct,numpy as np
+sys.path.insert(0,os.path.dirname(__file__));import kn5patch as K,kn5write as W,vr5_meshlib as L,build_open_textures as B,vr4_paddock as VP
+from PIL import Image,ImageFilter
+ROOT=os.path.abspath(os.path.join(os.path.dirname(__file__),'..'));Z=f'{ROOT}/zw_rpm';A=f'{ROOT}/assets_src/pickup';SRC=f'{Z}/zw_rpm.kn5'
+G=-0.10;PK=(-279.7,-331.8)
+def load_obj(p):
+    v=[];vt=[];vn=[];F={};cur=None
+    for ln in open(p):
+        t=ln.split()
+        if not t: continue
+        if t[0]=='v': v.append([float(x) for x in t[1:4]])
+        elif t[0]=='vt': vt.append([float(x) for x in t[1:3]])
+        elif t[0]=='vn': vn.append([float(x) for x in t[1:4]])
+        elif t[0]=='usemtl': cur=t[1];F.setdefault(cur,[])
+        elif t[0]=='f': F[cur].append([[int(i)-1 if i else -1 for i in (c.split('/')+['',''])[:3]] for c in t[1:4]])
+    return np.array(v),np.array(vt),np.array(vn),F
+def pickup_meshes():
+    v,vt,vn,F=load_obj(f'{A}/pickup.obj');out={}
+    for m,fs in F.items():
+        f=np.array(fs);P=v[f[:,:,0]].reshape(-1,3);N=vn[f[:,:,2]].reshape(-1,3);UV=vt[f[:,:,1]].reshape(-1,2)
+        # Blender (x fwd, y left, z up) -> AC (x, y up, z) = (bx, bz, -by); rotate 180° about y (nose -x); translate
+        ac=lambda Q:np.c_[-Q[:,0],Q[:,2],Q[:,1]]
+        V=np.zeros((len(P),11),np.float32);V[:,:3]=ac(P)+[PK[0],G,PK[1]];V[:,3:6]=ac(N);V[:,6]=UV[:,0];V[:,7]=1-UV[:,1];V[:,8:11]=[1,0,0]
+        I=np.arange(len(P)).reshape(-1,3);out[m]=(V,L.fix_winding(V,I).astype('<u2'))
+    return out
+def blob_tex(shape='rect'):
+    n=256;y,x=np.mgrid[0:n,0:n]/(n-1)*2-1
+    d=np.maximum(np.abs(x),np.abs(y))**3 if shape=='rect' else np.hypot(x,y)
+    a=np.clip(1-d,0,1)**1.6*0.75 if shape!='rect' else np.clip((1-np.maximum(np.abs(x),np.abs(y)))/0.35,0,1)**1.3*0.7
+    rgba=np.dstack([np.zeros((n,n,3),np.uint8),(a*255).astype(np.uint8)]);return B.write_dds(rgba,'DXT5',9,None)
+def decal(cx,cz,sx,sz,y=G,rot=0.0):
+    c,s=np.cos(rot),np.sin(rot);pts=[(-sx/2,-sz/2),(sx/2,-sz/2),(sx/2,sz/2),(-sx/2,sz/2)]
+    V=np.zeros((4,11),np.float32)
+    for i,(a,b) in enumerate(pts): V[i,:3]=(cx+a*c+b*s,y+0.012,cz-a*s+b*c)
+    V[:,3:6]=[0,1,0];V[:,6:8]=[(0,0),(1,0),(1,1),(0,1)];V[:,8:11]=[1,0,0];return V,L.fix_winding(V,np.array([[0,1,2],[0,2,3]]))
+# --- light layout (shared with ext_config generator)
+def pit_poles():
+    p0=np.array([-30.0,26.0]);p1=np.array([185.0,-118.0]);d=(p1-p0)/np.linalg.norm(p1-p0);n=np.array([d[1]*-1,d[0]])*-1  # SE side
+    n=np.array([0.556,0.83]);return [(*(p0+(p1-p0)*t+n*11),-n) for t in np.linspace(0.08,0.92,6)]
+def paddock_poles(): return [(3.0,z,np.array([1.0,0.0])) for z in(95,145,195)]+[(161.0,z,np.array([-1.0,0.0])) for z in(95,145,195)]
+DRAG=[(-279.0,-362.2),(-279.3,-427.9),(-278.9,-488.3),(-279.6,-550.8),(-280.9,-612.6),(-281.6,-674.7),(-282.9,-774.9),(-283.4,-836.2),(-284.6,-898.4),(-285.4,-944.9)]
+def lights():
+    Ls=[]
+    for i,(x,z,n) in enumerate(pit_poles()): Ls.append((f'PITS_{i}',(x+n[0]*1.2,9.6,z+n[1]*1.2),(n[0]*0.55,-0.83,n[1]*0.55),40,130,(1.0,0.93,0.82),14))
+    for i,(x,z,n) in enumerate(paddock_poles()): Ls.append((f'PADDOCK_{i}',(x+n[0]*1.2,9.6,z+n[1]*1.2),(n[0]*0.55,-0.83,n[1]*0.55),45,130,(1.0,0.93,0.82),14))
+    for i,(x,z) in enumerate(DRAG): Ls.append((f'DRAG_{i}',(x+1.0,15.0,z),(0.62,-0.78,0.0),60,110,(1.0,0.95,0.88),22))
+    return Ls
+def pole_meshes():
+    parts=[];heads=[]
+    for x,z,n in pit_poles()+paddock_poles():
+        parts.append(L.box((x,G+5.0,z),(0.22,10.0,0.22)))
+        hx,hz=x+n[0]*1.2,z+n[1]*1.2;rot=np.arctan2(n[0],n[1])
+        parts.append(L.box(((x+hx)/2,9.85,(z+hz)/2),(0.1 if abs(n[0])<0.5 else 1.2,0.1,1.2 if abs(n[0])<0.5 else 0.1)))
+        parts.append(L.xform(L.box((0,0,0),(0.9,0.18,0.55)),rot,(hx,9.75,hz)))
+        heads.append(L.xform(L.box((0,0,0),(0.8,0.02,0.45)),rot,(hx,9.655,hz)))
+    for x,z in DRAG: heads.append(L.xform(L.box((0,0,0),(0.05,0.9,1.6)),0,(x+0.75,15.2,z)))   # glowing lens on the existing tower heads
+    return L.merge(parts),L.merge(heads)
+def ext_ini():
+    s=['; generated by tools/vr6_props.py (VR6 night lighting, CSP). Lights fade in with NIGHT_SMOOTH (common/conditions.ini).']
+    for nm,p,d,rng,spot,col,k in lights():
+        s+=[f'[LIGHT_VR6_{nm}]',f'POSITION = {p[0]:.2f}, {p[1]:.2f}, {p[2]:.2f}',f'DIRECTION = {d[0]:.3f}, {d[1]:.3f}, {d[2]:.3f}',f'SPOT = {spot}','SPOT_SHARPNESS = 0.35',
+            f'RANGE = {rng}','RANGE_GRADIENT_OFFSET = 0.15',f'COLOR = {col[0]}, {col[1]}, {col[2]}, {k}','CONDITION = NIGHT_SMOOTH','FADE_AT = 700','FADE_SMOOTH = 150','']
+    s+=['[MATERIAL_ADJUSTMENT_VR6_LAMP_HEADS]','MESHES = vr6_lamp_glow','KEY_0 = ksEmissive','VALUE_0 = 1.0, 0.92, 0.78, 30','VALUE_0_OFF = 0, 0, 0','CONDITION = NIGHT_SMOOTH','']
+    blk='; >>> VR6 lights (generated, do not edit by hand)\n'+'\n'.join(s)+'\n; <<< VR6 lights\n';p=f'{Z}/extension/ext_config.ini';t=open(p).read()
+    if '; >>> VR6 lights' in t: t=t[:t.index('; >>> VR6 lights')]+t[t.index('; <<< VR6 lights')+len('; <<< VR6 lights\n'):]
+    open(p,'w').write(t.rstrip('\n')+'\n\n'+blk)
+if __name__=='__main__':
+    a=np.array(Image.open(f'{A}/pickup_ao.png').convert('L'),np.float32)/255;c=np.array(Image.open(f'{A}/pickup_col.png').convert('RGB'),np.float32)
+    tex=np.clip(c*(0.35+0.65*a[...,None]),0,255).astype(np.uint8);Image.fromarray(tex).save(f'{A}/pickup_diffuse.png')
+    T=[('vr6_pickup.dds',B.write_dds(np.dstack([tex,np.full(a.shape,255,np.uint8)]),'DXT1',12,None)),('vr6_blob_rect.dds',blob_tex('rect')),('vr6_blob_round.dds',blob_tex('round')),
+       ('vr6_pole.dds',L.solid_dds((95,98,102))),('vr6_lens.dds',L.solid_dds((230,228,215)))]
+    PP=W.read_materials(SRC);tpl=next(m for m in PP.values() if m['shader']=='ksPerPixel')['props']
+    def m(name,tex,ab=0,dm=0,**kw): return dict(name=name,shader='ksPerPixel',ab=ab,at=0,dm=dm,props=L.props(tpl,**kw),samplers=[('txDiffuse',0,tex)])
+    spec={'paint':(0.7,60),'chrome':(1.0,120),'glass':(1.0,200),'light':(0.8,80),'tail':(0.6,60),'rim':(0.7,60)}
+    PM=pickup_meshes();mats=[];mi={}
+    for k in PM:
+        sp,ex=spec.get(k,(0.1,12));mi[k]=len(mats);mats.append(m(f'vr6_pickup_{k}','vr6_pickup.dds',ksAmbient=0.5,ksDiffuse=0.5,ksSpecular=sp,ksSpecularEXP=ex,ksEmissive=(0,0,0)))
+    mi['blob_r']=len(mats);mats.append(m('vr6_shadow_rect','vr6_blob_rect.dds',ab=1,dm=1,ksAmbient=0.3,ksDiffuse=0.3,ksSpecular=0,ksSpecularEXP=1,ksEmissive=(0,0,0)))
+    mi['blob_o']=len(mats);mats.append(m('vr6_shadow_round','vr6_blob_round.dds',ab=1,dm=1,ksAmbient=0.3,ksDiffuse=0.3,ksSpecular=0,ksSpecularEXP=1,ksEmissive=(0,0,0)))
+    mi['pole']=len(mats);mats.append(m('vr6_pole','vr6_pole.dds',ksAmbient=0.45,ksDiffuse=0.45,ksSpecular=0.3,ksSpecularEXP=30,ksEmissive=(0,0,0)))
+    mi['lens']=len(mats);mats.append(m('vr6_lamp_lens','vr6_lens.dds',ksAmbient=0.5,ksDiffuse=0.5,ksSpecular=0.5,ksSpecularEXP=60,ksEmissive=(0,0,0)))
+    ME=[dict(name=f'vr6_pickup_{k}',mat_index=mi[k],verts=V,idx=I) for k,(V,I) in PM.items()]
+    sh=[decal(PK[0],PK[1],6.6,2.7,y=-0.0999)]
+    for n,x,z,k in VP.TENTS: sh.append(decal(x,z,8.8,8.8))
+    sd=[decal(90.2,17.0,0.9,0.9),decal(92.4,18.2,0.9,0.9)]
+    V,I=L.merge(sh);ME.append(dict(name='vr6_contact_shadow_rect',mat_index=mi['blob_r'],verts=V,idx=I))
+    V,I=L.merge(sd);ME.append(dict(name='vr6_contact_shadow_people',mat_index=mi['blob_o'],verts=V,idx=I))
+    (PV,PI),(HV,HI)=pole_meshes();ME.append(dict(name='vr6_light_poles',mat_index=mi['pole'],verts=PV,idx=PI));ME.append(dict(name='vr6_lamp_glow',mat_index=mi['lens'],verts=HV,idx=HI))
+    W.write_kn5(f'{Z}/zw_vr6.kn5',T,mats,ME,rootname='zw_vr6');print('zw_vr6.kn5',[(x['name'],len(x['idx'])) for x in ME])
+    ext_ini()
+    for ini in('models_main.ini','models_short.ini'):
+        p=f'{Z}/{ini}';s=open(p).read()
+        if 'zw_vr6.kn5' not in s: open(p,'a').write('\n[MODEL_10]\nFILE=zw_vr6.kn5\nPOSITION=0,0,0\nROTATION=0,0,0\n')
