@@ -247,3 +247,17 @@ Mapping: both images were registered to AC x/z. Image A was matched by hand agai
 - **CSP requirement:** CSP with track Lua scripts, 0.1.79 or newer (0.2.x recommended). Without CSP the bulbs simply stay dark.
 - Previews: docs_preview/drag_launch.png (sections + rubber), docs_preview/drag_tree.png (8 states, night). Tools: tools/vr5_drag.py (rerunnable from /workspace/rpotm/backup/pre_vr5/), tools/vr5_meshlib.py. The preview renderer gained VR5_EMIT / VR5_NIGHT options.
 - **Untested in game:** the script (only checked with a Lua stub runner), emissive brightness, grip feel (1.14 may be strong for street tyres), and decal z-fighting at distance.
+
+## VR5b: end-gantry ads, exits B/C to the lot, entrance pickup, paddock figures
+- **Drag-strip end billboards:** the 4 ad panels on the finish gantry (z −606, `adds_drag_SUB0` corners) are hidden. New panels sit at the same corners, +1 cm, with own art `billboard_adhere.dds` ("PLACE YOUR / AD HERE / ADVERTISE AT I-29 SPEEDWAY", VF placeholder style; assets_src/brand/billboard_adhere.png). The shared `rpm_adds_01` atlas and the ET/MPH boards are untouched.
+- **Exits B (z −801) and C (z −952.4), the last two on the left/west side:** new `1XROAD_dragexit_B_west` / `_C_west` (tools/drag_exit.py, zw_dragexit.kn5).
+  - They continue west from the return road (overlapping it by 0.5 m) to the lot/public road at x ≈ −389 (flared 2 m at the end), so there is asphalt the whole way and no grass gap.
+  - The last 12 m ramp up to meet the road surface (y −0.04). Max height step along the line is ≤ 1 cm. 0 grass samples and 0 down-facing tris.
+  - Same exit asphalt (drag_exit_asphalt) and the same KEY XROAD as the other drag exits: drivable road, but IS_VALID_TRACK=0 like the other exits. They are off the race layout, so no cut flag.
+  - A north-extension power pole stood in the B lane, so it was moved 6 m south (`xpoles`, now z ≈ −808.8).
+- **Track entrance (west gate → drag staging lot):** hidden the ambulance at (−280, −332) and the food booth `drag_kiosk_SUB0..3` at (−289, −343). That booth is the "taco truck"; it is the only food vendor at the entrance.
+  - New generic, unbranded 4-door crew-cab pickup (Silverado-like proportions, 6.0 × 2.03 × 1.95 m; dark blue paint, chrome grille and bumpers, glass, 4 wheels) in the ambulance spot, nose toward the gate.
+  - Self-made procedurally (tools/vr5_meshlib.py primitives, not Blender-modelled), visual only.
+- **People:** 2 static, simple self-made figures (1.78 m blue shirt, 1.70 m red shirt) under the open scrutineering shed (`paddock_scrut`, x 87..96, z 13..21) next to the large green paddock building. They stand on concrete at y −0.10. Visual only.
+- New `zw_vr5.kn5` = MODEL_9 (main + short). Tools: tools/vr5_extras.py (rerunnable from /workspace/rpotm/backup/pre_vr5b/ and pre_vr5/). All kn5 files parse; paddock spawns re-verified 36/36.
+- Previews: docs_preview/vr5_billboards.png, vr5_exits.png, vr5_entrance.png, vr5_people.png.

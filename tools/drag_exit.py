@@ -21,6 +21,14 @@ LANES=[]
 for nm,z,wd in STUBS:   # west crossovers: strip west edge -> return road east asphalt edge
     LANES.append((f'1XROAD_dragexit_{nm}',straight((sx(z,'W')+2.0,z),(RX+RW/2,z),16),lambda s,L,wd=wd:wd+2.0*np.clip(1-s/6,0,1),lambda s,L:(1,1),3.0))
 ze=-735.5;LANES.append(('1XROAD_dragexit_E',straight((sx(ze,'E')-2.0,ze),(-234.1,ze),10),lambda s,L:6.0+1.0*np.clip(1-s/5,0,1),lambda s,L:(1,1),3.0))
+# VR5: exits B and C continue west from the return road to the public road / lot (x≈-389, flat y -0.04): no grass gap.
+# Start overlaps the return road by 0.5 m (flush), last 12 m ramp up so the lane meets the road surface (+5 mm) 1.5 m inside it.
+WEST=[('B',-801.0,7.0,-389.5),('C',-952.4,6.5,-388.5)];ROADY=-0.04
+for nm,z,wd,xe in WEST:
+    LANES.append((f'1XROAD_dragexit_{nm}_west',straight((RX-RW/2+0.5,z),(xe-1.5,z),40),lambda s,L,wd=wd:wd+2.0*np.clip(1-(L-s)/6,0,1),lambda s,L:(1,1),0.0))
+def ramp(name,s,L):
+    if not name.endswith('_west'): return 0.0
+    return (ROADY+0.005-(Y0+0.012)-0.01)*np.clip((s-(L-12))/12,0,1)
 def rr_w(s,L): return RW+np.where(s>L-10,3.5*np.clip((s-(L-10))/10,0,1),0)
 def rr_edges(s,L):  # no east blend where a crossover joins
     z=-956.0+s;east=all(abs(z-zc)>wd/2+1.5 for _,zc,wd in STUBS);return (1,1 if east else 0)
@@ -31,7 +39,7 @@ for name,P,wf,ef,flush in LANES:
     s=np.r_[0,np.cumsum(np.linalg.norm(np.diff(P,axis=0),axis=1))];L=s[-1];T=np.gradient(P,axis=0);T/=np.linalg.norm(T,axis=1)[:,None];Lf=np.c_[-T[:,1],T[:,0]]
     w=np.array([wf(si,L) for si in s]);V=[];k=len(fr)
     for i in range(len(P)):
-        yb=Y0+0.012*(np.clip(s[i]/flush,0,1) if flush else 1);el,er=ef(s[i],L)
+        yb=Y0+0.012*(np.clip(s[i]/flush,0,1) if flush else 1)+ramp(name,s[i],L);el,er=ef(s[i],L)
         for j in range(k):
             ext=(-0.4*el if j==0 else 0.4*er if j==k-1 else 0);o=fr[j]*w[i]+ext;q=P[i]+Lf[i]*o
             V.append([q[0],yb+(dy[j] if (j not in(0,k-1) or ext!=0) else 0),q[1],0,1,0,0.5+o/7.5,s[i]/16.0,T[i,0],0,T[i,1]])
