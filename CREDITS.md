@@ -57,3 +57,28 @@ All medium/high/unknown-risk textures were replaced (see `docs/assets.csv`, colu
 ## Vybes Forge branding (one paddock tent)
 - "Vybes Forge" name, VF monogram logo and palette: © Vybes Forge, owned by Dylan Cruse; used with permission on one paddock tent (tentcok.dds slot, material tent_coke). Not covered by the project's Apache-2.0 licence (trademark, see NOTICE) — do not reuse outside this track without the owner's permission.
 - Font: Space Grotesk (Florian Karsten), SIL Open Font License 1.1 (assets_src/brand/SpaceGrotesk_OFL.txt), via Google Fonts.
+
+## Lineage & inspirations
+1. **Porsche Guy**: original Mid America Motorplex for *Sports Car GT* (SCGT), released 2004-08-16. Layout from scratch; scenery fictional.
+2. **Bud Lucas & Andy55**: rFactor conversion of Porsche Guy's track (with permission).
+3. **derDumeklemmer** (Team Schwarzbierbude.de):
+   - GTL conversion of the rF version (Jan 2007);
+   - GTL/GTR2/EVO rework (V2.0, Jan 2009, "nearly everything re-modeled") plus the 1.4-mile D-Curve layout;
+   - Formula Truck 2013 version;
+   - **Assetto Corsa conversion, Mid America Motorplex V1.0 (2015-04/05)**. This is the "old AC version" zwiss mentions.
+   - https://www.overtake.gg/downloads/mid-america-motorplex.6123/ ; https://www.overtake.gg/downloads/mid-america-motorplex.1146/ ; https://www.overtake.gg/downloads/mid-america-motorplex-gtl-reloaded-by-derdumeklemmer.22004/
+4. **zwiss**: *Raceway Park of the Midlands* v0.9, published 2023-02-08 (ui_track.json: year 2022, "Scratch build"). Per ZWISS.txt, zwiss remade the track in 3DS Max from scratch, using "the outline of the main layout as a starting point". Sections file and logo by **Fanapryde**. "A few objects and textures" were borrowed "left and right".
+   - https://www.overtake.gg/downloads/raceway-park-of-the-midlands.58166/ ; https://www.overtake.gg/threads/raceway-park-of-the-midlands.255181/
+5. **CNDS** (Concept Drift Series):
+   - *CNDS Mayhem in the Midlands 2023*: credited "Scratch built by Zwiss", drift layout and branding by MoxyShredz & Temple Productions.
+   - *CNDS Raceway Park of the Midlands 2024* (v3.0): "Track remodel by Geronimo Designs". Hash checks (docs/PROVENANCE.md §6) confirm it is built on zwiss v0.9.
+   - https://assettocorsamods.io/tracks/cnds_mayhem_in_the_midlands_2023/ ; https://assettocorsamods.io/tracks/cnds_raceway_park_of_the_midlands/ ; https://grippedupmods.com/downloads/tracks/cnds-raceway-park-2024 ; https://vosan.co/tracks/cnds-2024-raceway-park
+6. **This project (I-29 Speedway, vybesforge)**: built on zwiss v0.9.
+
+### What this project used, per source
+| source | used (ships) | reference only | not used |
+|---|---|---|---|
+| Porsche Guy SCGT, Bud Lucas/Andy55 rF, Dumeklemmer GTL/GTR2/AC | nothing directly. The layout outline reaches us only through zwiss's rebuild. | track history (this section) | all files. None are in the repo or in `original/`. |
+| zwiss v0.9 | 5 kn5s as base: 857k shipped visual tris, of which 7.2 % unchanged/re-draped-only and 34.3 % retextured. 66 textures (62.2 MB). 37 unchanged data files + 11 modified. Copied parts: marshal figure, overlays, 1SCUT_hairpin (see PROVENANCE §1–5). | AI seed lines and layout for regeneration | the ~73 textures we replaced (CC0/PD or ours) |
+| Fanapryde | sections.ini, logo (via zwiss) | — | — |
+| CNDS 2023/2024 | **nothing**: 0 textures, 0 meshes, 0 node names, 0 data files unique to CNDS | a one-off kn5 inventory (docs/audit_cnds_kn5.txt) to compare layouts and scene structure | drift layout, branding, objects, physics, AI, cameras, VAO, settings |

@@ -1,6 +1,6 @@
 import sys,re,struct,hashlib,os,glob,json,collections,numpy as np
 sys.path.insert(0,'project/tools');import kn5patch as K,kn5write as W
-NEW='project/zw_rpm/';OLD='original/zwiss_rpotm_v0.9/zw_rpm/'
+NEW=os.environ.get('PROV_NEW','project/zw_rpm/');OLD='original/zwiss_rpotm_v0.9/zw_rpm/'
 def load(fn):
     d=open(fn,'rb').read();tex,nodes=K.scan(fn);mats=list(W.read_materials(fn).items())
     T={n:hashlib.md5(d[so+4:so+4+sz]).hexdigest() for n,so,sz in tex};TS={n:sz for n,so,sz in tex}
@@ -10,7 +10,7 @@ def load(fn):
         p=o+l+5;fl=d[p:p+3];q=p+3;nv,=struct.unpack_from('<I',d,q);V=d[q+4:q+4+nv*44];q2=q+4+nv*44;ni,=struct.unpack_from('<I',d,q2)
         I=d[q2+4:q2+4+ni*2];mat,=struct.unpack_from('<I',d,q2+4+ni*2);rend=d[q2+4+ni*2+32]
         P=np.frombuffer(V,'<f4').reshape(nv,11)
-        M.append(dict(name=name,tris=ni//3,vis=fl[1]==1 and rend==1,phys=bool(re.match(r'^\d+[A-Z]',name)),pos=hashlib.md5(P[:,:3].tobytes()+I).hexdigest(),full=hashlib.md5(V+I).hexdigest(),mat=mats[mat][0] if mat<len(mats) else '?',samp=[t for _,_,t in mats[mat][1]['samplers']] if mat<len(mats) else [],matdef=json.dumps([mats[mat][1]['shader'],[(a,b.hex()) for a,b in mats[mat][1]['props']],mats[mat][1]['samplers']]) if mat<len(mats) else ''))
+        M.append(dict(name=name,tris=ni//3,vis=fl[1]==1 and rend==1,phys=bool(re.match(r'^\d+[A-Z]',name)),pos=hashlib.md5(P[:,:3].tobytes()+I).hexdigest(),xz=hashlib.md5(P[:,[0,2]].tobytes()+I).hexdigest(),full=hashlib.md5(V+I).hexdigest(),mat=mats[mat][0] if mat<len(mats) else '?',samp=[t for _,_,t in mats[mat][1]['samplers']] if mat<len(mats) else [],matdef=json.dumps([mats[mat][1]['shader'],[(a,b.hex()) for a,b in mats[mat][1]['props']],mats[mat][1]['samplers']]) if mat<len(mats) else ''))
     return M,T,TS
 ZW={'zw_rpm.kn5','zw_rpm_physical.kn5','zw_rpm_gp.kn5','zw_rpm_sh.kn5','zw_vegetation.kn5'}
 COPIES=('vr7_person_','shortT_overlay_','1SCUT_hairpin')
@@ -27,17 +27,20 @@ for fn in sorted(glob.glob(NEW+'*.kn5')):
             o=om.get(m['name'])
             if o:
                 o=o.pop(0) if o else None
-            if o is None and re.match(r'1GRASS_\d\d$',m['name']): k='modified'   # split of zwiss 1GRASS
+            texsame=all(seen_tex[(b,t)][0]=='zwiss' for t in m['samp'] if (b,t) in seen_tex);matsame=o is not None and o['matdef']==m['matdef'] and texsame
+            if o is None and re.match(r'1GRASS_\d\d(_\d\d)?$',m['name']): k='grass'   # split/refined zwiss 1GRASS
             elif o is None: k='ours'
-            elif not m['vis'] and o['vis']: k='modified'  # hidden by us
-            elif o['pos']==m['pos'] and o['matdef']==m['matdef'] and all(seen_tex[(b,t)][0]=='zwiss' for t in m['samp'] if (b,t) in seen_tex): k='unchanged'
-            else: k='modified'
+            elif not m['vis'] and o['vis']: k='hidden'
+            elif o['pos']==m['pos'] and matsame: k='unchanged'
+            elif matsame: k='redrape'   # same material/textures, heights moved (incl. lidar refinement)
+            elif o['pos']==m['pos']: k='retex'
+            else: k='redrape+retex'
         else:
-            k='modified' if m['name'].startswith(COPIES) else 'ours'
+            k='copied' if m['name'].startswith(COPIES) else 'ours'
             for t in T: seen_tex.setdefault((b,t),('ours-file',TS[t]))
         if m['vis']: cat[k]+=m['tris']
         if m['phys']: pcat[k]+=m['tris']
-print('VISUAL',dict(cat),sum(cat.values()));print('PHYS',dict(pcat),sum(pcat.values()))
+tv=sum(cat.values());tp=sum(pcat.values());print('VISUAL',tv,{k:(v,round(100*v/tv,1)) for k,v in cat.items()});print('PHYS',tp,{k:(v,round(100*v/tp,1)) for k,v in pcat.items()})
 # textures: unique by name across files
 tx=collections.defaultdict(lambda:[0,0.0])
 for (b,t),(k,s) in seen_tex.items(): tx[k][0]+=1;tx[k][1]+=s/1e6
