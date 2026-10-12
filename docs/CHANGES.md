@@ -124,3 +124,10 @@ The top-view check shows no leaf across a road, the pit exit or the track (`docs
   - T1 (short layout only, leaving the drag strip east edge x≈-214.5, z -418..-378): 2 cm seam lip at the concrete/asphalt edge + 4 cm hump (4 m long) 5 m into the infield road. Main layout line (x<-224) untouched.
   - T5 (merge back onto the drag strip, south end z≈-98; also on the main layout path): 2 cm seam lip + 3 cm hump 8 m before it.
   - Visual mesh unchanged (≤4 cm); AI lines unchanged.
+
+## Drag-strip exit lane (1/8 mile strip, 1DRAGstrip)
+- New `zw_dragexit.kn5` (MODEL_6, both layouts; tools/drag_exit.py): asphalt exit lane on the LEFT (west) of the shutdown area, located from NAIP 2021 + Apple Maps: crossover at z≈-628.5 (14 m flare at the strip, 7.5 m lane), left curve R 12 m onto the real return road at x≈-297, south 70 m to the staging/pit lot (widens to 11.5 m). 110 m, 1,312 tris.
+- `1XROAD_dragexit` = visual + physics, KEY XROAD (drivable, not valid track, no black flag). Flush with the strip at the junction, 1-2 cm crown, 1.2 m sloped edges blending into the ground.
+- Texture `drag_exit_asphalt.dds`: CC0 ambientCG Asphalt012 base + procedural rubber grooves/tyre streaks (CC0), Asphalt012 normal map.
+- 16 m gap cut in the west drag-strip armco (visual armco000/armco000BACK + physics 1WALL_armco) at z -636..-620, matching the real opening.
+- Clearance: ≥23 m from main fast_lane, 159 m from short fast_lane, far from pit lanes; AI files unchanged. Backups: /workspace/rpotm/backup/*.pre_dragexit.
