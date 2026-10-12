@@ -26,11 +26,11 @@ def ctext(cx,cy,s,f,fill,sx=1.0,sy=1.0):  # centred text with optional anisotrop
 # --- roof panel (triangle apex (N/2,0), base y=N/2). roof slant ~3.5 m over 512 px vs 5.2 m over 1024 px -> squash vertically 0.74
 for i,(c,o) in enumerate(((MG,0),(CY,14))):           # trim along roof base (eave)
     D.rectangle([0,N//2-30+o,N,N//2-22+o],fill=c)
-lg=Image.open(LOGO).convert('RGB');s=330;lg=lg.resize((s,int(s*0.74)),Image.LANCZOS)
+lg=Image.open(LOGO).convert('RGB');s=400;lg=lg.resize((s,int(s*0.74)),Image.LANCZOS)  # VR3: bigger roof logo
 yy,xx=np.mgrid[0:lg.height,0:lg.width];r=np.hypot((xx-lg.width/2)/(lg.width/2),(yy-lg.height/2)/(lg.height/2))
 mask=Image.fromarray((np.clip((1.0-r)/0.18,0,1)*255).astype(np.uint8))
-im.paste(lg,(N//2-lg.width//2,205),mask)
-ctext(N//2,462,'VYBES FORGE',font(52),TX,sx=1.0,sy=0.74)
+im.paste(lg,(N//2-lg.width//2,205),mask)  # fits inside the roof triangle (half-width at row y = y)
+# roof text dropped in VR3 (logo larger; eave/valance carry the name)
 # --- walls: valance (rows 512-576) and skirt (840-1024)
 D.rectangle([0,N//2,N,N//2+5],fill=CY);D.rectangle([0,570,N,575],fill=MG)
 ctext(N//2,543,'VYBES FORGE',font(40),TX)
@@ -44,5 +44,6 @@ dds=B.write_dds(rgba,'DXT5',11,None)
 # add texture as new blob: rename-free approach -> replace the tent_coke material's txDiffuse by splicing the texture blob
 # (tentcok.dds is used only by tent_coke / tentm_SUB3; verified below)
 import kn5mat as KM
+CUR=DST+'.tmp';import shutil;shutil.copy(DST,CUR)
 users=[m['name'] for m in KM.load(SRC)['materials'] if any(t=='tentcok.dds' for _,_,t in m['samplers'])];assert users==['tent_coke'],users
-K.patch(SRC,DST,texrep={'tentcok.dds':dds});print('tentcok.dds replaced with Vybes Forge artwork (1024 DXT5), users:',users)
+K.patch(CUR,DST,texrep={'tentcok.dds':dds});os.remove(CUR);print('tentcok.dds replaced with Vybes Forge artwork (1024 DXT5), users:',users)

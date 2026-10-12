@@ -39,10 +39,15 @@ for wid,w in WAY.items():
 # ---------------------------------------------------------------- height raster (1 m) over box
 gx=np.arange(X0,X1+1,1.0);gz=np.arange(Z0,Z1+1,1.0);GX,GZ=np.meshgrid(gx,gz);GP=np.c_[GX.ravel(),GZ.ravel()]
 NAT,WB=geo.natural(GP);NAT=NAT.reshape(GX.shape);WB=WB.reshape(GX.shape);H=NAT.copy()
+from scipy.ndimage import gaussian_filter
+NATS=gaussian_filter(NAT,12,mode='nearest')  # VR3: smoothed terrain shared by roads + lots (consistent junctions, gentle grades)
+def nats(P):
+    P=np.atleast_2d(P);v=map_coordinates(NATS,[P[:,1]-Z0,P[:,0]-X0],order=1,mode='nearest');v[P[:,1]>=geo.zb(P[:,0])]=-0.1;return v
 def Hs(P):
     P=np.atleast_2d(P);r=(P[:,1]-Z0);c=(P[:,0]-X0);v=map_coordinates(H,[r,c],order=1,mode='nearest')
     south=P[:,1]>=geo.zb(P[:,0]);v[south]=-0.1;return v
 def road_profile(R,visual=False):
+    if not visual: return gaussian_filter1d(nats(R),15,mode='nearest')
     y,_=geo.natural(R)
     if visual:  # bridge-fill: close dips (bare-earth DEM removes bridge decks)
         y=minimum_filter1d(maximum_filter1d(y,121),121)
@@ -56,8 +61,8 @@ for name,R,hw,surf,lab,y,ph in roads:
     S.append(R);Y.append(y);HW.append(np.full(len(R),hw))
 S=np.vstack(S);Y=np.concatenate(Y);HW=np.concatenate(HW);tr=cKDTree(S)
 d,ix=tr.query(GP,distance_upper_bound=40);ok=np.isfinite(d);dd=np.full(len(GP),1e9);dd[ok]=d[ok]
-wgt=np.zeros(len(GP));wgt[ok]=np.clip(1-(dd[ok]-HW[ix[ok]]-1.5)/8,0,1)
-tgt=np.zeros(len(GP));tgt[ok]=Y[ix[ok]]-0.15;Hf=H.ravel();Hf=Hf*(1-wgt)+tgt*wgt;H=Hf.reshape(H.shape)
+wgt=np.zeros(len(GP));wgt[ok]=np.clip(1-(dd[ok]-HW[ix[ok]]-6.0)/10,0,1)
+tgt=np.zeros(len(GP));tgt[ok]=Y[ix[ok]]-0.2;Hf=H.ravel();Hf=Hf*(1-wgt)+tgt*wgt;H=Hf.reshape(H.shape)  # VR3: wider/deeper burn
 # ---------------------------------------------------------------- lots from NAIP (bright, low NDVI) in search boxes
 nb=np.load(f'{NO}/naip_box_rgbn.npy').astype(np.float32);nh,nw=nb.shape[:2]
 r_,g_,b_,n_=[nb[...,i] for i in range(4)];ndvi=(n_-r_)/(n_+r_+1e-3);bri=nb[...,:3].mean(-1);sat=nb[...,:3].max(-1)-nb[...,:3].min(-1)
@@ -80,7 +85,7 @@ LOG.append('lots: '+', '.join(f'{n} {p.area:.0f} m2' for n,p,_ in lotpolys))
 for i,(nm,pg,surf) in enumerate(lotpolys):
     inside=np.array([pg.contains(sg.Point(p)) for p in GP[::7]]);yl=float(np.median(NAT.ravel()[::7][inside])) if inside.any() else 0.0
     mask=np.zeros(GX.shape,np.uint8);cv2.fillPoly(mask,[np.round(np.c_[np.array(pg.exterior.coords)[:,0]-X0,np.array(pg.exterior.coords)[:,1]-Z0]).astype(np.int32)],1)
-    dist=distance_transform_edt(1-mask);w=np.clip(1-(dist-1)/6,0,1);H=H*(1-w)+(yl-0.12)*w;lotpolys[i]=(nm,pg,surf,yl)
+    dist=distance_transform_edt(1-mask);w=np.clip(1-(dist-6)/8,0,1);H=H*(1-w)+(NATS+0.04-0.2)*w;lotpolys[i]=(nm,pg,surf,yl)  # VR3
 # ---------------------------------------------------------------- materials
 TM=W.read_materials(KN);MMp=TM['wc'];PPp=TM['roof_red'];ATp=TM['trackedge'];MLp=TM['google']
 def P_(props,**kw):
@@ -153,8 +158,8 @@ for name,R,hw,surf,lab,y,ph in roads:
     V,I=ribbon(R2,y2,[(hw,0),(-hw,0)],[0,2*hw/(7.3 if surf=='concrete' else 6.0)],vs,s)
     pre=('1XROAD_' if ph else 'xroad_')
     emit(pre+name,rm[surf],(V,I),lod=0 if ph else 2500)
-    V,I=ribbon(R2,y2,[(hw+1.6,-0.22),(hw,0)],[0,0.8],2.0,s);emit(('1GRAVEL_EXT_' if ph else 'xshoulder_')+name+'L','ext_gravel',(V,I),lod=0 if ph else 1500)
-    V,I=ribbon(R2,y2,[(-hw,0),(-hw-1.6,-0.22)],[0,0.8],2.0,s);emit(('1GRAVEL_EXT_' if ph else 'xshoulder_')+name+'R','ext_gravel',(V,I),lod=0 if ph else 1500)
+    V,I=ribbon(R2,y2,[(hw+1.0,-0.1),(hw,0)],[0,0.5],2.0,s);emit(('1GRAVEL_EXT_' if ph else 'xshoulder_')+name+'L','ext_gravel',(V,I),lod=0 if ph else 1500)
+    V,I=ribbon(R2,y2,[(-hw,0),(-hw-1.0,-0.1)],[0,0.5],2.0,s);emit(('1GRAVEL_EXT_' if ph else 'xshoulder_')+name+'R','ext_gravel',(V,I),lod=0 if ph else 1500)
     # markings (visual): white edge lines; yellow centre (2-lane two-way) or yellow left edge (divided one-way)
     edge=hw-0.45 if hw>3 else hw-0.3
     for o in (edge,-edge):
@@ -186,12 +191,17 @@ emit('xbridges','ext_concrete',mb,lod=2500)
 for i,(nm,pg,surf,yl) in enumerate(lotpolys):
     ext=np.array(pg.exterior.coords)[:-1];holes=[np.array(h.coords)[:-1] for h in pg.interiors];allp=np.vstack([ext]+holes)
     rings=np.cumsum([len(ext)]+[len(h) for h in holes]).astype(np.uint32)
-    tri=earcut.triangulate_float64(allp,rings).reshape(-1,3)
-    V=np.c_[allp[:,0],np.full(len(allp),yl+0.04),allp[:,1],np.tile([0,1,0],(len(allp),1)),allp[:,0]/(9.0 if surf=='concrete' else 2.0),allp[:,1]/(9.0 if surf=='concrete' else 2.0),np.tile([1,0,0],(len(allp),1))]
+    # VR3: Delaunay over boundary + 4 m interior grid so the lot follows the smoothed terrain (no ground poking through)
+    from scipy.spatial import Delaunay
+    bx=pg.bounds;gg=np.array([(x_,z_) for x_ in np.arange(bx[0]+2,bx[2],4.0) for z_ in np.arange(bx[1]+2,bx[3],4.0)])
+    if len(gg): gg=gg[[pg.buffer(-1.0).contains(sg.Point(q)) for q in gg]]
+    allp=np.vstack([allp,gg]) if len(gg) else allp
+    tri=Delaunay(allp).simplices;cen=allp[tri].mean(1);tri=tri[[pg.contains(sg.Point(q)) for q in cen]]
+    V=np.c_[allp[:,0],nats(allp)+0.04,allp[:,1],np.tile([0,1,0],(len(allp),1)),allp[:,0]/(9.0 if surf=='concrete' else 2.0),allp[:,1]/(9.0 if surf=='concrete' else 2.0),np.tile([1,0,0],(len(allp),1))]
     emit(f'1XLOT_{nm}_{i}' if surf=='concrete' else f'1GRAVEL_EXT_lot{i}','ext_concrete' if surf=='concrete' else 'ext_gravel',(V,fix(V,tri)))
 def lot_y(p):
     for nm,pg,surf,yl in lotpolys:
-        if pg.contains(sg.Point(p)): return yl+0.04
+        if pg.contains(sg.Point(p)): return float(nats(np.array([p]))[0])+0.04
     return float(Hs(np.array([p]))[0])+0.1
 # buildings / canopies from OSM
 mw=M();mg=M();mr=M();mc=M();mgl=M();mcol=M();mpump=M();misl=M();mfas_ts=M();mfas_f=M()
@@ -301,11 +311,14 @@ mpole=M();mfence=M()
 for name,R,hw,surf,lab,y,ph in roads:
     if lab!='190th Street': continue
     R2,s=resample(R,70.0);T_=np.gradient(R2,axis=0);T_/=np.linalg.norm(T_,axis=1)[:,None]+1e-9;L=np.c_[-T_[:,1],T_[:,0]]
+    others=np.vstack([r[1] for r in roads if r[0]!=name]);tro=cKDTree(others)
     for i in range(len(R2)):
-        p=R2[i]-L[i]*(hw+7);yy=float(Hs(np.array([p]))[0]) if p[1]<-2550 else -0.1
+        p=R2[i]-L[i]*(hw+7)
+        if tro.query(p)[0]<30: continue  # VR3: no poles at junctions/exits
+        yy=float(Hs(np.array([p]))[0]) if p[1]<-2550 else -0.1
         mpole.cyl((p[0],yy-0.5,p[1]),0.15,11.5,7,3);mpole.box((p[0],yy+10.0,p[1]),(2.4,0.14,0.14),yaw=math.atan2(T_[i,1],-T_[i,0]),uvscale=1)
     R3,s3=resample(R,4.0);T_=np.gradient(R3,axis=0);T_/=np.linalg.norm(T_,axis=1)[:,None]+1e-9;L=np.c_[-T_[:,1],T_[:,0]];F=R3-L*(hw+10)
-    keep=(F[:,1]<-1000)&~np.array([any(pg.buffer(5).contains(sg.Point(p)) for _,pg,_,_ in lotpolys) for p in F])
+    keep=(F[:,1]<-1e9)&~np.array([any(pg.buffer(5).contains(sg.Point(p)) for _,pg,_,_ in lotpolys) for p in F])
     fy=np.array([float(Hs(np.array([p]))[0]) if p[1]<-2550 else -0.1 for p in F])
     for i in range(len(F)-1):
         if keep[i] and keep[i+1]:

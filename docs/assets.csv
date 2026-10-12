@@ -124,7 +124,7 @@ zw_rpm.kn5,1a_rail.dds,21952,replaced,low,DONE textures/open: alpha: blurred 1/4
 zw_rpm.kn5,rpm_horizon.dds,2796432,own/zwiss,low,Keep under project asset license (zwiss reuse approval); spot-check for embedded photos,,,
 zw_rpm.kn5,tentmars.dds,21888,replaced,low,DONE textures/open: plain unbranded tent fabric; alpha 1/4-res shape,ambientCG Fabric026,CC0 1.0 https://docs.ambientcg.com/license/,256x256 DXT5 mips9
 zw_rpm.kn5,tentchndp.dds,21888,replaced,low,DONE textures/open: plain unbranded tent fabric; alpha 1/4-res shape,ambientCG Fabric026,CC0 1.0 https://docs.ambientcg.com/license/,256x256 DXT5 mips9
-zw_rpm.kn5,tentcok.dds,21888,replaced,low,DONE textures/open: plain unbranded tent fabric; alpha 1/4-res shape,ambientCG Fabric026,CC0 1.0 https://docs.ambientcg.com/license/,256x256 DXT5 mips9
+zw_rpm.kn5,tentcok.dds,1398256,replaced,low,DONE textures/open: plain unbranded tent fabric; alpha 1/4-res shape,ambientCG Fabric026,CC0 1.0 https://docs.ambientcg.com/license/,256x256 DXT5 mips9
 zw_rpm.kn5,tentcl.dds,21888,replaced,low,DONE textures/open: plain unbranded tent fabric; alpha 1/4-res shape,ambientCG Fabric026,CC0 1.0 https://docs.ambientcg.com/license/,256x256 DXT5 mips9
 zw_rpm.kn5,grass_blend.dds,349664,stock,low,Generic detail/normal map; regenerate from CC0 to be safe,,,
 zw_rpm.kn5,red01.dds,87536,stock,low,Generic detail/normal map; regenerate from CC0 to be safe,,,

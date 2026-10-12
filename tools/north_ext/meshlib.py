@@ -49,7 +49,7 @@ def ribbon(P,ys,offs,uvx,vscale,s,nrm_up=True):
         for j in range(k-1):
             a=i*k+j;b=a+1;c=a+k+1;d=a+k;I+=[[a,b,c],[a,c,d]]
     # normals from geometry
-    I=np.array(I);Pp=V[:,:3];g=np.cross(Pp[I[:,1]]-Pp[I[:,0]],Pp[I[:,2]]-Pp[I[:,0]]);g[g[:,1]<0]*=-1
+    I=np.array(I);Pp=V[:,:3];g=np.cross(Pp[I[:,1]]-Pp[I[:,0]],Pp[I[:,2]]-Pp[I[:,0]]);dn=g[:,1]<0;I[dn]=I[dn][:,[0,2,1]];g[dn]*=-1  # VR3: winding up-facing (AC physics needs it; was reversed)
     N=np.zeros_like(Pp);
     for c_ in range(3): np.add.at(N,I[:,c_],g)
     N/=np.linalg.norm(N,axis=1)[:,None]+1e-9;V[:,3:6]=N;return V,I

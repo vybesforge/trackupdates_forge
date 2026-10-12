@@ -19,7 +19,7 @@ def straight(p0,p1,n): return np.c_[np.linspace(p0[0],p1[0],n),np.linspace(p0[1]
 STUBS=[('A',-628.5,8.0),('B',-801.0,7.0),('C',-952.4,6.5)]
 LANES=[]
 for nm,z,wd in STUBS:   # west crossovers: strip west edge -> return road east asphalt edge
-    LANES.append((f'1XROAD_dragexit_{nm}',straight((sx(z,'W')+2.0,z),(RX+RW/2,z),16),lambda s,L,wd=wd:wd+5.0*np.clip(1-s/10,0,1),lambda s,L:(1,1),3.0))
+    LANES.append((f'1XROAD_dragexit_{nm}',straight((sx(z,'W')+2.0,z),(RX+RW/2,z),16),lambda s,L,wd=wd:wd+2.0*np.clip(1-s/6,0,1),lambda s,L:(1,1),3.0))
 ze=-735.5;LANES.append(('1XROAD_dragexit_E',straight((sx(ze,'E')-2.0,ze),(-234.1,ze),10),lambda s,L:6.0+1.0*np.clip(1-s/5,0,1),lambda s,L:(1,1),3.0))
 def rr_w(s,L): return RW+np.where(s>L-10,3.5*np.clip((s-(L-10))/10,0,1),0)
 def rr_edges(s,L):  # no east blend where a crossover joins
@@ -33,7 +33,7 @@ for name,P,wf,ef,flush in LANES:
     for i in range(len(P)):
         yb=Y0+0.012*(np.clip(s[i]/flush,0,1) if flush else 1);el,er=ef(s[i],L)
         for j in range(k):
-            ext=(-1.2*el if j==0 else 1.2*er if j==k-1 else 0);o=fr[j]*w[i]+ext;q=P[i]+Lf[i]*o
+            ext=(-0.4*el if j==0 else 0.4*er if j==k-1 else 0);o=fr[j]*w[i]+ext;q=P[i]+Lf[i]*o
             V.append([q[0],yb+(dy[j] if (j not in(0,k-1) or ext!=0) else 0),q[1],0,1,0,0.5+o/7.5,s[i]/16.0,T[i,0],0,T[i,1]])
     V=np.array(V,np.float32);I=[]
     for i in range(len(P)-1):
@@ -60,6 +60,17 @@ TM=W.read_materials(f'{BK}/zw_rpm.kn5.pre_dragexit');MMp=TM['wc']
 def P_(props,**kw): return [(p,struct.pack('<f',kw[p])+r[4:]) if p in kw else (p,r) for p,r in props]
 MAT=[dict(name='drag_exit_asphalt',shader='ksPerPixelMultiMap',ab=MMp['ab'],at=MMp['at'],dm=MMp['dm'],props=P_(MMp['props'],ksAmbient=0.3,ksDiffuse=0.3,ksSpecular=0.15,ksSpecularEXP=25),
      samplers=[('txDiffuse',0,'drag_exit_asphalt.dds'),('txNormal',1,'ext_asphalt_nm.dds'),('txMaps',2,'ext_asphalt_maps.dds'),('txDetail',3,'ext_flat_nm.dds')])]
+# VR3: short-course T1/T5 transition overlays (visual only) in exit asphalt, following the physics bump heights
+def zone_tris(x,z): return ((x>-216.5)&(x<-203)&(z>-420)&(z<-376))|((x>-230)&(x<-210)&(z>-106)&(z<-78))
+d_=open(f'{Z}/zw_rpm_physical.kn5','rb').read()
+for nm_,o_,l_,c_ in K.scan(f'{Z}/zw_rpm_physical.kn5')[1]:
+    if c_!=2 or not nm_.startswith('1ROAD'): continue
+    q_=o_+l_+8;nv_,=struct.unpack_from('<I',d_,q_);Vp=np.frombuffer(d_,'<f4',nv_*11,q_+4).reshape(nv_,11);q2_=q_+4+nv_*44;ni_,=struct.unpack_from('<I',d_,q2_);Ip=np.frombuffer(d_,'<u2',ni_,q2_+4).reshape(-1,3)
+    C=Vp[Ip][:,:,[0,2]].mean(1);sel=Ip[zone_tris(C[:,0],C[:,1])]
+    if not len(sel): continue
+    u_,inv=np.unique(sel,return_inverse=True);Vo=Vp[u_].copy();Vo[:,1]+=0.012;Vo[:,3:6]=[0,1,0];Vo[:,6]=Vo[:,0]/7.5;Vo[:,7]=Vo[:,2]/16.0;Vo[:,8:11]=[1,0,0]
+    Io=inv.reshape(-1,3);g=np.cross(Vo[Io[:,1],:3]-Vo[Io[:,0],:3],Vo[Io[:,2],:3]-Vo[Io[:,0],:3]);bd=g[:,1]<0;Io[bd]=Io[bd][:,[0,2,1]]
+    MESHES.append(dict(name=f'shortT_overlay_{nm_[6:]}',mat_index=0,verts=Vo.astype(np.float32),idx=Io,lod_out=0));print('overlay',nm_,len(Io),'tris')
 W.write_kn5(f'{Z}/zw_dragexit.kn5',TEX,MAT,MESHES,rootname='zw_dragexit')
 print('zw_dragexit.kn5 tris',sum(len(m['idx']) for m in MESHES))
 np.save('/tmp/dragexit_P.npy',np.vstack(PW))
@@ -102,8 +113,8 @@ def gapcut(src,dst,names):
     edits.sort();out=bytearray();pos=0
     for a,b,r in edits: out+=d[pos:a]+r;pos=b
     out+=d[pos:];open(dst,'wb').write(bytes(out));return tot
-gapcut(f'{BK}/zw_rpm.kn5.pre_dragexit',f'{Z}/zw_rpm.kn5',{'armco000_SUB0','armco000BACK_SUB0'})
-gapcut(f'{BK}/zw_rpm_physical.kn5.pre_dragexit',f'{Z}/zw_rpm_physical.kn5',{'1WALL_armco'})
+if '--gaps' in sys.argv: gapcut(f'{BK}/zw_rpm.kn5.pre_dragexit',f'{Z}/zw_rpm.kn5',{'armco000_SUB0','armco000BACK_SUB0'})
+if '--gaps' in sys.argv: gapcut(f'{BK}/zw_rpm_physical.kn5.pre_dragexit',f'{Z}/zw_rpm_physical.kn5',{'1WALL_armco'})
 for lay in('main','short'):
     p=f'{Z}/models_{lay}.ini';t=open(p,'rb').read().decode()
     if 'zw_dragexit.kn5' not in t:

@@ -144,3 +144,20 @@ NAIP 2021 (0.6 m) + Apple Maps show four paved turnoffs from the 1DRAGstrip shut
 ## Vybes Forge tent
 - The small paddock tent nearest the racing/pit lines (tentm_SUB3 at x 40, z 67; formerly the Coca-Cola tent, plain fabric since the textures round) is now branded Vybes Forge: dark #02060F fabric, VF logo on each roof panel, "VYBES FORGE" (Space Grotesk) on the roof eave, valance and skirt, vybesforge.com, cyan #29D5E9 / magenta #BF338A trim.
 - Only `tentcok.dds` changed (used solely by material tent_coke); other tents untouched. UV layout respected (roof triangle top half, walls bottom half, original alpha cut-out kept), text not mirrored on outer faces; DXT5, 256 → 1024 px. tools/vf_tent.py; backup /workspace/rpotm/backup/zw_rpm.kn5.pre_vftent.
+
+## VR3 (Dylan's VR notes)
+Root cause of items 1-3/11: every north-extension road ribbon (1XROAD_* and 1GRAVEL_EXT_* shoulders) had down-facing triangles (meshlib.ribbon winding), and the 5 m ground grid poked up to 0.9 m through roads/lots — so wheels hit grass (bumpy, dusty, low grip) or nothing (fall-through → reset).
+1. Smooth roads: road heights now from a 2-D smoothed DEM (σ 12 m) + 15 m along-road smoothing, shared by roads and lots (no junction steps); max XROAD slope 1.4°.
+2. Track→highway road: now actually XROAD (0 dirt/damping/sine); gravel shoulders 1.6 → 1.0 m.
+3. Grip: winding fixed (0 down-facing physics tris); ground burned 0.2 m under roads within hw+6 m (10 m feather); XROAD friction 0.98, XLOT 0.97. Hill into the station smoothed (shared smoothed terrain).
+4. Drag exits keep the grass: crossover flare 5 → 2 m, blend edges 1.2 → 0.4 m.
+5. FENCE_001 (west of the drag strip) opened at exits A (z -642..-614), B, C.
+6. Paddock tents: hidden the 3 other small tents (tentm_SUB0/5/6) and 3 of the 4 big tents; kept the Vybes Forge tent (tentm_SUB3) and the big tent nearest the pits. Visual only (no collision meshes existed).
+7. VF tent: roof logo larger and fully inside the roof triangle (roof text removed; eave/valance/skirt keep the name). Some skew remains from the original roof UVs.
+8. Both lifter/wrecker trucks (liftertrucks_SUB1: by the staging/tower and on the pit-exit road) hidden.
+9. North-extension roadside fence removed; power poles skipped within 30 m of junctions/exits.
+10. Tree billboard quad in front of the stations (TREEWALL_001, z -2599) moved 330 m north behind them (z ≈ -2929), set on terrain.
+11. Lots: Delaunay over boundary + 4 m interior grid following the smoothed terrain, ground burned beneath; sampled 419 road/lot points: no holes, no down-facing tris (remaining "grass on top" samples are ordinary grass/gravel-yard points).
+12. Short-course T1/T5 transitions: visual overlay (shortT_overlay_* in zw_dragexit.kn5) in the drag-exit asphalt, draped on the bumped physics surface +1.2 cm.
+13. T1/T5 physics bumps unchanged.
+Tools: tools/vr3_apply.py, north_ext/build.py+meshlib.py, drag_exit.py (gap cut now only with --gaps), vf_tent.py (patches the current file). Backups: /workspace/rpotm/backup/zw_rpm.pre_vr3/, tools.pre_vr3/.
