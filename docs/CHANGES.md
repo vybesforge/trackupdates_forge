@@ -440,3 +440,35 @@ Backup: `/workspace/rpotm/backup/pre_vr9b_holefix/zw_rpm.kn5` (004b983 state).
   - spawn_verify 36/36 on both layouts, AI validator ALL OK, down faces 0.
 - **Pipeline order now:** `vr9_lidar.py` → `vr9_split_phys.py zw_rpm/zw_rpm.kn5` → `vr9_holecheck.py fix zw_rpm` → `vr9_fill_holes.py /workspace/vr9/cov_fix.npz zw_rpm/zw_rpm.kn5` → `vr9_holecheck.py`.
 - **Untested in game:** the fall-through fix itself (the root cause matches the community-reported AC limit, but it is not reproduced here), how the fill floors look beside the embankment cut and under I-29, and driving into a pond (the car now drops onto the bed instead of falling forever).
+
+## VR10: north extension on lidar, start line, figure faces
+- **North extension re-drape** (`tools/vr10_field.py`, `tools/vr10_ext.py`, `tools/vr10_verify.py`):
+  - The old DEM crop stopped at z −2711, so a wider USGS 3DEP 1 m crop was added: `docs/elevation/dem_crop_1m_wide.tif` (E 261300–264700, N 4543600–4548400).
+  - The new height field fits all pavement, with grade limiting. It blends into the VR9 field over 25–85 m from the extension pavement.
+  - Extension pavement lift: −0.39 to +6.82 m (RMS 2.0 m). Maximum grade 5.59 % (p99 4.33 %).
+  - On the existing track pavement the change vs VR9 is at most 0.104 m and smooth. It is mostly on 1DRAGstrip, ROAD_006/002 and the CONCRETE near the access road, where VR9 had faded the lidar out.
+  - Applied to all kn5s and the AI lines (AI change ≤ 5 mm).
+    - Ground is moved per vertex, after refinement.
+    - Props (signs, canopies, poles, 11 vegetation groups) are moved rigidly on their footprint.
+    - Maximum delta: zw_ext 6.85 m, zw_rpm 7.16 m, zw_dragexit 0.28 m.
+  - Residual vs the target field on pavement: p99 3.6 mm, max 11.8 mm. One step over 1 cm (1.11 cm) is in the 1XLOT_bp_1 lot at (−550, −2700).
+  - The physics meshes were re-split to under 20k triangles each (zw_ext 1GRASS_EXT → 4, 1GRASS_EXT_1 → 2, 1GRAVEL_EXT_lot4 → 2; zw_rpm 1GRASS_00 → 8, _01/_04/_05 → 2 each).
+  - The holes were re-filled with `tools/vr9_fill_holes.py`. It is now generalised to any `1GRASS_NN` mesh, prefers the pavement boundary, and fills relative to the new field.
+- **Spawn slope** (`tools/vr10_pads.py measure`): all 36 pit spawns measure 0.44–0.96 % (max 0.96 %), under the 1.5 % limit, so no pads were flattened. The `apply` path is untested.
+- **Drag start line** (`tools/vr10_stageline.py`):
+  - Sampling the strip texture and mask every 5 cm from z −333 to −400 found no painted transverse line. There is only a light-to-dark fade at z −337..−340 and the centre stripe. The scripts' stage beam (z −347.5) therefore had nothing to align with.
+  - Added a painted 10 cm white start line exactly on the beam (z −347.45..−347.55, across both lanes). Also added 5 cm pre-stage ticks per lane at z −347.322 (7 in / 0.178 m behind).
+  - The new meshes are in zw_draglaunch.kn5, draped +1.2 cm, visual only.
+  - The Lua script, the Python app and the tests already agreed (−347.5 / 0.178), so their values are unchanged. ext_config has no position values.
+  - New unit test `PaintedLineTest` checks the line meshes against the Lua and Python constants (10 tests, all OK).
+- **Figures** (`tools/vr10_faces.py`, zw_vr6.kn5):
+  - Added eye whites and pupils, brows, nose, ears and lips, plus a denser hair shell with a softer hairline and sideburns. The grey figure gets a navy cap.
+  - About 1.9k triangles per person, 4 new solid-colour materials. Placed on the warped head (lidar dy +0.23 m). Contact shadows are unchanged.
+- **Checks:**
+  - holecheck per layout: 0 enclosed holes (main and short).
+  - spawn_verify: 36/36 on both layouts.
+  - vr7_ai_validate: ALL OK.
+  - Down-facing drivable faces: 0.
+  - Unit tests: 10/10.
+  - Parsing: 13 kn5 and 29 ini/json files parse.
+- **Previews:** `docs/previews/vr10_ext_delta.png`, `vr10_people_blue.png`, `vr10_people_grey.png`, `vr10_stageline.png`.

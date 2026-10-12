@@ -1,7 +1,7 @@
 """VR9 hotfix: close every enclosed hole in the collision map (pre-existing zwiss/VR3 gaps:
 ponds without a physical bed, the gaps beside the north-extension road where it cuts through the
 railway embankment, a few slivers at x ~330). Uses the full-map raster from tools/vr9_holecheck.py.
-Fill height per hole cell: nearest LOW boundary cell (boundary cells within 0.3 m of the component's
+Fill height per hole cell: nearest paved boundary cell if the hole touches a road (VR10), else nearest LOW boundary cell (boundary cells within 0.3 m of the component's
 10th-percentile boundary height) -> a floor level with the road/bank, never a nodata/0 value.
 Pond components (a visual 'ponds' mesh over them) get an invisible flat bed at the water mesh minimum - 0.3 m (8 m quads).
 Each fill quad grid is extended 1 cell under the neighbouring surfaces (5 cm lower) so there is no seam.
@@ -59,6 +59,11 @@ def split_mesh(V, I, maxt=20000):
 
 def main(cov, fn):
     r = np.load(cov, allow_pickle=True); H = r['H']; xs = r['xs']; zs = r['zs']
+    nmr = np.array([str(x) for x in r['names']] + ['']); KK = r['KEY']
+    PAVP = ('1ROAD', '1XROAD', '1XLOT', '1GRAVEL', '1PITS', '1CONCRETE', '1DRAG', '1CURB')
+    TF = np.load('/workspace/vr10/field.npz')['Tf'].astype(float) if os.path.exists('/workspace/vr10/field.npz') else np.zeros(H.shape)
+    assert TF.shape == H.shape
+    pavc = np.isin(KK, [k for k, x in enumerate(nmr) if x.startswith(PAVP)])
     hole = ~np.isfinite(H); lab, n = ndimage.label(hole)
     edge = set(np.unique(np.concatenate([lab[0], lab[-1], lab[:, 0], lab[:, -1]]))) - {0}
     # pond visual raster (highest hit = water/bank surface; we use its minimum per component)
@@ -70,7 +75,7 @@ def main(cov, fn):
             q = o + l + 8; nv, = struct.unpack_from('<I', d, q); Vp = np.frombuffer(d, '<f4', nv * 11, q + 4).reshape(nv, 11)[:, :3].astype(float)
             q2 = q + 4 + nv * 44; ni, = struct.unpack_from('<I', d, q2); Ip = np.frombuffer(d, '<u2', ni, q2 + 4).reshape(-1, 3).astype(int)
             pondT.append(('v', name, Vp[Ip]))
-        if c == 2 and name == '1GRASS_00':
+        if c == 2 and re.match(r'1GRASS_\d\d', name) and 'uvfit' not in dir():
             q = o + l + 8; nv, = struct.unpack_from('<I', d, q); Vg = np.frombuffer(d, '<f4', nv * 11, q + 4).reshape(nv, 11)
             q2 = q + 4 + nv * 44; ni, = struct.unpack_from('<I', d, q2); gmat, = struct.unpack_from('<I', d, q2 + 4 + ni * 2)
             A = np.c_[Vg[:, 0], Vg[:, 2], np.ones(nv)]
@@ -83,15 +88,19 @@ def main(cov, fn):
     for k in range(1, n + 1):
         if k in edge: continue
         s = sl[k - 1]; s = (slice(max(s[0].start - 3, 0), s[0].stop + 3), slice(max(s[1].start - 3, 0), s[1].stop + 3))
-        m = lab[s] == k; Hs = H[s]
+        m = lab[s] == k; Ts = TF[s]; Hs = H[s] - Ts      # work relative to the lidar field (VR10), add it back below
         ring = ndimage.binary_dilation(m) & ~m & np.isfinite(Hs)
         bh = Hs[ring]; p10 = np.percentile(bh, 10); low = ring & (Hs <= p10 + 0.3)
+        pr = ring & pavc[s]
+        if pr.sum() >= 5: low = pr          # hole beside a road: continue the road level outwards (VR10)
         _, (jj, ii) = ndimage.distance_transform_edt(~low, return_indices=True)
         fillh = Hs[jj, ii]
         pond = np.isfinite(Hp[s]) & m
         is_pond = pond.sum() > 0.3 * m.sum()
         if is_pond:
             floor = np.nanmin(Hp[s][pond]) - 0.3; fillh = np.full(fillh.shape, floor)
+        if not is_pond: fillh = fillh + Ts
+        Hs = Hs + Ts
         cover = m | (ndimage.binary_dilation(m) & np.isfinite(Hs))      # 1-cell overlap under neighbours
         hh = np.where(m, fillh, np.minimum(fillh, Hs) - 0.05)
         J, I_ = np.nonzero(cover); cells = list(zip(J + s[0].start, I_ + s[1].start)); hv = hh[J, I_]
@@ -101,7 +110,7 @@ def main(cov, fn):
     info = parse_tree(d, fn)
     names = [x['name'] for x in info]
     assert not any(nm.startswith('1GRASS_FILL') or nm.startswith('1GRASS_PONDBED') for nm in names), 'already filled'
-    anchor = next(x for x in info if x['name'] == '1GRASS_07')
+    anchor = [x for x in info if re.match(r'1GRASS_\d\d', x['name'])][-1]
     blob = b''; cnt = 0
     for tag, cells, hv, vis, st in (('FILL', vis_cells, vis_h, True, 1), ('PONDBED', bed_cells, bed_h, False, 8)):
         if not cells: continue

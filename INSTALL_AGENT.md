@@ -72,6 +72,9 @@ Delete `$AC\content\tracks\zw_rpm` and rename the newest `zw_rpm.bak_*` back to 
 13. VR9 drag tree (CSP): roll into a lane. Your lane's pre-stage and stage bulbs should light; hold 1 s, ambers, then green. Jumping early gives that lane's red. A timeslip message appears after 1/8 mile. With nobody near for 10 s the demo loop runs.
 14. VR9 drag tree app (vanilla AC, monitor): same tree and timeslip in the window. Check whether it is visible in the headset (expected: not without CSP), and try a run with a second (online) car in the other lane.
 15. VR9c hotfix: drive off-road onto grass everywhere (both layouts), the pit exit / exit road to the public road, the north-extension road where it passes the railway embankment (step off the road sideways), and into a pond. You must never fall through the world.
+16. VR10 north extension: drive 190th/188th St, the station lots and the US-34 stop. The ground is now real lidar height (up to ~7 m higher than before). Look for steps at the old track boundary and the access-road join, buried or floating signs, poles, canopies and trees, and invisible walls in the wrong place. You must never fall through.
+17. VR10 drag start line: pull up to the painted white line. The stage bulb should light when your front tyres reach the line, and pre-stage just before it (at the short ticks).
+18. VR10 figures: walk or drive up to the two people at the shed. Check the faces, hair and cap up close and the contact shadows. Check that the frame rate is unchanged.
 Report any issue back to the user's Grok Bot.
 
 ## Credits / license

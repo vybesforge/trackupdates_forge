@@ -197,5 +197,23 @@ class TestVanillaAppMockAC(unittest.TestCase):
         self.assertIn('LEFT', joined); self.assertIn('1/8 6.8', joined)
         self.assertGreater(st['quads'], 1000)
 
+class PaintedLineTest(unittest.TestCase):
+    """VR10: the painted stage / pre-stage lines in zw_draglaunch.kn5 sit exactly on the beams used by the Lua script,
+    the Python app and (via the same constants) the tests."""
+    def test_painted_lines_match_beams(self):
+        import re, struct
+        sys.path.insert(0, os.path.join(ROOT, 'tools')); import kn5patch as K
+        f = os.path.join(ROOT, 'zw_rpm', 'zw_draglaunch.kn5'); d = open(f, 'rb').read(); zc = {}
+        for n, o, l, c in K.scan(f)[1]:
+            if n in ('drag_stageline', 'drag_prestageline') and c == 2:
+                q = o + l + 8; nv, = struct.unpack_from('<I', d, q)
+                zz = struct.unpack_from('<%df' % (nv * 11), d, q + 4)[2::11]; zc[n] = (min(zz) + max(zz)) / 2
+        self.assertAlmostEqual(zc['drag_stageline'], D.STAGE_Z, places=3)
+        self.assertAlmostEqual(zc['drag_prestageline'] - zc['drag_stageline'], D.PRESTAGE_GAP, places=3)
+        lua = open(os.path.join(ROOT, 'zw_rpm', 'extension', 'drag_tree.lua')).read()
+        m = re.search(r'local STAGE_Z, PRESTAGE_GAP, BEAM_HALF = ([-\d.]+), ([\d.]+)', lua)
+        self.assertEqual((float(m.group(1)), float(m.group(2))), (D.STAGE_Z, D.PRESTAGE_GAP))
+        self.assertAlmostEqual(D.PRESTAGE_GAP, 7 * 0.0254, places=3)
+
 if __name__ == '__main__':
     unittest.main(verbosity=2)
