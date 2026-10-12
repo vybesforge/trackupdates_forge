@@ -36,7 +36,7 @@ Copy-Item "$Work\zw_rpm" $Dest -Recurse
 ```
 
 ## Verify
-- `$Dest\models_main.ini` and `models_short.ini` exist, and `zw_rpm_own.kn5` `zw_ext.kn5` (~40 MB, north extension) and `zw_dragexit.kn5` are present.
+- `$Dest\models_main.ini` and `models_short.ini` exist, and `zw_rpm_own.kn5` `zw_ext.kn5` (~40 MB, north extension), `zw_dragexit.kn5`, and `zw_tents.kn5` are present.
 - `$Dest\ui\main\ui_track.json` and `$Dest\ui\short\ui_track.json` exist.
 - In Content Manager → Drive → Track, "Raceway Park of the Midlands" shows two layouts: main (3.590 km) and D Course (2.380 km). If it doesn't appear, restart Content Manager.
 
@@ -56,8 +56,8 @@ Delete `$AC\content\tracks\zw_rpm` and rename the newest `zw_rpm.bak_*` back to 
 7. North extension (both layouts): drive off-course north via 190th St / 188th St to the two fuel stations; no flags or cuts on these roads (XROAD/XLOT); four-way stop at US-34 (4 stop signs, readable); canopy signs readable from both sides; lots smooth-edged; invisible walls stop you at the I-29 interchange (east), north and west edges; ground colour seam at the old track boundary; VR frame rate.
 8. Short-course bumps: T1 (turning off the drag strip) has a small seam lip + gentle hump; T5 (back onto the drag strip) a lip + slight hump. Should be felt in FFB/suspension, not unsettle the car; main layout straight unaffected at T1; AI still drives normally.
 9. Drag strip (1/8 mile, west strip): exits A (~mid-shutdown), B (later) and C (strip end) turn LEFT through armco gaps onto crossovers and the return road back south to staging/pits; E is a short stub RIGHT to the circuit just past the east armco end. All drivable, no flags, light-grey asphalt matching the ground photo, edges blend, no wall contact in gaps, armco intact elsewhere; racing on the main straight unaffected near E.
-10. Paddock: the small tent nearest the pit lane is Vybes Forge branded (dark fabric, VF logo on roof, text readable, not mirrored from outside).
-11. VR3: north roads/highway and station lots smooth, full grip (no ice), can climb into the station, no reset/out-of-bounds on lots; track→highway road not dusty; drag exits keep grass between exit and strip, no fence at exit A; only the Vybes Forge tent + one big tent remain; no wrecker at the track exit; no roadside fence across from the highway exit; tree backdrop now behind the stations; short T1/T5 transitions look like the drag-exit asphalt and still have their bumps.
+10. Paddock: original VF tent nearest the pit lane stays; two VF-style big tents replace the old pit tents (drivenbycrusemob.com + neutral); three smaller ad tents behind them (vybesforge.com / drivenbycrusemob.com / vybesforge.com). Spelling is Cruse (not Cruise). Check text legibility and the drive lane between rows.
+11. VR3: north roads/highway and station lots smooth, full grip (no ice), can climb into the station, no reset/out-of-bounds on lots; track→highway road not dusty; drag exits keep grass between exit and strip, no fence at exit A; no wrecker at the track exit; no roadside fence across from the highway exit; tree backdrop now behind the stations; short T1/T5 transitions look like the drag-exit asphalt and still have their bumps. Confirm `zw_tents.kn5` is present after install.
 Report any issue back to the user's Grok Bot.
 
 ## Credits / license

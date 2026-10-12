@@ -2,8 +2,8 @@
 - zw_rpm.kn5: hide the 2 remaining zwiss big pit tents (bigtents, degenerate tris); tentm_SUB3 (VF tent) unchanged.
 - new zw_tents.kn5 (MODEL_7, both layouts): copies of the VF tent model (tentm_SUB3 geometry, material based on tent_coke /
   ksPerPixelMultiMap_AT, fabric normal/maps) with own textures:
-    replacements at the old big-tent spots (scaled 1.5 x/z, 1.1 y): drivenbycruisemob.com, neutral (trim only)
-    3 advertising tents behind them (z 116, standard size): vybesforge.com, drivenbycruisemob.com, vybesforge.com
+    replacements at the old big-tent spots (scaled 1.5 x/z, 1.1 y): drivenbycrusemob.com, neutral (trim only)
+    3 advertising tents behind them (z 116, standard size): vybesforge.com, drivenbycrusemob.com, vybesforge.com
   Visual only like all zwiss tents (no collision). Base y = gravel height -0.10."""
 import sys,os,io,struct,numpy as np
 sys.path.insert(0,os.path.dirname(__file__));import kn5patch as K,kn5write as W,build_open_textures as B
@@ -25,7 +25,7 @@ def font(sz,w=700):
 orig=Image.open(io.BytesIO(K.get_tex(SRC,'tentcok.dds'))).convert('RGBA')   # already VF art; alpha cut-out reused
 alpha=np.array(orig.resize((N,N),Image.NEAREST))[...,3]
 def art(kind,sx=1.0):
-    """kind: cm (drivenbycruisemob.com), vfad (vybesforge.com ad), neutral. sx: horizontal text squeeze for stretched tents."""
+    """kind: cm (drivenbycrusemob.com), vfad (vybesforge.com ad), neutral. sx: horizontal text squeeze for stretched tents."""
     rng=np.random.default_rng(1);w=rng.normal(0,1,(N//4,N//4));w=np.array(Image.fromarray(((w*20)+128).clip(0,255).astype(np.uint8)).resize((N,N),Image.BILINEAR),np.float32)-128
     img=np.clip(np.array(BG,np.float32)[None,None,:]+w[...,None]*0.15+6,0,255);im=Image.fromarray(img.astype(np.uint8),'RGB');D=ImageDraw.Draw(im)
     def ctext(cx,cy,s,f,fill,tsx=1.0,tsy=1.0):
@@ -40,10 +40,10 @@ def art(kind,sx=1.0):
         r=np.hypot((xx-lg.width/2)/(lg.width/2),(yy-lg.height/2)/(lg.height/2));im.paste(lg,(int(x-lg.width/2),int(y)),Image.fromarray((np.clip((1-r)/0.18,0,1)*255).astype(np.uint8)))
     if kind=='cm':   # text wordmark (no logo file exists): two-line, amber rule
         ctext(N//2,300,'DRIVEN BY',font(46,500),TX,tsy=0.74)
-        wd=ctext(N//2,370,'CRUISE MOB',font(96,700),AM,tsy=0.74)
+        wd=ctext(N//2,370,'CRUSE MOB',font(96,700),AM,tsy=0.74)
         D.rectangle([N//2-wd//2,410,N//2+wd//2,415],fill=TX)
-        ctext(N//2,543,'DRIVEN BY CRUISE MOB',font(38),TX)
-        ctext(N//2,915,'DRIVEN BY CRUISE MOB',font(60),TX);ctext(N//2,980,'drivenbycruisemob.com',font(34,500),AM)
+        ctext(N//2,543,'DRIVEN BY CRUSE MOB',font(38),TX)
+        ctext(N//2,915,'DRIVEN BY CRUSE MOB',font(60),TX);ctext(N//2,980,'drivenbycrusemob.com',font(34,500),AM)
     elif kind=='vfad':
         logo(330,N//2,240,0.74)
         ctext(N//2,543,'VYBES FORGE',font(40),TX)
