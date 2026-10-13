@@ -8,9 +8,8 @@ The project is licensed under the **Apache License 2.0** (LICENSE). Copyright 20
   - `vf_i29_speedway_physical.kn5` (physics surfaces)
   - `vf_i29_speedway_gp.kn5`, `vf_i29_speedway_sh.kn5`
   - `zw_vegetation.kn5` placement
-  - the 68 zwiss textures restored in VR11b, byte-identical to v0.9 (VR11's replacements were reverted), including Fanapryde's MAM logo banner
+  - original zwiss textures (VR11's replacements were reverted in VR11b), including Fanapryde's MAM logo banner
   - cameras, the AI seed lines, the section layout and other v0.9 data files
-  - see README "Borrowed / original assets"
 - **© OpenStreetMap contributors** (ODbL 1.0): road and building data used for the north extension (`zw_ext.kn5`).
 - **USGS 3DEP** (public domain): elevation. **USDA NAIP** (public domain): ground imagery and masks.
 - **ambientCG** and **Poly Haven** (CC0 1.0): textures and tree models.
@@ -81,6 +80,6 @@ All medium/high/unknown-risk textures were replaced (see `docs/assets.csv`, colu
 | source | used (ships) | reference only | not used |
 |---|---|---|---|
 | Porsche Guy SCGT, Bud Lucas/Andy55 rF, Dumeklemmer GTL/GTR2/AC | nothing directly. The layout outline reaches us only through zwiss's rebuild. | track history (this section) | all files. None are in the repo or in `original/`. |
-| zwiss v0.9 | 5 kn5s as base: 857k shipped visual tris, of which 7.2 % unchanged/re-draped-only and 34.3 % retextured. 66 textures (62.2 MB). 37 unchanged data files + 11 modified. Copied parts: marshal figure, overlays, 1SCUT_hairpin (see PROVENANCE §1–5). | AI seed lines and layout for regeneration | the textures we replaced before VR11 (CC0/PD or ours); VR11's replacements of the remaining 68 were reverted in VR11b |
+| zwiss v0.9 | 5 kn5s as base (geometry re-draped, stitched and extended). Original textures, cameras and data files. Copied parts: marshal figure, overlays, 1SCUT_hairpin (see PROVENANCE §1–5). | AI seed lines and layout for regeneration | the textures we replaced before VR11 (CC0/PD or ours); VR11's replacements of the remaining originals were reverted in VR11b |
 | Fanapryde | sections.ini, logo (via zwiss) | — | — |
 | CNDS 2023/2024 | **nothing**: 0 textures, 0 meshes, 0 node names, 0 data files unique to CNDS | a one-off kn5 inventory (docs/audit_cnds_kn5.txt) to compare layouts and scene structure | drift layout, branding, objects, physics, AI, cameras, VAO, settings |

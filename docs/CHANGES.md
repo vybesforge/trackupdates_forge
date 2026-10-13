@@ -489,3 +489,4 @@ Backup: `/workspace/rpotm/backup/pre_vr9b_holefix/zw_rpm.kn5` (004b983 state).
 - ui_track.json (main, short): author `Vybes Forge`.
 - README: new "Borrowed / original assets" section; CREDITS.md updated to match.
 - Checks: all kn5 parse; holecheck 0 enclosed holes (main, short); spawns 36/36 both layouts; AI validate ALL OK; unit tests 10/10. Release zip rebuilt.
+- README rewritten to be shorter (what it is, features, install, license, credits). The detailed asset list was replaced by a short credits paragraph. CREDITS.md no longer gives uncertain asset counts. Release zip rebuilt.

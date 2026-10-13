@@ -1,40 +1,24 @@
-# I-29 Speedway (Assetto Corsa) — open-source update
+# I-29 Speedway for Assetto Corsa
 
-Goal: an open, maintained Assetto Corsa track for **I-29 Speedway** (formerly Raceway Park of the Midlands / Mid America Motorplex), 19340 Jesup Ave, Pacific Junction, IA (41°01′27″N 95°49′58″W).
+An open-source Assetto Corsa track of **I-29 Speedway** (formerly Raceway Park of the Midlands / Mid America Motorplex) in Pacific Junction, Iowa.
 
-## Lineage
-1. Porsche Guy — GTR2 / Sports Car GT original
-2. Dumeklemmer — 2015 Assetto Corsa port
-3. zwiss — 2023 scratch rebuild in 3ds Max, v0.9 (OverTake.gg #58166) — **primary base** (imported unmodified in `vf_i29_speedway/`)
-4. Geronimo Designs / MoxyShredz / Temple Productions — CNDS Raceway Park 2024 remodel (v3.0) — **reference only**
+## Features
+- Two layouts: **Long Course** (`main`, 3.644 km) and **Short Course** (`short`, 2.380 km), both with AI lines and 36 pit boxes.
+- Elevation re-draped to real USGS lidar ground.
+- 1/8-mile drag strip with a reactive two-lane tree. It runs on the pole with CSP; without CSP, the bundled Python app shows it on the monitor.
+- Paddock, north extension roads to the fuel stations and US-34, and night lights (CSP).
 
-Reuse approved by the original authors on condition the result stays open source (per Dylan; get written confirmation into `docs/permissions/`).
+## Install
+Download the release zip from `release/`. Unzip it into your Assetto Corsa root folder, or drag it onto Content Manager. It installs `content/tracks/vf_i29_speedway/` and the optional `apps/python/i29_dragtree/` app. Custom Shaders Patch (0.2.x) is recommended, but the track also runs in vanilla AC.
 
-## Planned fixes over v0.9
-Real elevation (USGS 3DEP 2020 lidar), corrected curbs, working cut detection, highway traffic, rain/grass FX, renamed layout/branding.
-
-## Borrowed / original assets
-In the spirit of zwiss's own `ZWISS.txt` credits ("Fanapryde: sections file and logo. I did borrow a few objects and textures left and right…"), these parts of this release are **not ours**. They come from zwiss's *Raceway Park Of The Midlands* v0.9 (2023) and are shipped with thanks:
-
-**zwiss (Raceway Park Of The Midlands v0.9):**
-- Base layout, terrain and building meshes: `vf_i29_speedway.kn5` (track, terrain, buildings, pits/paddock, drag strip, grandstand shells), `vf_i29_speedway_physical.kn5`, `vf_i29_speedway_gp.kn5`, `vf_i29_speedway_sh.kn5`, and the `zw_vegetation.kn5` placement. The track was re-draped on lidar, stitched and extended by this project, but the modelling is zwiss's.
-- Textures: the 68 zwiss v0.9 textures restored in VR11b (asphalt, grass, road masks/lines, kerbs, armco, fences, gates, trusses, tents, paddock/tower/factory walls, signs, drag board, horizon/tree line, water normals, etc.). They are byte-identical to zwiss's originals.
-- Cameras (`cameras*.ini`, `camera_facing.ini`), the AI seed lines and the layout outline, the marshal figure, overlays and other data files carried over from v0.9.
-
-**Fanapryde (via zwiss):** `sections.ini` and the MAM track logo/banner (`logomam.dds`).
-
-**Earlier lineage:** Porsche Guy (layout outline, via zwiss's rebuild), Bud Lucas & Andy55, derDumeklemmer. No files from them are used directly.
-
-**Gravel / dirt textures:** `own_gravel*.dds`, `concrete_seams.dds` and `Muld Detailne.dds` are the pre-VR11 (VR2-era) versions: ambientCG CC0 materials with project edits. They are listed here because VR11b put them back, not because they are zwiss's.
-
-zwiss's own borrowed bits ("a few objects and textures left and right") are not separately documented upstream. See `docs/PROVENANCE.md` and `docs/assets.csv` for the per-texture audit, and `CREDITS.md` for full attribution.
+If you have an old `content/tracks/zw_rpm` install, delete it first. If you clone this repo instead, you need Git LFS (`git lfs pull`), because the large files are stored in LFS. See `INSTALL_AGENT.md` for a scripted install.
 
 ## License
-Apache License 2.0. Copyright 2026 vybesforge. See `LICENSE` and `NOTICE`.
+Apache License 2.0. Copyright 2026 vybesforge. See `LICENSE` and `NOTICE`. The original track was shared on condition that it stays open source. The Vybes Forge name and logo are trademarks and are not licensed.
 
-This track is based on zwiss's *Raceway Park Of The Midlands* v0.9, which was shared on condition that it stays open source. It also includes:
-- © OpenStreetMap contributors data (ODbL)
-- USGS 3DEP and USDA NAIP public-domain data
-- CC0 textures from ambientCG and Poly Haven
+## Credits
+Based on zwiss's *Raceway Park of the Midlands* v0.9 (with sections by Fanapryde), extensively rebuilt and expanded by Vybes Forge. Some original assets remain. Earlier versions of this track by Porsche Guy, Bud Lucas & Andy55 and derDumeklemmer served as inspiration.
 
-The CNDS 2024 remodel was used for reference only. See `CREDITS.md` for full attribution. The Vybes Forge name and logo are trademarks and are not licensed.
+Data sources: USGS 3DEP lidar, USDA NAIP imagery, © OpenStreetMap contributors (ODbL), and CC0 textures from ambientCG and Poly Haven.
+
+See `CREDITS.md` for full attribution.
