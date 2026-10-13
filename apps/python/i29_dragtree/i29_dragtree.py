@@ -10,7 +10,7 @@ import ac
 import acsys
 import dragtree_logic as D
 
-TRACKS = ('vf_i29_speedway',)
+TRACKS = ('vf_i29_speedway', 'zw_rpm')
 W_, H_ = 260, 330
 app = None
 tree = D.Tree()
