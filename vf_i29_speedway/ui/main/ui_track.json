@@ -3,7 +3,12 @@
   "description": "Full long course of I-29 Speedway (formerly Raceway Park of the Midlands), Pacific Junction, Iowa. Cones close the short-course T1 hairpin; cutting through it counts as off-track. 36 paddock pit boxes. Based on zwiss's v0.9 scratch build; open source (Apache-2.0).",
   "tags": [
     "circuit",
-    "Zwiss"
+    "drag",
+    "drift",
+    "Vybes Forge",
+    "zwiss",
+    "USA",
+    "open source"
   ],
   "geotags": [
     "41° 01′ 27″ N",
@@ -15,8 +20,8 @@
   "width": "12 m",
   "pitboxes": "36",
   "run": "clockwise",
-  "author": "Zwiss",
-  "version": "0.9",
-  "url": null,
-  "year": 2022
+  "author": "Vybes Forge (original track by zwiss)",
+  "version": "1.0.0-rc1",
+  "url": "https://vybesforge.com",
+  "year": 2026
 }
