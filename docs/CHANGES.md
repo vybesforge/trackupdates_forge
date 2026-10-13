@@ -493,3 +493,13 @@ Backup: `/workspace/rpotm/backup/pre_vr9b_holefix/zw_rpm.kn5` (004b983 state).
 
 ## v1.0.0
 - First release: 1.0.0-rc1 plus the VR11b fixes. Version bumped everywhere (ui_track.json, build script, release notes `RELEASE_NOTES_v1.0.0.md`, README). Zip: `release/I-29_Speedway_v1.0.0.zip`. The rc1 zip was removed from `release/`.
+
+## VR12 (after v1.0.0, untested in game; for v1.0.1)
+- **Replay/TV cameras rebuilt from scratch** (`tools/vr12_camraster.py`, `tools/vr12_cams.py`, validator `tools/vr12_cams_validate.py`), both layouts. zwiss's original camera files are backed up in `assets_src/cameras_zwiss_orig/`.
+  - Set 1 `cameras.ini` "TV Trackside": every corner gets its own camera on the outside near the apex/exit, 8–16 m off the racing line and 3 m up. Straights get a mid camera and a braking-zone camera. Windows are split until the camera-to-car distance is ≤ 110 m. Main has 35 cameras (max distance 92 m), short has 23 (104 m).
+  - Set 2 `cameras_1.ini` "TV High": 11 elevated wide shots per layout, 15–30 m up and 25–60 m off the line.
+  - Set 3 `cameras_2.ini` "TV Kerbside": low 0.8–1.4 m cameras, 5–9 m off the line. Main has 33, short has 21.
+  - IN/OUT points are normalized fast_lane positions, contiguous over 0..1. FOV narrows with distance (MIN_FOV far, MAX_FOV near, 6–60°). IS_FIXED=0.
+  - Validator: coverage, line of sight from camera to car over the whole window (0.5 m raster of every mesh: buildings, fences, trees, props), height above lidar ground, not inside geometry or on any track surface, inside the map. ALL OK. Previews: `docs_preview/cams_main.png`, `cams_short.png`.
+- **VR11 gravel/dirt restored** (undoes the dirt part of VR11b): `own_gravel*.dds`, `concrete_seams.dds` (compacted gravel) and `Muld Detailne.dds` (bare soil) are back to their 838af54 bytes (texture data only). `vf_ruts.kn5` and its models_*.ini entries are back. surfaces.ini GRAVEL `_EXT_SURFACE_TYPE=GRAVEL`/FIRM with vibration 0.45/0.35 is back, and so is the ext_config GrassFX occluder `vf_ruts`. The other 68 textures stay at their originals.
+- Checks: all kn5 parse; holecheck 0 enclosed holes (main, short); spawns 36/36; AI validate ALL OK; unit tests 10/10; camera validator ALL OK. Release zip not rebuilt.
