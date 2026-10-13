@@ -1,4 +1,4 @@
-# I-29 Speedway v1.0.0-rc1 (release candidate)
+# I-29 Speedway v1.0.0
 
 This is a free, open-source Assetto Corsa track. It is a recreation of I-29 Speedway (formerly Raceway Park of the Midlands) near Pacific Junction, Iowa.
 

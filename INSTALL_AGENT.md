@@ -44,7 +44,7 @@ $App = "$AC\apps\python\i29_dragtree"
 if (Test-Path $App) { Remove-Item $App -Recurse -Force }
 Copy-Item "$Work\apps\python\i29_dragtree" $App -Recurse
 ```
-Alternative: unzip the release zip (`I-29_Speedway_v1.0.0-rc1.zip`, built by `tools/build_release.py`) into `$AC`; it contains `content\tracks\vf_i29_speedway` and `apps\python\i29_dragtree`.
+Alternative: unzip the release zip (`I-29_Speedway_v1.0.0.zip`, built by `tools/build_release.py`) into `$AC`; it contains `content\tracks\vf_i29_speedway` and `apps\python\i29_dragtree`.
 
 ## Verify
 - `$Dest\models_main.ini` and `models_short.ini` exist, and `vf_i29_speedway_own.kn5` `zw_ext.kn5` (~40 MB, north extension), `zw_dragexit.kn5`, and `zw_tents.kn5` are present.

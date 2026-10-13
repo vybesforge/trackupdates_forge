@@ -490,3 +490,6 @@ Backup: `/workspace/rpotm/backup/pre_vr9b_holefix/zw_rpm.kn5` (004b983 state).
 - README: new "Borrowed / original assets" section; CREDITS.md updated to match.
 - Checks: all kn5 parse; holecheck 0 enclosed holes (main, short); spawns 36/36 both layouts; AI validate ALL OK; unit tests 10/10. Release zip rebuilt.
 - README rewritten to be shorter (what it is, features, install, license, credits). The detailed asset list was replaced by a short credits paragraph. CREDITS.md no longer gives uncertain asset counts. Release zip rebuilt.
+
+## v1.0.0
+- First release: 1.0.0-rc1 plus the VR11b fixes. Version bumped everywhere (ui_track.json, build script, release notes `RELEASE_NOTES_v1.0.0.md`, README). Zip: `release/I-29_Speedway_v1.0.0.zip`. The rc1 zip was removed from `release/`.

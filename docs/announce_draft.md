@@ -24,5 +24,5 @@ See you at the line. — Vybes Forge / drivenbycrusemob.com
 
 ## 2. X post for @Dylan_cruse (≤ 280 chars)
 
-I-29 Speedway is coming to Assetto Corsa 🏁 v1.0.0-rc1: lidar elevation, Long + Short Course, 1/8-mile drag strip w/ live 2-lane tree + timeslips (pole tree & VR need CSP; vanilla app on monitor). Free & open source. Test it & tell me what's off 👇
+I-29 Speedway is coming to Assetto Corsa 🏁 v1.0.0: lidar elevation, Long + Short Course, 1/8-mile drag strip w/ live 2-lane tree + timeslips (pole tree & VR need CSP; vanilla app on monitor). Free & open source. Test it & tell me what's off 👇
 <LINK>
