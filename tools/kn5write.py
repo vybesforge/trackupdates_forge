@@ -19,7 +19,7 @@ def read_materials(p):
         for _ in range(ns): s=rs();sl,=struct.unpack_from('<I',d,o);o+=4;smp.append((s,sl,rs()))
         M[name]=dict(shader=sh,ab=ab,at=at,dm=dm,props=props,samplers=smp)
     return M
-def write_kn5(path,textures,materials,meshes,rootname='zw_rpm_own'):
+def write_kn5(path,textures,materials,meshes,rootname='vf_i29_speedway_own'):
     """textures: [(name,bytes)]; materials: [dict(name,shader,ab,at,dm,props,samplers=[(slotname,slot,tex)])];
     meshes: [dict(name,mat_index,verts Nx11 float32 (AC coords),idx Mx3 uint16)]"""
     out=bytearray(b'sc6969')+struct.pack('<I',5)
@@ -36,7 +36,7 @@ def write_kn5(path,textures,materials,meshes,rootname='zw_rpm_own'):
     for me in meshes:
         V=np.asarray(me['verts'],'<f4');I=np.asarray(me['idx'],'<u2');assert len(V)<65536
         c=V[:,:3].mean(0);r=float(np.linalg.norm(V[:,:3]-c,axis=1).max())
-        out+=struct.pack('<I',2)+ws(me['name'])+struct.pack('<I',0)+b'\x01'+bytes([1,1,0])
+        out+=struct.pack('<I',2)+ws(me['name'])+struct.pack('<I',0)+b'\x01'+bytes(me.get('flags',(1,1,0)))
         out+=struct.pack('<I',len(V))+V.tobytes()+struct.pack('<I',I.size)+I.tobytes()
         out+=struct.pack('<II',me['mat_index'],0)+struct.pack('<ff',0,me.get('lod_out',0))+struct.pack('<3ff',*c,r)+b'\x01'
     open(path,'wb').write(bytes(out))

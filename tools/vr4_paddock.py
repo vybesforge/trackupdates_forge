@@ -1,4 +1,4 @@
-"""VR4 paddock (Dylan's marked-up aerial A). Rerunnable: reads /workspace/rpotm/backup/pre_vr4/zw_rpm/zw_rpm.kn5.
+"""VR4 paddock (Dylan's marked-up aerial A). Rerunnable: reads /workspace/rpotm/backup/pre_vr4/vf_i29_speedway/vf_i29_speedway.kn5.
 - 36 AC_PIT_n in a tight staggered double row along the north edge of the gravel paddock lot (1GRAVEL_PADDOCK, gravel
   there is x 6..152 only, too short for 36 in one row at a sane pitch), just south of the paddock concrete / pit buildings:
   front row (PIT 0-17) z 72, x 11..143.6 every 7.8 m; back row (PIT 18-35) z 83, x 7..139.6 (offset 4 m, drives out through the
@@ -7,14 +7,14 @@
 - zw_tents.kn5 rebuilt: 6 VF-style tents (scale 1.5 x/z, 1.1 y) inside the open gravel lot (red outline):
   top row z 142 at x 12 / 66 / 119, lower cluster (39,185) (60,210) (90,190).
   Middle tents: top-middle (66,142) vybesforge.com, lower-middle (60,210) drivenbycrusemob.com; other 4: YOUR AD HERE.
-- zw_rpm.kn5: hide the original VF tent tentm_SUB3 (40,67; on the new exit route; replaced by the top-middle copy),
+- vf_i29_speedway.kn5: hide the original VF tent tentm_SUB3 (40,67; on the new exit route; replaced by the top-middle copy),
   hide the containers_2 vertices inside the lot (x 6..15, z 167..227; other containers untouched) and the ambulance parked at (10..16, 67..73)
   (collapsed to a point). Visual meshes only; the gravel physics is untouched.
 Base y = gravel -0.10, dummy y = gravel + 0.40."""
 import sys,os,struct,numpy as np
 sys.path.insert(0,os.path.dirname(__file__));import kn5tree as T,kn5patch as K,kn5write as W,vf_tents_paddock as VT
-ROOT=os.path.abspath(os.path.join(os.path.dirname(__file__),'..'));Z=f'{ROOT}/zw_rpm'
-SRC='/workspace/rpotm/backup/pre_vr4/zw_rpm/zw_rpm.kn5';DST=f'{Z}/zw_rpm.kn5';GROUND=-0.10;LIFT=0.40
+ROOT=os.path.abspath(os.path.join(os.path.dirname(__file__),'..'));Z=f'{ROOT}/vf_i29_speedway'
+SRC='/workspace/rpotm/backup/pre_vr4/vf_i29_speedway/vf_i29_speedway.kn5';DST=f'{Z}/vf_i29_speedway.kn5';GROUND=-0.10;LIFT=0.40
 def spots(): return [(11+7.8*i,GROUND+LIFT,72.0) for i in range(18)]+[(7+7.8*i,GROUND+LIFT,83.0) for i in range(18)]
 FWD=np.array([0,0,-1.0]);UP=np.array([0,1.0,0]);RIGHT=np.cross(UP,FWD)
 BIG=(1.5,1.1,1.5)

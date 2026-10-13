@@ -1,11 +1,13 @@
-# I-29 Speedway (zw_rpm) — install instructions for an automation agent
+# I-29 Speedway (vf_i29_speedway) — install instructions for an automation agent
+
+> **VR11: track folder id changed from `zw_rpm` to `vf_i29_speedway`.** Delete the old `content/tracks/zw_rpm` folder before installing, otherwise both show up. Old replays/results/setups saved under `zw_rpm` do not carry over.
 
 Goal: install this Assetto Corsa track from GitHub so the user only has to launch it.
 
 ## Source
 - Repo: https://github.com/vybesforge/trackupdates_forge
 - Branch: `i29-speedway`
-- Track folder in repo: `zw_rpm/`
+- Track folder in repo: `vf_i29_speedway/`
 - Large files (`.kn5`, `.dds`, `.fbx`, `.png`, `.jpg`, `.ai`) are stored with **Git LFS**. A plain "Download ZIP" from GitHub gives LFS pointer files, NOT the real data. Use git + git-lfs.
 
 ## Prerequisites (Windows VR/gaming PC)
@@ -30,31 +32,31 @@ if (Test-Path $Work) { git -C $Work fetch origin; git -C $Work checkout i29-spee
 else { git clone --branch i29-speedway https://github.com/vybesforge/trackupdates_forge.git $Work; git -C $Work lfs pull }
 
 # Verify LFS actually downloaded (main kn5 must be ~240 MB, not ~130 bytes)
-$kn5 = Get-Item "$Work\zw_rpm\zw_rpm.kn5"
+$kn5 = Get-Item "$Work\vf_i29_speedway\vf_i29_speedway.kn5"
 if ($kn5.Length -lt 10MB) { throw "LFS files not downloaded; run git lfs pull" }
 
 # Back up any existing install, then copy
-$Dest = "$AC\content\tracks\zw_rpm"
-if (Test-Path $Dest) { Rename-Item $Dest "zw_rpm.bak_$(Get-Date -Format yyyyMMdd_HHmmss)" }
-Copy-Item "$Work\zw_rpm" $Dest -Recurse
+$Dest = "$AC\content\tracks\vf_i29_speedway"
+if (Test-Path $Dest) { Rename-Item $Dest "vf_i29_speedway.bak_$(Get-Date -Format yyyyMMdd_HHmmss)" }
+Copy-Item "$Work\vf_i29_speedway" $Dest -Recurse
 # VR9: vanilla-AC drag tree app (optional, no CSP needed)
 $App = "$AC\apps\python\i29_dragtree"
 if (Test-Path $App) { Remove-Item $App -Recurse -Force }
 Copy-Item "$Work\apps\python\i29_dragtree" $App -Recurse
 ```
-Alternative: unzip the release zip (`I-29_Speedway_v1.0.0-rc1.zip`, built by `tools/build_release.py`) into `$AC`; it contains `content\tracks\zw_rpm` and `apps\python\i29_dragtree`.
+Alternative: unzip the release zip (`I-29_Speedway_v1.0.0-rc1.zip`, built by `tools/build_release.py`) into `$AC`; it contains `content\tracks\vf_i29_speedway` and `apps\python\i29_dragtree`.
 
 ## Verify
-- `$Dest\models_main.ini` and `models_short.ini` exist, and `zw_rpm_own.kn5` `zw_ext.kn5` (~40 MB, north extension), `zw_dragexit.kn5`, and `zw_tents.kn5` are present.
+- `$Dest\models_main.ini` and `models_short.ini` exist, and `vf_i29_speedway_own.kn5` `zw_ext.kn5` (~40 MB, north extension), `zw_dragexit.kn5`, and `zw_tents.kn5` are present.
 - `$Dest\ui\main\ui_track.json` and `$Dest\ui\short\ui_track.json` exist.
-- In Content Manager → Drive → Track, the track shows two layouts: "I-29 Speedway Long Course" (main, 3.644 km) and "I-29 Speedway Short Course" (short, 2.380 km); folder id stays `zw_rpm`.
+- In Content Manager → Drive → Track, the track shows two layouts: "I-29 Speedway Long Course" (main, 3.644 km) and "I-29 Speedway Short Course" (short, 2.380 km); folder id stays `vf_i29_speedway`.
 - `$AC\apps\python\i29_dragtree\i29_dragtree.py` exists; enable "I-29 Drag Tree" in CM → Settings → Assetto Corsa → Apps (or the in-game app bar). If it doesn't appear, restart Content Manager.
 
 ## Update later
-Re-run the Install block; it pulls the latest branch and replaces the track (old copy kept as `zw_rpm.bak_*`).
+Re-run the Install block; it pulls the latest branch and replaces the track (old copy kept as `vf_i29_speedway.bak_*`).
 
 ## Uninstall / roll back
-Delete `$AC\content\tracks\zw_rpm` and rename the newest `zw_rpm.bak_*` back to `zw_rpm` if desired.
+Delete `$AC\content\tracks\vf_i29_speedway` and rename the newest `vf_i29_speedway.bak_*` back to `vf_i29_speedway` if desired.
 
 ## Hand-off to the user (what to test)
 1. Load each layout once in practice (VR).

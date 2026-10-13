@@ -472,3 +472,11 @@ Backup: `/workspace/rpotm/backup/pre_vr9b_holefix/zw_rpm.kn5` (004b983 state).
   - Unit tests: 10/10.
   - Parsing: 13 kn5 and 29 ini/json files parse.
 - **Previews:** `docs/previews/vr10_ext_delta.png`, `vr10_people_blue.png`, `vr10_people_grey.png`, `vr10_stageline.png`.
+
+## VR11
+- **Track folder id renamed `zw_rpm` → `vf_i29_speedway`** (replays/results now show VF). Main kn5s renamed `zw_rpm*.kn5` → `vf_i29_speedway*.kn5`; models_*.ini, tools, release build, README/INSTALL updated. Delete the old `content/tracks/zw_rpm` install. Remaining `zw_rpm` mentions are history, credits, backup/original paths only.
+- **Station / extension collision ("car jumps up")**: `tools/vr11_flush.py` (priority stitching, de-bevelled lot edges, spline-smoothed lots, grass pushed under pavement, grass ramp skirts) then `tools/vr11_stitch.py` (raster-driven, conforming refinement, 6 rounds). New check `tools/vr11_joincheck.py` samples every collision join on the extension. Worst step 64 cm → ~7 cm (stitch internal); joincheck 2 cm-resample still lists 185 of 498 mesh pairs > 1 cm, most of them grass/ramp/shoulder edges of 1–7 cm. **The 1 cm target is NOT met yet.** Big grass meshes were split into `_sNN` chunks (≤ 20k tris).
+- **Z-fighting at the I-29 crossing**: `tools/vr11_zfight.py` (finder), `vr11_zfix.py` / `vr11_zfix_tri.py` (3 cm local lifts): xline_* decals over 1XROAD_*, highway_SUB1 over 1GRASS_02, Railway_bridge001 over highway_SUB1.
+- **Textures**: `tools/vr11_textures.py` replaced all 68 remaining byte-identical zwiss textures (ambientCG CC0 / project-drawn / coarse-layout). assets.csv updated. The MAM/Fanapryde banner is now our own START / I-29 / FINISH banner.
+- **Gravel / dirt** (`tools/vr11_dirt.py`): new own_gravel(_nm,_maps) from Gravel022+Gravel040 with colour variation and a stronger normal map. The terrain dirt-track layer (`concrete_seams.dds`, which was concrete with joints) is now compacted gravel, and the bare-soil layer is new. Tyre-rut decals `vf_ruts.kn5` (644 m, alpha, no shadows, +2.5 cm) are traced from the ortho mask. surfaces.ini GRAVEL: `_EXT_SURFACE_TYPE=GRAVEL` (CSP SurfacesFX dust/loose physics) and more vibration. ext_config: no GrassFX on the ruts.
+- Checks: holecheck 0 enclosed holes; spawns 36/36 both layouts; AI validate ALL OK; unit tests 10/10.

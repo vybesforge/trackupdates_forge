@@ -1,9 +1,9 @@
 """VR7 shared: AC .ai read/write (v7) + cached physics rasters per layout."""
 import sys,os,struct,re,numpy as np
 sys.path.insert(0,os.path.dirname(os.path.abspath(__file__)))
-Z='/workspace/rpotm/project/zw_rpm/'
-FILES={'main':['zw_rpm.kn5','zw_rpm_physical.kn5','zw_rpm_gp.kn5','zw_rpm_own.kn5','zw_ext.kn5','zw_dragexit.kn5','zw_draglaunch.kn5','zw_tents.kn5','zw_vegetation.kn5','zw_vr5.kn5','zw_vr6.kn5','zw_vr7_longcut.kn5'],
-       'short':['zw_rpm.kn5','zw_rpm_physical.kn5','zw_rpm_sh.kn5','zw_rpm_own.kn5','zw_ext.kn5','zw_dragexit.kn5','zw_draglaunch.kn5','zw_tents.kn5','zw_vegetation.kn5','zw_vr5.kn5','zw_vr6.kn5']}
+Z='/workspace/rpotm/project/vf_i29_speedway/'
+FILES={'main':['vf_i29_speedway.kn5','vf_i29_speedway_physical.kn5','vf_i29_speedway_gp.kn5','vf_i29_speedway_own.kn5','zw_ext.kn5','zw_dragexit.kn5','zw_draglaunch.kn5','zw_tents.kn5','zw_vegetation.kn5','zw_vr5.kn5','zw_vr6.kn5','zw_vr7_longcut.kn5'],
+       'short':['vf_i29_speedway.kn5','vf_i29_speedway_physical.kn5','vf_i29_speedway_sh.kn5','vf_i29_speedway_own.kn5','zw_ext.kn5','zw_dragexit.kn5','zw_draglaunch.kn5','zw_tents.kn5','zw_vegetation.kn5','zw_vr5.kn5','zw_vr6.kn5']}
 EXTRA=['speed','gas','brake','obsLatG','radius','sideLeft','sideRight','camber','direction','nx','ny','nz','length','fx','fy','fz','tag','grade']
 def read_ai(f):
     d=open(f,'rb').read();v,n,lt,sc=struct.unpack_from('<4i',d,0)

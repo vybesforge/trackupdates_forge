@@ -6,7 +6,7 @@ It is built on zwiss's *Raceway Park Of The Midlands* v0.9 and released under Ap
 
 ## Install
 Unzip into your Assetto Corsa root folder, or drag the zip onto Content Manager. This installs:
-- `content/tracks/zw_rpm/`: the track. Layouts: **I-29 Speedway Long Course** (`main`, 3.644 km) and **I-29 Speedway Short Course** (`short`, 2.380 km). The track folder id stays `zw_rpm`, so existing installs and servers keep working.
+- `content/tracks/vf_i29_speedway/`: the track. Layouts: **I-29 Speedway Long Course** (`main`, 3.644 km) and **I-29 Speedway Short Course** (`short`, 2.380 km). The track folder id stays `vf_i29_speedway`, so existing installs and servers keep working.
 - `apps/python/i29_dragtree/`: an optional drag tree and timeslip app. It works without CSP; enable it in the app bar.
 
 Custom Shaders Patch is recommended (0.2.x). It enables the live drag tree on the pole, the night lights and the emissive bulbs. The track loads and drives in vanilla AC too.

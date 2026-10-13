@@ -1,6 +1,6 @@
 import sys,re,struct,hashlib,os,glob,json,collections,numpy as np
 sys.path.insert(0,'project/tools');import kn5patch as K,kn5write as W
-NEW=os.environ.get('PROV_NEW','project/zw_rpm/');OLD='original/zwiss_rpotm_v0.9/zw_rpm/'
+NEW=os.environ.get('PROV_NEW','project/vf_i29_speedway/');OLD='original/zwiss_rpotm_v0.9/zw_rpm/'
 def load(fn):
     d=open(fn,'rb').read();tex,nodes=K.scan(fn);mats=list(W.read_materials(fn).items())
     T={n:hashlib.md5(d[so+4:so+4+sz]).hexdigest() for n,so,sz in tex};TS={n:sz for n,so,sz in tex}
@@ -12,7 +12,7 @@ def load(fn):
         P=np.frombuffer(V,'<f4').reshape(nv,11)
         M.append(dict(name=name,tris=ni//3,vis=fl[1]==1 and rend==1,phys=bool(re.match(r'^\d+[A-Z]',name)),pos=hashlib.md5(P[:,:3].tobytes()+I).hexdigest(),xz=hashlib.md5(P[:,[0,2]].tobytes()+I).hexdigest(),full=hashlib.md5(V+I).hexdigest(),mat=mats[mat][0] if mat<len(mats) else '?',samp=[t for _,_,t in mats[mat][1]['samplers']] if mat<len(mats) else [],matdef=json.dumps([mats[mat][1]['shader'],[(a,b.hex()) for a,b in mats[mat][1]['props']],mats[mat][1]['samplers']]) if mat<len(mats) else ''))
     return M,T,TS
-ZW={'zw_rpm.kn5','zw_rpm_physical.kn5','zw_rpm_gp.kn5','zw_rpm_sh.kn5','zw_vegetation.kn5'}
+ZW={'vf_i29_speedway.kn5','vf_i29_speedway_physical.kn5','vf_i29_speedway_gp.kn5','vf_i29_speedway_sh.kn5','zw_vegetation.kn5'}
 COPIES=('vr7_person_','shortT_overlay_','1SCUT_hairpin')
 cat=collections.Counter();pcat=collections.Counter();texcat=collections.defaultdict(lambda:[0,0])
 seen_tex={}

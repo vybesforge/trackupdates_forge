@@ -1,6 +1,6 @@
 import sys,struct,numpy as np,re,os
 sys.path.insert(0,'/workspace/rpotm/project/tools');import kn5patch as K
-Z='/workspace/rpotm/project/zw_rpm/'
+Z='/workspace/rpotm/project/vf_i29_speedway/'
 def physmeshes(files,box):
     out=[]
     for fn in files:

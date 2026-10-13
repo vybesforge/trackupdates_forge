@@ -107,7 +107,7 @@ class TestLuaMatchesPython(unittest.TestCase):
     def test_same_results(self):
         from lupa import LuaRuntime
         lua = LuaRuntime()
-        src = open(os.path.join(ROOT, 'zw_rpm', 'extension', 'drag_tree.lua')).read()
+        src = open(os.path.join(ROOT, 'vf_i29_speedway', 'extension', 'drag_tree.lua')).read()
         lua.execute('TEST_MODE = true')
         lua.execute(src)
         Logic = lua.globals().DragLogic
@@ -151,7 +151,7 @@ ac={findMeshes=function(n) return {setMaterialProperty=function(self,k,v) LIT[n]
  getCar=function(i) local w=vec3(-246.75,0,CARZ) return {wheels={[0]={contactPoint=w},[1]={contactPoint=w}}} end,
  debug=function(k,v) LOG[#LOG+1]=v end, setMessage=function(a,b) end, onRelease=function(f) end}
 script={}''')
-        r.execute(open(os.path.join(ROOT, 'zw_rpm', 'extension', 'drag_tree.lua')).read())
+        r.execute(open(os.path.join(ROOT, 'vf_i29_speedway', 'extension', 'drag_tree.lua')).read())
         r.execute('''
 GREEN_E,GREEN_W=false,false
 local t=0; local dt=1/60
@@ -178,7 +178,7 @@ class TestVanillaAppMockAC(unittest.TestCase):
         def lab(app, text=''):
             n[0] += 1; st['texts'][n[0]] = text; return n[0]
         ac.newApp = lambda name: 99; ac.setSize = ac.setBackgroundOpacity = ac.setPosition = ac.setFontSize = lambda *a: None
-        ac.getTrackName = lambda i: 'zw_rpm'; ac.addLabel = lab
+        ac.getTrackName = lambda i: 'vf_i29_speedway'; ac.addLabel = lab
         ac.setText = lambda lb, t: st['texts'].__setitem__(lb, t)
         ac.addRenderCallback = lambda app, f: st.__setitem__('render', f)
         ac.getCarsCount = lambda: 1; ac.isConnected = lambda i: True
@@ -203,14 +203,14 @@ class PaintedLineTest(unittest.TestCase):
     def test_painted_lines_match_beams(self):
         import re, struct
         sys.path.insert(0, os.path.join(ROOT, 'tools')); import kn5patch as K
-        f = os.path.join(ROOT, 'zw_rpm', 'zw_draglaunch.kn5'); d = open(f, 'rb').read(); zc = {}
+        f = os.path.join(ROOT, 'vf_i29_speedway', 'zw_draglaunch.kn5'); d = open(f, 'rb').read(); zc = {}
         for n, o, l, c in K.scan(f)[1]:
             if n in ('drag_stageline', 'drag_prestageline') and c == 2:
                 q = o + l + 8; nv, = struct.unpack_from('<I', d, q)
                 zz = struct.unpack_from('<%df' % (nv * 11), d, q + 4)[2::11]; zc[n] = (min(zz) + max(zz)) / 2
         self.assertAlmostEqual(zc['drag_stageline'], D.STAGE_Z, places=3)
         self.assertAlmostEqual(zc['drag_prestageline'] - zc['drag_stageline'], D.PRESTAGE_GAP, places=3)
-        lua = open(os.path.join(ROOT, 'zw_rpm', 'extension', 'drag_tree.lua')).read()
+        lua = open(os.path.join(ROOT, 'vf_i29_speedway', 'extension', 'drag_tree.lua')).read()
         m = re.search(r'local STAGE_Z, PRESTAGE_GAP, BEAM_HALF = ([-\d.]+), ([\d.]+)', lua)
         self.assertEqual((float(m.group(1)), float(m.group(2))), (D.STAGE_Z, D.PRESTAGE_GAP))
         self.assertAlmostEqual(D.PRESTAGE_GAP, 7 * 0.0254, places=3)

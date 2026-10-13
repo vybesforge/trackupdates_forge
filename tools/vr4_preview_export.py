@@ -13,7 +13,7 @@ def meshes(path):
         yield name,V,I,mats[m]
 k=0;texdone={}
 for f in FILES:
-    p='zw_rpm/'+f
+    p='vf_i29_speedway/'+f
     for name,V,I,M in meshes(p):
         if name[0].isdigit() and not name.startswith(('1GRASS','1GRAVEL','1CONCRETE','1CURB')): pass
         I=I[(I[:,0]!=I[:,1])|(I[:,0]!=I[:,2])]

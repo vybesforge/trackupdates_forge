@@ -1,4 +1,4 @@
-"""Open the visual-only gates in zw_rpm.kn5 (no colliders). Each closed leaf is swung 180 deg about its hinge post
+"""Open the visual-only gates in vf_i29_speedway.kn5 (no colliders). Each closed leaf is swung 180 deg about its hinge post
 (vertical axis) so it lies folded back along the fence line outside the opening, offset 8 cm from the fence plane;
 positions, normals and tangents are rotated in place (vertex/index counts unchanged). Hinge posts = gate_poles_*
 vertices (<=0.06 m from the leaf end). Single leaves with posts at both ends: hinge chosen so the folded leaf
@@ -6,7 +6,7 @@ lands on the fewest driveable pixels (physics meshes + ground-mask road class). 
 import sys,os,io,struct,math,numpy as np,cv2
 sys.path.insert(0,os.path.dirname(__file__));import kn5patch as K,topview as T
 from PIL import Image
-ROOT=os.path.join(os.path.dirname(__file__),'..');SRC='/workspace/rpotm/backup/zw_rpm.kn5.pre_gates';DST=f'{ROOT}/zw_rpm/zw_rpm.kn5'
+ROOT=os.path.join(os.path.dirname(__file__),'..');SRC='/workspace/rpotm/backup/zw_rpm.kn5.pre_gates';DST=f'{ROOT}/vf_i29_speedway/vf_i29_speedway.kn5'
 # (mesh, leaf end A, leaf end B, hinge or None=auto)   leaf ends in AC x,z
 PLAN=[('drag_gate002',(-29.6,36.2),(-26.3,34.1),(-26.3,34.1),'pit exit -> tent lot/paddock, inner leaf (outer leaf at post (-34.3,40) is already open in v0.9, untouched)'),
       ('drag_gate002',(190.1,-107.2),(194.1,-109.5),(194.1,-109.5),'double gate in fence at (190,-107), leaf 1'),
@@ -14,7 +14,7 @@ PLAN=[('drag_gate002',(-29.6,36.2),(-26.3,34.1),(-26.3,34.1),'pit exit -> tent l
       ('gate_01',(153.7,219.6),(159.0,219.5),None,'single gate across the concrete road south-east of the gravel paddock'),
       ('gate_02',(-378.8,-325.9),(-378.7,-317.8),None,'single gate at the west entrance from the county road')]
 m=np.array(Image.open(io.BytesIO(K.get_tex(SRC,'google_mask.dds'))).convert('RGBA'));drv=(m[...,2]>100).astype(np.uint8)
-for fn,pred in((f'{ROOT}/zw_rpm/zw_rpm_physical.kn5',lambda n:n[0]=='1' and 'WALL' not in n),(SRC,lambda n:n[0]=='1' and n!='1GRASS'),(f'{ROOT}/zw_rpm/zw_rpm_own.kn5',lambda n:n[0]=='1')):
+for fn,pred in((f'{ROOT}/vf_i29_speedway/vf_i29_speedway_physical.kn5',lambda n:n[0]=='1' and 'WALL' not in n),(SRC,lambda n:n[0]=='1' and n!='1GRASS'),(f'{ROOT}/vf_i29_speedway/vf_i29_speedway_own.kn5',lambda n:n[0]=='1')):
     for n,V,I in T.meshes(fn,pred):
         P=T.px(V[:,[0,2]].astype(float)).astype(np.int32)
         for t in I: cv2.fillConvexPoly(drv,P[t],1)

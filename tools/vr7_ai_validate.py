@@ -39,7 +39,7 @@ def check(lay):
         if closed: fast=xz
         else:
             tf=cKDTree(fast);F(tf.query(xz[0])[0]<6 and tf.query(xz[-1])[0]<6,f'pit_lane: ends not on fast lane ({tf.query(xz[0])[0]:.1f}, {tf.query(xz[-1])[0]:.1f} m)')
-            B=np.array([n_['W'][3,[0,2]] for n_ in T.walk(C.Z+'zw_rpm.kn5') if n_['cls']==1 and n_['name'].startswith('AC_PIT_')])
+            B=np.array([n_['W'][3,[0,2]] for n_ in T.walk(C.Z+'vf_i29_speedway.kn5') if n_['cls']==1 and n_['name'].startswith('AC_PIT_')])
             db=cKDTree(xz).query(B)[0];F(db.max()<18,f'pit_lane: box max distance {db.max():.1f} m');rep[lane]['box_dist_max_m']=round(float(db.max()),1)
     print(lay,rep);[print('  FAIL',lay,x) for x in fails];return not fails
 if __name__=='__main__':

@@ -1,19 +1,19 @@
-== zw_rpm.kn5
+== vf_i29_speedway.kn5
  ver=6 textures=130 (184.2MB) materials=102 nodes=372 meshes=296 verts=525250
  Y range (sampled) -50.30..148.75  pits=72 starts=72 AC_ nodes=['AC_HOTLAP_START_', 'AC_PIT_', 'AC_START_', 'AC_TIME_0_L', 'AC_TIME_0_R']
  physics-surface meshes by key={'GRASS': 1, 'CURBS': 1, 'CONCRETE': 1, 'DRAG': 1}
  sample names: ['FBX: mam.fbx', 'Silo_001_SUB1', 'Grandstand_001_SUB2', 'Weatherstuff_SUB1', 'highway_sign_SUB1', 'Highway_addpoles_SUB1', 'drag_poles_SUB0', 'Silo_001_SUB0', 'Grandstand_002_SUB0', 'factory_poles_SUB0', 'paddock_sign_SUB2', 'highway_lights_SUB0', 'tower_metal_SUB1', 'paddock_metal_SUB0', 'drag_poles_SUB1', 'tower_metal_SUB2', 'paddock_sign_SUB1', 'highway_lights_SUB1', 'paddock_metal_SUB1', 'factory_poles_SUB1', 'paddock_scrut_SUB1', 'Grandstand_001metal4', 'Grandstand_001metal3', 'Weatherstuff_SUB0', 'highway_sign_SUB0', 'Silo_001_SUB2', 'Grandstand_002_SUB4', 'drag_poles_SUB2', 'Shape', 'paddock_sign_SUB0', 'Grandstand_001metal1', 'drag_light_beton', 'Grandstand_002metal1', 'tower_metal_SUB0', 'Grandstand_001metal2', 'Grandstand_002metal2', 'paddock_metal_SUB2', 'Highway_addpoles_SUB0', 'drag_boards_SUB2', 'drag_metal_SUB0']
-== zw_rpm_gp.kn5
+== vf_i29_speedway_gp.kn5
  ver=6 textures=8 (11.5MB) materials=5 nodes=14 meshes=9 verts=6657
  Y range (sampled) -0.52..2.32  pits=0 starts=0 AC_ nodes=['AC_TIME_1_L', 'AC_TIME_1_R', 'AC_TIME_2_L', 'AC_TIME_2_R']
  physics-surface meshes by key={}
  sample names: ['FBX: layout_GP.FBX', 'wc_GP', 'racegroove', 'marsh009', 'marsh010', 'Cones_gp', 'AC_TIME_1_L', 'AC_TIME_1_L', 'AC_TIME_1_R', 'AC_TIME_1_R', 'AC_TIME_2_L', 'AC_TIME_2_L', 'AC_TIME_2_R', 'AC_TIME_2_R']
-== zw_rpm_physical.kn5
+== vf_i29_speedway_physical.kn5
  ver=6 textures=1 (2.8MB) materials=1 nodes=18 meshes=17 verts=464361
  Y range (sampled) -3.00..1.00  pits=0 starts=0 AC_ nodes=[]
  physics-surface meshes by key={'ROAD': 11, 'PITS': 3, 'WALL': 3}
  sample names: ['FBX: mesh.FBX', '1ROAD_001', '1ROAD_002', '1ROAD_003', '1ROAD_004', '1ROAD_005', '1ROAD_006', '1ROAD_007', '1ROAD_008', '1ROAD_009', '1ROAD_010', '1PITS_IN', '1WALL_marsh', '1WALL_TYRES', '1ROAD_pitout', '1PITS_OUT', '1WALL_armco', '1PITS']
-== zw_rpm_sh.kn5
+== vf_i29_speedway_sh.kn5
  ver=6 textures=4 (0.8MB) materials=4 nodes=12 meshes=7 verts=1264
  Y range (sampled) -0.52..0.69  pits=0 starts=0 AC_ nodes=['AC_TIME_1_L', 'AC_TIME_1_R', 'AC_TIME_2_L', 'AC_TIME_2_R']
  physics-surface meshes by key={}

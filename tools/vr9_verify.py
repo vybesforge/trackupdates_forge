@@ -1,11 +1,11 @@
 """VR9 checks after tools/vr9_lidar.py: residual vs the warp field, new steps between neighbouring drivable cells,
-down-facing drivable triangles, per-surface stats. Compares the current zw_rpm/ against backup/pre_vr9."""
+down-facing drivable triangles, per-surface stats. Compares the current vf_i29_speedway/ against backup/pre_vr9."""
 import sys,os,struct,json,numpy as np
 sys.path.insert(0,os.path.dirname(os.path.abspath(__file__)))
 import physraster as PR,vr7_common as C,kn5patch as K
 import vr9_lidar as L
 from scipy import ndimage
-B='/workspace/rpotm/backup/pre_vr9/zw_rpm/'
+B='/workspace/rpotm/backup/pre_vr9/vf_i29_speedway/'
 DRV={'ROAD','CURB','PITS','CONCRETE','DRAG','LAUNCHA','LAUNCHB','LAUNCHC','XROAD','XLOT','GRAVEL','SCUT'}
 F=np.load('/workspace/vr9/field.npz')['D']
 def ras(Zdir,lay,box,res=0.5):

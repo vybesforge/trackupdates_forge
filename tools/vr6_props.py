@@ -1,4 +1,4 @@
-"""VR6 props -> zw_rpm/zw_vr6.kn5 (MODEL_10, main + short). Rerunnable (inputs: assets_src/pickup/*, tools/vr5_* data).
+"""VR6 props -> vf_i29_speedway/zw_vr6.kn5 (MODEL_10, main + short). Rerunnable (inputs: assets_src/pickup/*, tools/vr5_* data).
 - Blender-modelled crew-cab pickup (tools/vr6_pickup_blender.py -> assets_src/pickup/pickup.obj + baked AO/colour) at the
   VR5 spot (-279.7, -331.8), nose -x (toward the west gate). One texture atlas (colour x AO), per-part materials for spec.
 - Contact-shadow decals (alpha-blended, self-made soft blob texture, +1.2 cm): under the pickup, the 6 paddock tents,
@@ -9,7 +9,7 @@
 import sys,os,struct,numpy as np
 sys.path.insert(0,os.path.dirname(__file__));import kn5patch as K,kn5write as W,vr5_meshlib as L,build_open_textures as B,vr4_paddock as VP,vr7_people as PPL
 from PIL import Image,ImageFilter
-ROOT=os.path.abspath(os.path.join(os.path.dirname(__file__),'..'));Z=f'{ROOT}/zw_rpm';A=f'{ROOT}/assets_src/pickup';SRC=f'{Z}/zw_rpm.kn5'
+ROOT=os.path.abspath(os.path.join(os.path.dirname(__file__),'..'));Z=f'{ROOT}/vf_i29_speedway';A=f'{ROOT}/assets_src/pickup';SRC=f'{Z}/vf_i29_speedway.kn5'
 G=-0.10;PK=(-279.7,-331.8)
 def load_obj(p):
     v=[];vt=[];vn=[];F={};cur=None

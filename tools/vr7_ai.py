@@ -22,8 +22,8 @@ def build_cut():
     g=Grid('short');mm=resample(m,1.5,True);t,n=normals(mm,True);L,R=corridor(g,mm,n,{'ROAD','CURB'})
     w=ndimage.median_filter(R-L,41,mode='wrap');cen=mm+ndimage.gaussian_filter1d((L+R)/2,15,mode='wrap')[:,None]*n
     tm=cKDTree(cen);half=w/2+0.3
-    d=open(Z+'zw_rpm_physical.kn5','rb').read();V_=[];I_=[]
-    for nm,o,l,c in K.scan(Z+'zw_rpm_physical.kn5')[1]:
+    d=open(Z+'vf_i29_speedway_physical.kn5','rb').read();V_=[];I_=[]
+    for nm,o,l,c in K.scan(Z+'vf_i29_speedway_physical.kn5')[1]:
         if c!=2 or not nm.startswith('1ROAD_0'): continue
         q=o+l+8;nv,=struct.unpack_from('<I',d,q);V=np.frombuffer(d,'<f4',nv*11,q+4).reshape(nv,11);q2=q+4+nv*44;ni,=struct.unpack_from('<I',d,q2);I=np.frombuffer(d,'<u2',ni,q2+4).reshape(-1,3)
         P=V[I][:,:,[0,2]].reshape(-1,2);dq,iq=tm.query(P);dm=(dq-half[iq]).reshape(-1,3);ds=ts.query(P)[0].reshape(-1,3)
@@ -144,7 +144,7 @@ def astar(free,cost,a,b):
     return out[::-1]
 def pit_lane(lay,g,fast):
     o=C.read_ai(f'{ORIG}/{lay}/pit_lane.ai');op=o['P']['p'][:,[0,2]]
-    pits=sorted([(int(n['name'][7:]),n['W'][3,[0,2]]) for n in T.walk(Z+'zw_rpm.kn5') if n['cls']==1 and n['name'].startswith('AC_PIT_')])
+    pits=sorted([(int(n['name'][7:]),n['W'][3,[0,2]]) for n in T.walk(Z+'vf_i29_speedway.kn5') if n['cls']==1 and n['name'].startswith('AC_PIT_')])
     B=np.array([b for _,b in pits])
     keys={'ROAD','CURB','PITS','CONCRETE','GRAVEL'}
     free=g.mask(keys)

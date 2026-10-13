@@ -1,7 +1,7 @@
 """VR9: split the drag-tree bulb meshes per lane so the reactive tree can light lanes independently.
 drtree_<grp> (both columns) -> drtree_<grp>_W (west/left lane, x < pole) and drtree_<grp>_E (east lane).
 Usage: python tools/vr9_tree_lanes.py <dir containing zw_draglaunch.kn5>   (idempotent)
-Run on the flat stage (backup/pre_vr9/zw_rpm) and then re-run vr9_lidar.py, or directly on zw_rpm
+Run on the flat stage (backup/pre_vr9/vf_i29_speedway) and then re-run vr9_lidar.py, or directly on vf_i29_speedway
 (the split is a pure re-partition of existing vertices, so it commutes with the lidar warp)."""
 import sys,struct,os,numpy as np
 sys.path.insert(0,os.path.dirname(__file__));import kn5patch as K

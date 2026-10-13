@@ -11,8 +11,8 @@ def meshes(path):
         q2=q+4+nv*44;ni,=struct.unpack_from('<I',d,q2);I=np.frombuffer(d,'<u2',ni,q2+4).reshape(-1,3);m,=struct.unpack_from('<I',d,q2+4+ni*2)
         yield name,V,I,mats[m]
 k=0;texdone={}
-for f in ['zw_rpm.kn5','zw_rpm_own.kn5','zw_tents.kn5','zw_vegetation.kn5']:
-    p='zw_rpm/'+f
+for f in ['vf_i29_speedway.kn5','vf_i29_speedway_own.kn5','zw_tents.kn5','zw_vegetation.kn5']:
+    p='vf_i29_speedway/'+f
     for name,V,I,M in meshes(p):
         if name[0].isdigit() and not name.startswith(('1GRASS','1GRAVEL','1CONCRETE','1CURB')): pass
         I=I[(I[:,0]!=I[:,1])|(I[:,0]!=I[:,2])]

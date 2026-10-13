@@ -8,7 +8,7 @@ import sys,os,struct,re,math,numpy as np
 sys.path.insert(0,os.path.dirname(__file__));sys.path.insert(0,os.path.join(os.path.dirname(__file__),'north_ext'))
 import kn5patch as K,kn5write as W,build_open_textures as B
 from PIL import Image
-ROOT=os.path.join(os.path.dirname(__file__),'..');Z=f'{ROOT}/zw_rpm';NO=f'{ROOT}/assets_src/north';BK='/workspace/rpotm/backup'
+ROOT=os.path.join(os.path.dirname(__file__),'..');Z=f'{ROOT}/vf_i29_speedway';NO=f'{ROOT}/assets_src/north';BK='/workspace/rpotm/backup'
 GAPS=[(-636.0,-620.0),(-808.0,-794.0),(-960.0,-944.0)]   # west armco openings (A, B, C)
 Y0=-0.1;YR=Y0+0.012
 def sx(z,side): # drag-strip edge x at z (1DRAGstrip: west -260@-333.4 -> -268.5@-958.1, east -242@-333.4 -> -250.5@-958.3)
@@ -64,7 +64,7 @@ tex=tex/tex[dark<0.05].mean(0)*np.array([176,174,165]) if False else tex
 tex=np.clip(tex,0,255).astype(np.uint8);rgba=np.dstack([tex,np.full((H,Wd),255,np.uint8)])
 Image.fromarray(tex).save(f'{NO}/drag_exit_asphalt.png');DDS=B.write_dds(rgba,'DXT1',12,None);open(f'{NO}/drag_exit_asphalt.dds','wb').write(DDS)
 TEX=[('drag_exit_asphalt.dds',DDS)]+[(n_,open(f'{NO}/{n_}','rb').read()) for n_ in('ext_asphalt_nm.dds','ext_asphalt_maps.dds','ext_flat_nm.dds')]
-TM=W.read_materials(f'{BK}/zw_rpm.kn5.pre_dragexit');MMp=TM['wc']
+TM=W.read_materials(f'{BK}/vf_i29_speedway.kn5.pre_dragexit');MMp=TM['wc']
 def P_(props,**kw): return [(p,struct.pack('<f',kw[p])+r[4:]) if p in kw else (p,r) for p,r in props]
 MAT=[dict(name='drag_exit_asphalt',shader='ksPerPixelMultiMap',ab=MMp['ab'],at=MMp['at'],dm=MMp['dm'],props=P_(MMp['props'],ksAmbient=0.3,ksDiffuse=0.3,ksSpecular=0.15,ksSpecularEXP=25),
      samplers=[('txDiffuse',0,'drag_exit_asphalt.dds'),('txNormal',1,'ext_asphalt_nm.dds'),('txMaps',2,'ext_asphalt_maps.dds'),('txDetail',3,'ext_flat_nm.dds')])]
@@ -75,11 +75,11 @@ import json;from scipy.spatial import cKDTree
 ZN=json.load(open(os.path.join(os.path.dirname(__file__),'vr4_shortcourse_zones.json')));ZT={k:cKDTree(np.array(v)) for k,v in ZN.items()}
 # zone -> (source kn5, mesh names/prefixes, radius around the marks, extra x/z limit). Pit roads are draped on their VISUAL
 # meshes (the wider physics 1PITS_IN/1ROAD_pitout sit up to a few cm under ROAD_pitin/ROAD_pitout); racing line not repainted.
-ZS={'T1_hairpin':('zw_rpm_physical.kn5',('1ROAD',),9.0,lambda x,z:(x>-216.5)&(x<-124)),
-    'pit_in_SE':('zw_rpm.kn5',('ROAD_pitin',),14.0,None),'pit_out_S':('zw_rpm.kn5',('ROAD_pitout',),8.0,None)}
+ZS={'T1_hairpin':('vf_i29_speedway_physical.kn5',('1ROAD',),9.0,lambda x,z:(x>-216.5)&(x<-124)),
+    'pit_in_SE':('vf_i29_speedway.kn5',('ROAD_pitin',),14.0,None),'pit_out_S':('vf_i29_speedway.kn5',('ROAD_pitout',),8.0,None)}
 def zone_tris(x,z,fn,nm):
     sel=np.zeros(len(x),bool)
-    if fn=='zw_rpm_physical.kn5' and nm.startswith('1ROAD'):   # VR3 T1/T5 boxes
+    if fn=='vf_i29_speedway_physical.kn5' and nm.startswith('1ROAD'):   # VR3 T1/T5 boxes
         sel|=((x>-216.5)&(x<-203)&(z>-420)&(z<-376))|((x>-230)&(x<-210)&(z>-106)&(z<-78))
     for k,(f,pre,r,lim) in ZS.items():
         if f==fn and nm.startswith(pre):
@@ -93,10 +93,10 @@ def zone_tris(x,z,fn,nm):
 # using a copy of zwiss's pit-in material `road_pitin` (road_vara_04.dds, mean RGB 48/49/47 x diffuse 0.3 = darkest exit road;
 # pit-out road_pitout 52/54/58 x 0.4, track road01 167/162/157). Pit roads themselves keep their own meshes (no overlay).
 SHORT_OVERLAYS=True;ZS={k:v for k,v in ZS.items() if k=='T1_hairpin'}
-_PM=W.read_materials(f'{BK}/pre_vr5/zw_rpm/zw_rpm.kn5')['road_pitin']
+_PM=W.read_materials(f'{BK}/pre_vr5/vf_i29_speedway/vf_i29_speedway.kn5')['road_pitin']
 MAT.append(dict(name='shortT_pitin_dark',**{k_:_PM[k_] for k_ in('shader','ab','at','dm','props','samplers')}))
-TEX+=[(t_,K.get_tex(f'{BK}/pre_vr5/zw_rpm/zw_rpm.kn5',t_)) for _,_,t_ in _PM['samplers'] if t_ not in [x[0] for x in TEX]]
-for fn_,pref_ in((('zw_rpm_physical.kn5',('1ROAD',)),) if SHORT_OVERLAYS else ()):
+TEX+=[(t_,K.get_tex(f'{BK}/pre_vr5/vf_i29_speedway/vf_i29_speedway.kn5',t_)) for _,_,t_ in _PM['samplers'] if t_ not in [x[0] for x in TEX]]
+for fn_,pref_ in((('vf_i29_speedway_physical.kn5',('1ROAD',)),) if SHORT_OVERLAYS else ()):
   d_=open(f'{Z}/{fn_}','rb').read()
   for nm_,o_,l_,c_ in K.scan(f'{Z}/{fn_}')[1]:
     if c_!=2 or not nm_.startswith(pref_): continue
@@ -150,8 +150,8 @@ def gapcut(src,dst,names):
     edits.sort();out=bytearray();pos=0
     for a,b,r in edits: out+=d[pos:a]+r;pos=b
     out+=d[pos:];open(dst,'wb').write(bytes(out));return tot
-if '--gaps' in sys.argv: gapcut(f'{BK}/zw_rpm.kn5.pre_dragexit',f'{Z}/zw_rpm.kn5',{'armco000_SUB0','armco000BACK_SUB0'})
-if '--gaps' in sys.argv: gapcut(f'{BK}/zw_rpm_physical.kn5.pre_dragexit',f'{Z}/zw_rpm_physical.kn5',{'1WALL_armco'})
+if '--gaps' in sys.argv: gapcut(f'{BK}/vf_i29_speedway.kn5.pre_dragexit',f'{Z}/vf_i29_speedway.kn5',{'armco000_SUB0','armco000BACK_SUB0'})
+if '--gaps' in sys.argv: gapcut(f'{BK}/vf_i29_speedway_physical.kn5.pre_dragexit',f'{Z}/vf_i29_speedway_physical.kn5',{'1WALL_armco'})
 for lay in('main','short'):
     p=f'{Z}/models_{lay}.ini';t=open(p,'rb').read().decode()
     if 'zw_dragexit.kn5' not in t:

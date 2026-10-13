@@ -10,9 +10,9 @@ Built procedurally in Blender 4.2.3 (headless) by `tools/own_models_blender.py`;
 | flagpole | 128 (+flag ×2 sides) | 18 m tapered pole, 2.44×1.52 m flag (procedural US flag) | replaces whitepole_001 + flag_001 |
 
 ## Integration (done, no ksEditor needed)
-- New `zw_rpm/zw_rpm_own.kn5` written by `tools/kn5write.py` (KN5 v5: 9 textures, 8 materials cloned from zwiss ksPerPixel/ksPerPixelNM property sets, 26 meshes, 4,800 tris, LOD out 600–1500 m). Re-parsed OK with kn5info/kn5patch.
+- New `vf_i29_speedway/vf_i29_speedway_own.kn5` written by `tools/kn5write.py` (KN5 v5: 9 textures, 8 materials cloned from zwiss ksPerPixel/ksPerPixelNM property sets, 26 meshes, 4,800 tris, LOD out 600–1500 m). Re-parsed OK with kn5info/kn5patch.
 - Added as `[MODEL_4]` in `models_main.ini` and `models_short.ini`.
-- Old meshes hidden in `zw_rpm.kn5` by clearing castShadows/isVisible/isRenderable flags (23 nodes: tower_SUB0–8, tower_metal_SUB0–3, Grandstand_001_SUB0–3, Grandstand_001metal1–4, whitepole_001, flag_001). Backup `/workspace/rpotm/backup/zw_rpm.kn5.pre_own_models`.
+- Old meshes hidden in `vf_i29_speedway.kn5` by clearing castShadows/isVisible/isRenderable flags (23 nodes: tower_SUB0–8, tower_metal_SUB0–3, Grandstand_001_SUB0–3, Grandstand_001metal1–4, whitepole_001, flag_001). Backup `/workspace/rpotm/backup/zw_rpm.kn5.pre_own_models`.
 - Placement/transforms: `docs/own_models_placement.csv` (AC coords, yaw about +Y; Blender→AC conversion (x,y,z)→(x,z,−y), v flipped).
 - Fallback if anything misbehaves in game: import the FBX files in ksEditor (Windows), assign the same materials/DDS, export kn5.
 

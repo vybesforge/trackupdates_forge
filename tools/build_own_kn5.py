@@ -1,6 +1,6 @@
 import sys,os,json,csv,math,numpy as np
 sys.path.insert(0,os.path.dirname(__file__));import kn5write as W,kn5patch as K
-ROOT=os.path.join(os.path.dirname(__file__),'..');A=f'{ROOT}/assets_src';Z=f'{ROOT}/zw_rpm'
+ROOT=os.path.join(os.path.dirname(__file__),'..');A=f'{ROOT}/assets_src';Z=f'{ROOT}/vf_i29_speedway'
 T=W.read_materials('/workspace/rpotm/backup/zw_rpm.kn5.pre_textures_open')
 tpl={'ksPerPixel':T['roof_red'],'ksPerPixelNM':T['Beton_01'],'ksPerPixelMultiMap':T['wc']}
 MM='ksPerPixelMultiMap'
@@ -48,5 +48,5 @@ for r in rows:
 # VR2: gravel paddock surface (split from 1CONCRETE_001, see tools/vr2_split_paddock.py); physics KEY=GRAVEL
 import numpy as _np
 _P=_np.load(f'{A}/paddock/paddock_mesh.npz');meshes.append(dict(name='1GRAVEL_PADDOCK',mat_index=mi['own_gravel'],verts=_P['verts'],idx=_P['idx'],lod_out=0))
-W.write_kn5(f'{Z}/zw_rpm_own.kn5',texs,mats,meshes)
-tex,nodes=K.scan(f'{Z}/zw_rpm_own.kn5');print('own kn5: textures',len(tex),'meshes',sum(1 for n in nodes if n[3]==2),'tris',sum(len(m['idx']) for m in meshes),'bytes',os.path.getsize(f'{Z}/zw_rpm_own.kn5'))
+W.write_kn5(f'{Z}/vf_i29_speedway_own.kn5',texs,mats,meshes)
+tex,nodes=K.scan(f'{Z}/vf_i29_speedway_own.kn5');print('own kn5: textures',len(tex),'meshes',sum(1 for n in nodes if n[3]==2),'tris',sum(len(m['idx']) for m in meshes),'bytes',os.path.getsize(f'{Z}/vf_i29_speedway_own.kn5'))

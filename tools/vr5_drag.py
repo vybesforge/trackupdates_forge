@@ -1,5 +1,5 @@
 """VR5 drag strip: high-grip launch area + rubbered-in lanes + self-made Christmas tree (zw_draglaunch.kn5, MODEL_8).
-Rerunnable: reads /workspace/rpotm/backup/pre_vr5/zw_rpm/zw_rpm.kn5, writes zw_rpm/zw_rpm.kn5 + zw_rpm/zw_draglaunch.kn5.
+Rerunnable: reads /workspace/rpotm/backup/pre_vr5/vf_i29_speedway/vf_i29_speedway.kn5, writes vf_i29_speedway/vf_i29_speedway.kn5 + vf_i29_speedway/zw_draglaunch.kn5.
 Geometry (1DRAGstrip, run toward -z, strip x -260..-242, flat y -0.10, start line / tree at z -347.5, centre x -251.25):
 - 1DRAGstrip flat triangles are clipped at z -339 / -363.3 / -375.5 / -391 (Sutherland-Hodgman, full vertex interpolation,
   so UVs and heights are continuous). The pieces between -339 and -391 move to new meshes with the same material:
@@ -14,7 +14,7 @@ Geometry (1DRAGstrip, run toward -z, strip x -260..-242, flat y -0.10, start lin
 import sys,os,struct,numpy as np
 sys.path.insert(0,os.path.dirname(__file__));import kn5patch as K,kn5write as W,vr5_meshlib as L
 from PIL import Image
-ROOT=os.path.abspath(os.path.join(os.path.dirname(__file__),'..'));Z=f'{ROOT}/zw_rpm';SRC='/workspace/rpotm/backup/pre_vr5/zw_rpm/zw_rpm.kn5'
+ROOT=os.path.abspath(os.path.join(os.path.dirname(__file__),'..'));Z=f'{ROOT}/vf_i29_speedway';SRC='/workspace/rpotm/backup/pre_vr5/vf_i29_speedway/vf_i29_speedway.kn5'
 CUTS=[-339.0,-363.3,-375.5,-391.0];BANDS=[('1LAUNCHA_strip',-339.0,-363.3),('1LAUNCHB_strip',-363.3,-375.5),('1LAUNCHC_strip',-375.5,-391.0)]
 TX,TZ=-251.25,-347.5;LANES=(-255.75,-246.75);Y0=-0.10
 def clip(poly,f):   # keep f(v)>=0
@@ -77,16 +77,16 @@ def tree_parts():
 if __name__=='__main__':
     d=bytearray(open(SRC,'rb').read());d,bands=split_strip(bytes(d));d=bytearray(d)
     for name,o,l,c in K.scan(SRC)[1]: pass
-    open(f'{Z}/zw_rpm.kn5','wb').write(bytes(d))
+    open(f'{Z}/vf_i29_speedway.kn5','wb').write(bytes(d))
     # hide the old mini tree head (Drag_tent) by collapsing it (scan the NEW file: offsets changed)
-    d=bytearray(open(f'{Z}/zw_rpm.kn5','rb').read())
-    for name,o,l,c in K.scan(f'{Z}/zw_rpm.kn5')[1]:
+    d=bytearray(open(f'{Z}/vf_i29_speedway.kn5','rb').read())
+    for name,o,l,c in K.scan(f'{Z}/vf_i29_speedway.kn5')[1]:
         if c==2 and name=='Drag_tent':
             q=o+l+8;nv,=struct.unpack_from('<I',d,q);V=np.frombuffer(bytes(d[q+4:q+4+nv*44]),'<f4').reshape(nv,11).copy();V[:,:3]=V[0,:3];d[q+4:q+4+nv*44]=V.tobytes();print('Drag_tent hidden')
-    open(f'{Z}/zw_rpm.kn5','wb').write(bytes(d))
+    open(f'{Z}/vf_i29_speedway.kn5','wb').write(bytes(d))
     MS=W.read_materials(SRC);DR=MS['dragroad'];texs=[(t,K.get_tex(SRC,t)) for _,_,t in DR['samplers']]
-    OWN=W.read_materials(f'{Z}/zw_rpm_own.kn5');G=OWN['own_galv']
-    texs+= [(t,K.get_tex(f'{Z}/zw_rpm_own.kn5',t)) for _,_,t in G['samplers'] if t!='NULL.dds']+[('NULL.dds',K.get_tex(f'{Z}/zw_rpm_own.kn5','NULL.dds'))]
+    OWN=W.read_materials(f'{Z}/vf_i29_speedway_own.kn5');G=OWN['own_galv']
+    texs+= [(t,K.get_tex(f'{Z}/vf_i29_speedway_own.kn5',t)) for _,_,t in G['samplers'] if t!='NULL.dds']+[('NULL.dds',K.get_tex(f'{Z}/vf_i29_speedway_own.kn5','NULL.dds'))]
     texs+=[('drag_rubber.dds',rubber_tex()),('drtree_black.dds',L.solid_dds((14,14,16))),('drtree_lens_y.dds',L.solid_dds((70,62,40))),
            ('drtree_lens_a.dds',L.solid_dds((80,45,8))),('drtree_lens_g.dds',L.solid_dds((10,60,20))),('drtree_lens_r.dds',L.solid_dds((70,10,10)))]
     mats=[dict(name='dragroad_launch',**{k:DR[k] for k in('shader','ab','at','dm','props','samplers')}),

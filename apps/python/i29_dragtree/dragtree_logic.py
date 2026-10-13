@@ -1,6 +1,6 @@
 # I-29 Speedway drag tree / timing logic (pure Python, no AC imports).
 # Written for the Python 3.3 interpreter bundled with vanilla Assetto Corsa: no f-strings, no type hints.
-# Mirrored 1:1 in zw_rpm/extension/drag_tree.lua (CSP pole tree). Unit tests: tests/test_dragtree.py
+# Mirrored 1:1 in vf_i29_speedway/extension/drag_tree.lua (CSP pole tree). Unit tests: tests/test_dragtree.py
 #
 # Geometry (AC world coords, drag strip runs toward -z):
 #   stage beam at z = STAGE_Z, pre-stage beam 7 in (0.178 m) behind it (at +z).

@@ -1,9 +1,9 @@
-"""VR2: apply material/texture changes to zw_rpm.kn5 (after vr2_split_paddock.py) and zw_vegetation.kn5."""
+"""VR2: apply material/texture changes to vf_i29_speedway.kn5 (after vr2_split_paddock.py) and zw_vegetation.kn5."""
 import sys,os,struct,copy
 sys.path.insert(0,os.path.dirname(__file__));import kn5mat as KM
-ROOT=os.path.join(os.path.dirname(__file__),'..');S=f'{ROOT}/assets_src/vr2';Z=f'{ROOT}/zw_rpm'
+ROOT=os.path.join(os.path.dirname(__file__),'..');S=f'{ROOT}/assets_src/vr2';Z=f'{ROOT}/vf_i29_speedway'
 rd=lambda n:open(f'{S}/{n}','rb').read()
-K=KM.load(f'{Z}/zw_rpm.kn5');TX={t[0]:t for t in K['textures']};MM={m['name']:m for m in K['materials']}
+K=KM.load(f'{Z}/vf_i29_speedway.kn5');TX={t[0]:t for t in K['textures']};MM={m['name']:m for m in K['materials']}
 def addtex(name,blob):
     if name in TX: TX[name][1]=blob
     else: t=[name,blob,1];K['textures'].append(t);TX[name]=t
@@ -29,7 +29,7 @@ for a in ('grdr01','grdr_blue'): to_multimap(a,None,'armco_maps.dds','ksPerPixel
 for c in ('Beton_01','Concrete02'): to_multimap(c,None,'concrete_maps.dds',spec=0.08,exp=15)
 to_multimap('bigtent','fabric_nm.dds','fabric_maps.dds',spec=0.08,exp=12)
 for tnt in ('tent_mars','tent_chipndip','tent_coke','tent_castle'): to_multimap(tnt,'fabric_nm.dds','fabric_maps.dds','ksPerPixelMultiMap_AT',spec=0.08,exp=12)
-KM.save(K,f'{Z}/zw_rpm.kn5')
+KM.save(K,f'{Z}/vf_i29_speedway.kn5')
 V=KM.load(f'{Z}/zw_vegetation.kn5')
 for t in V['textures']:
     if t[0] in('tree2.dds','tree3.dds'): t[1]=rd(t[0])

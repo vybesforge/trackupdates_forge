@@ -13,7 +13,7 @@ def lab(p,t,col=(255,255,255),f=F):
 if mode=='paddock':
     import vr4_paddock as VP,kn5tree as T;from physraster import physmeshes,raster
     P=cam(70,132,2*1500*18/180)
-    box=(-45,165,30,240);M=physmeshes(['zw_rpm.kn5','zw_rpm_physical.kn5','zw_rpm_own.kn5'],box);xs,zs,H,KEY,UP,names=raster(M,box,0.5)
+    box=(-45,165,30,240);M=physmeshes(['vf_i29_speedway.kn5','vf_i29_speedway_physical.kn5','vf_i29_speedway_own.kn5'],box);xs,zs,H,KEY,UP,names=raster(M,box,0.5)
     g=KEY==names.index('1GRAVEL_PADDOCK');g[zs<88]=False;e=g&~ndimage.binary_erosion(g,iterations=2)
     jj,ii=np.nonzero(e)
     for j,i in zip(jj,ii): x,y=P(xs[i],zs[j]);D.rectangle([x-1,y-1,x+1,y+1],fill=(230,40,20,255))

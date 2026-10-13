@@ -19,9 +19,9 @@ def rough_var(id,w,h):
     r=f(cc(id,'Roughness'),w,h).astype(np.float32)/255;r=r.mean(2) if r.ndim==3 else r;return 1-r
 # 1) ground mask: force grass in the track infield + 18 m border (was B=gravel/G=soil patches -> Gravel022 "cobble" look at corners)
 def ground_mask():
-    m=np.array(Image.open(io.BytesIO(K.get_tex(f'{BK}/zw_rpm.kn5','google_mask.dds'))).convert('RGBA'))
+    m=np.array(Image.open(io.BytesIO(K.get_tex(f'{BK}/vf_i29_speedway.kn5','google_mask.dds'))).convert('RGBA'))
     road=np.zeros((4096,8192),np.uint8)
-    for fn,pred in((f'{BK}/zw_rpm_physical.kn5',lambda n:n.startswith('1ROAD') or n.startswith('1PIT')),(f'{BK}/zw_rpm.kn5',lambda n:n.startswith('1DRAG') or n.startswith('1CURB'))):
+    for fn,pred in((f'{BK}/vf_i29_speedway_physical.kn5',lambda n:n.startswith('1ROAD') or n.startswith('1PIT')),(f'{BK}/vf_i29_speedway.kn5',lambda n:n.startswith('1DRAG') or n.startswith('1CURB'))):
         for n,V,I in T.meshes(fn,pred):
             P=T.px(V[:,[0,2]].astype(float)).astype(np.int32)
             for tr in I: cv2.fillConvexPoly(road,P[tr],1)
@@ -32,7 +32,7 @@ def ground_mask():
     w=ndimage.gaussian_filter(g.astype(np.float32),3)
     for ch in (1,2): m[...,ch]=(m[...,ch]*(1-w)).astype(np.uint8)
     m[...,0]=np.maximum(m[...,0],(255*w*(m[...,3]<128)).astype(np.uint8))
-    hdr=K.get_tex(f'{BK}/zw_rpm.kn5','google_mask.dds')[:128]
+    hdr=K.get_tex(f'{BK}/vf_i29_speedway.kn5','google_mask.dds')[:128]
     open(f'{OUT}/google_mask.dds','wb').write(B.write_dds(m,'DXT5',14,hdr));Image.fromarray(m).resize((2048,1024)).save(f'{OUT}/google_mask.png')
 # 2) concrete with expansion joints (ground detail B: roads outside the track)
 def concrete_seams(N=1024):
@@ -45,7 +45,7 @@ def concrete_seams(N=1024):
     for p in (0,H):
         jt[:,max(p-2,0):p+2]=1;jt[max(p-2,0):p+2,:]=1
     jt[:,N-2:]=1;jt[N-2:,:]=1;jt=cv2.GaussianBlur(jt,(0,0),0.8)
-    c=c*(1-0.6*jt[...,None]);save('concrete_seams',np.clip(c,0,255).astype(np.uint8),hdr=K.get_tex(f'{BK}/zw_rpm.kn5','gravelroad.dds')[:128])
+    c=c*(1-0.6*jt[...,None]);save('concrete_seams',np.clip(c,0,255).astype(np.uint8),hdr=K.get_tex(f'{BK}/vf_i29_speedway.kn5','gravelroad.dds')[:128])
 # 3) gravel paddock (Gravel022 toned to the NAIP lot colour, light grey-tan)
 def gravel():
     g=f(cc('Gravel022'),2048,2048).astype(np.float32);L=g.mean(2,keepdims=True);g=0.3*g+0.7*L;g=g/g.mean((0,1))*np.array([168,161,148])  # crushed-limestone grey-tan, mostly desaturated

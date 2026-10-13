@@ -17,7 +17,7 @@ for si in range(0,len(names),per):
     d.text((10,8),'Each cell: BEFORE (left) | AFTER (right). Checker = alpha.',fill='white')
     for i,(kn,n) in enumerate(ch):
         x=(i%cols)*CW;y=30+(i//cols)*250
-        o=Image.open(io.BytesIO(k.get_tex(f'/workspace/rpotm/backup/{kn}.pre_textures_open',n)));a=Image.open(io.BytesIO(k.get_tex(f'zw_rpm/{kn}',n)))
+        o=Image.open(io.BytesIO(k.get_tex(f'/workspace/rpotm/backup/{kn}.pre_textures_open',n)));a=Image.open(io.BytesIO(k.get_tex(f'vf_i29_speedway/{kn}',n)))
         sheet.paste(thumb(o),(x+5,y));sheet.paste(thumb(a),(x+215,y));m=meta[n]
         d.text((x+5,y+203),f"{n}  {m['old']} -> {m['new']}",fill='white');d.text((x+5,y+220),m['src'][:60],fill=(150,220,150))
     sheet.save(f'/workspace/rpotm/docs_preview/textures_open_{si//per+1}.png')

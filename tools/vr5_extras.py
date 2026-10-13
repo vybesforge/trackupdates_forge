@@ -1,4 +1,4 @@
-"""VR5b extras (rerunnable: reads /workspace/rpotm/backup/pre_vr5b/zw_rpm.kn5 -> zw_rpm/zw_rpm.kn5, writes zw_rpm/zw_vr5.kn5 = MODEL_9).
+"""VR5b extras (rerunnable: reads /workspace/rpotm/backup/pre_vr5b/vf_i29_speedway.kn5 -> vf_i29_speedway/vf_i29_speedway.kn5, writes vf_i29_speedway/zw_vr5.kn5 = MODEL_9).
 1. Drag-strip end gantry (z -606): the 4 ad panels of adds_drag_SUB0 (rpm_adds_01 atlas) are collapsed; new panels at the
    same corners show own 'PLACE YOUR AD HERE' art (VF tent placeholder style). Atlas untouched for the other boards.
 2. Exits B/C west extension: tools/drag_exit.py. Here: the north-extension power pole standing in the new B lane
@@ -11,7 +11,7 @@
 import sys,os,struct,numpy as np
 sys.path.insert(0,os.path.dirname(__file__));import kn5patch as K,kn5write as W,vr5_meshlib as L,build_open_textures as B
 from PIL import Image,ImageDraw,ImageFont
-ROOT=os.path.abspath(os.path.join(os.path.dirname(__file__),'..'));Z=f'{ROOT}/zw_rpm';SRC='/workspace/rpotm/backup/pre_vr5b/zw_rpm.kn5'
+ROOT=os.path.abspath(os.path.join(os.path.dirname(__file__),'..'));Z=f'{ROOT}/vf_i29_speedway';SRC='/workspace/rpotm/backup/pre_vr5b/vf_i29_speedway.kn5'
 FONT='/workspace/rpotm/brand/fonts/SpaceGrotesk%5Bwght%5D.ttf';G=-0.10
 BG=(2,6,15);CY=(41,213,233);MG=(191,51,138);TX=(232,236,245)
 def font(sz,w=700):
@@ -83,8 +83,8 @@ if __name__=='__main__':
             panels=V0[V0[:,2]<-600].copy();print('end-gantry ad verts',collapse(d,o,l,lambda V:V[:,2]<-600)[1])
         if name.startswith('ambulances_SUB'): print(name,'entrance ambulance verts',collapse(d,o,l,lambda V:(V[:,0]>-284)&(V[:,0]<-275)&(V[:,2]>-334)&(V[:,2]<-329.5))[1])
         if name.startswith('drag_kiosk_SUB'): print(name,'kiosk verts',collapse(d,o,l,lambda V:(V[:,0]>-292)&(V[:,0]<-286)&(V[:,2]>-347)&(V[:,2]<-339))[1])
-    open(f'{Z}/zw_rpm.kn5','wb').write(bytes(d))
-    ESRC='/workspace/rpotm/backup/pre_vr5/zw_rpm/zw_ext.kn5';e=bytearray(open(ESRC,'rb').read())
+    open(f'{Z}/vf_i29_speedway.kn5','wb').write(bytes(d))
+    ESRC='/workspace/rpotm/backup/pre_vr5/vf_i29_speedway/zw_ext.kn5';e=bytearray(open(ESRC,'rb').read())
     for name,o,l,c in K.scan(ESRC)[1]:
         if c==2 and name=='xpoles':
             q=o+l+8;nv,=struct.unpack_from('<I',e,q);V=np.frombuffer(bytes(e[q+4:q+4+nv*44]),'<f4').reshape(nv,11).copy()

@@ -1,7 +1,7 @@
 """Build the I-29 Speedway release zip (local only; publishing is a separate, manual step).
 Usage: python tools/build_release.py [version] [outdir]      default: v1.0.0-rc1  /workspace/rpotm/release
 Zip layout (drop-in for the Assetto Corsa root folder or Content Manager drag & drop):
-  content/tracks/zw_rpm/...          track (all layouts, CSP extension incl. reactive drag tree)
+  content/tracks/vf_i29_speedway/...          track (all layouts, CSP extension incl. reactive drag tree)
   apps/python/i29_dragtree/...       vanilla-AC Python drag tree + timeslip app
   I-29_Speedway_docs/                LICENSE, NOTICE, CREDITS.md, README.md, RELEASE_NOTES.md
 Refuses to build if any LFS file is still a pointer, or if forbidden branding strings are found in text files."""
@@ -23,8 +23,8 @@ def main():
     notes = os.path.join(ROOT, 'docs', 'RELEASE_NOTES_%s.md' % VER)
     assert os.path.exists(notes), 'missing ' + notes
     entries = []
-    for p in files(os.path.join(ROOT, 'zw_rpm')):
-        entries.append((p, 'content/tracks/zw_rpm/' + os.path.relpath(p, os.path.join(ROOT, 'zw_rpm'))))
+    for p in files(os.path.join(ROOT, 'vf_i29_speedway')):
+        entries.append((p, 'content/tracks/vf_i29_speedway/' + os.path.relpath(p, os.path.join(ROOT, 'vf_i29_speedway'))))
     for p in files(os.path.join(ROOT, 'apps', 'python', 'i29_dragtree')):
         entries.append((p, 'apps/python/i29_dragtree/' + os.path.basename(p)))
     for f in ('LICENSE', 'NOTICE', 'CREDITS.md', 'README.md'):

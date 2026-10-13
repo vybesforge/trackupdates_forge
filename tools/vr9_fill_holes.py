@@ -5,7 +5,7 @@ Fill height per hole cell: nearest paved boundary cell if the hole touches a roa
 10th-percentile boundary height) -> a floor level with the road/bank, never a nodata/0 value.
 Pond components (a visual 'ponds' mesh over them) get an invisible flat bed at the water mesh minimum - 0.3 m (8 m quads).
 Each fill quad grid is extended 1 cell under the neighbouring surfaces (5 cm lower) so there is no seam.
-Meshes are spliced into zw_rpm.kn5 next to 1GRASS_xx: 1GRASS_FILL_nn (visible, grass material,
+Meshes are spliced into vf_i29_speedway.kn5 next to 1GRASS_xx: 1GRASS_FILL_nn (visible, grass material,
 same planar UVs) and 1GRASS_PONDBED_nn (invisible physics). Idempotent (removes old fill first is NOT
 supported: run on a file without fill meshes). Usage: python tools/vr9_fill_holes.py <cov npz> <kn5>"""
 import os, re, struct, sys

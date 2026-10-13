@@ -5,7 +5,7 @@ so cars fell through the re-draped (refined) 1GRASS (104526 tris) -> "void" on g
 Splits by recursive spatial bisection of triangle centroids; chunk names <name>_00, _01 ... keep the
 surfaces.ini KEY prefix (GRASS_00 matches KEY=GRASS). Shared border vertices are duplicated at
 identical positions, so chunks join with zero gap. Run AFTER tools/vr9_lidar.py.
-Usage: python tools/vr9_split_phys.py zw_rpm/zw_rpm.kn5 [...]   (idempotent)"""
+Usage: python tools/vr9_split_phys.py vf_i29_speedway/vf_i29_speedway.kn5 [...]   (idempotent)"""
 import os, re, struct, sys
 import numpy as np
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))

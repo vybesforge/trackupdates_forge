@@ -1,9 +1,9 @@
-"""Short-course transition bumps in zw_rpm_physical.kn5 (physics only, vertex y offsets; topology unchanged).
+"""Short-course transition bumps in vf_i29_speedway_physical.kn5 (physics only, vertex y offsets; topology unchanged).
 T1 (short only): drag strip east edge x=-214.5, z -418..-378 -> 2 cm seam lip at the edge + 4 cm hump 5 m into the infield road (x>-215.5 only, main line stays at x<-224).
 T5 (shared with main): drag strip south end z=-98 -> 2 cm seam lip + 3 cm hump 8 m before it on the approach (x -229..-211)."""
 import sys,os,struct,numpy as np
 sys.path.insert(0,os.path.dirname(__file__));import kn5patch as K
-SRC='/workspace/rpotm/backup/zw_rpm_physical.kn5.pre_bumps';DST=os.path.join(os.path.dirname(__file__),'..','zw_rpm','zw_rpm_physical.kn5')
+SRC='/workspace/rpotm/backup/zw_rpm_physical.kn5.pre_bumps';DST=os.path.join(os.path.dirname(__file__),'..','vf_i29_speedway','vf_i29_speedway_physical.kn5')
 def tri(s,c,hw,h): return h*np.clip(1-abs(s-c)/hw,0,None)
 def cosb(s,c,L,h): return h*0.5*(1+np.cos(np.clip((s-c)/(L/2),-1,1)*np.pi))
 def fade(t,a,b,w=1.5): return np.clip((t-a)/w,0,1)*np.clip((b-t)/w,0,1)

@@ -5,7 +5,7 @@ Goal: an open, maintained Assetto Corsa track for **I-29 Speedway** (formerly Ra
 ## Lineage
 1. Porsche Guy — GTR2 / Sports Car GT original
 2. Dumeklemmer — 2015 Assetto Corsa port
-3. zwiss — 2023 scratch rebuild in 3ds Max, v0.9 (OverTake.gg #58166) — **primary base** (imported unmodified in `zw_rpm/`)
+3. zwiss — 2023 scratch rebuild in 3ds Max, v0.9 (OverTake.gg #58166) — **primary base** (imported unmodified in `vf_i29_speedway/`)
 4. Geronimo Designs / MoxyShredz / Temple Productions — CNDS Raceway Park 2024 remodel (v3.0) — **reference only**
 
 Reuse approved by the original authors on condition the result stays open source (per Dylan; get written confirmation into `docs/permissions/`).

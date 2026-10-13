@@ -4,7 +4,7 @@ sys.path.insert(0,os.path.join(os.path.dirname(__file__),'..'));sys.path.insert(
 import build_open_textures as B,kn5patch as K,topview as T,geo
 from PIL import Image,ImageDraw,ImageFont
 ROOT=os.path.join(os.path.dirname(__file__),'..','..');OUT=f'{ROOT}/assets_src/north';os.makedirs(OUT,exist_ok=True)
-VR2=f'{ROOT}/assets_src/vr2';KN=f'{ROOT}/zw_rpm/zw_rpm.kn5'
+VR2=f'{ROOT}/assets_src/vr2';KN=f'{ROOT}/vf_i29_speedway/vf_i29_speedway.kn5'
 def save(name,rgb,a=None,fmt='DXT1'):
     h,w=rgb.shape[:2];a=np.full((h,w),255,np.uint8) if a is None else a
     rgba=np.dstack([np.asarray(rgb)[...,:3],a]).astype(np.uint8);mips=int(np.log2(max(w,h)))+1

@@ -7,7 +7,7 @@ Visual only, added to zw_draglaunch.kn5 (rewritten via kn5write; existing meshes
 import os, sys, struct, numpy as np
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import kn5patch as K, kn5write as W, vr5_meshlib as L
-Z = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'zw_rpm')); F = f'{Z}/zw_draglaunch.kn5'
+Z = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'vf_i29_speedway')); F = f'{Z}/zw_draglaunch.kn5'
 STAGE_Z, PRE_GAP = -347.5, 0.178
 def meshes(fn):
     d = open(fn, 'rb').read(); out = []

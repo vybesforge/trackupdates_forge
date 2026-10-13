@@ -7,7 +7,7 @@ from meshlib import M,ribbon,resample,fix
 from scipy.spatial import cKDTree
 from scipy.ndimage import gaussian_filter1d,map_coordinates,maximum_filter1d,minimum_filter1d,distance_transform_edt
 import shapely.geometry as sg,shapely.ops as so,mapbox_earcut as earcut
-ROOT=os.path.join(os.path.dirname(__file__),'..','..');NO=f'{ROOT}/assets_src/north';Z=f'{ROOT}/zw_rpm';KN=f'{Z}/zw_rpm.kn5'
+ROOT=os.path.join(os.path.dirname(__file__),'..','..');NO=f'{ROOT}/assets_src/north';Z=f'{ROOT}/vf_i29_speedway';KN=f'{Z}/vf_i29_speedway.kn5'
 OSM=json.load(open('/workspace/rpotm/geo/ext/osm_ac.json'));WAY={w['id']:w for w in OSM['ways']}
 X0,X1,Z0,Z1=geo.BOX;WALLX=-335.0
 LOG=[]
@@ -348,7 +348,7 @@ emit('1WALL_EXT','ext_invisible',mwall)
 # ---------------------------------------------------------------- write
 TEXL=[(n,b) for n,b in TEX.items()]
 out=f'{Z}/zw_ext.kn5';W.write_kn5(out,TEXL,MATS,MESH,rootname='zw_ext')
-# physics-only / invisible meshes: castShadows 0, renderable 0 (like zw_rpm_physical); visual roads stay rendered
+# physics-only / invisible meshes: castShadows 0, renderable 0 (like vf_i29_speedway_physical); visual roads stay rendered
 d=bytearray(open(out,'rb').read());_,nodes=K.scan(out);ninv=0
 for name,o,l,c in nodes:
     if c==2 and name.startswith('1WALL_EXT'):

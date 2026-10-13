@@ -6,14 +6,14 @@ Static, visual only (no physics). Contact shadows: round decals in zw_vr6.kn5 (t
 import sys,os,io,struct,numpy as np
 sys.path.insert(0,os.path.dirname(os.path.abspath(__file__)));import kn5patch as K,build_open_textures as B,vr5_meshlib as L
 from PIL import Image,ImageDraw,ImageFilter
-Z=os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)),'..','zw_rpm'))
+Z=os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)),'..','vf_i29_speedway'))
 # (x, z, facing yaw [rad, 0 = -z/north toward the paddock lot], shirt RGB, name)
 # VR8: moved to the open east end (carport-style roof overhang, roof x 74.3..82.4 has no walls) of the small shed
 # paddock_bulds_SUB7/SUB8 (x 64..82, z 34..42), directly west of the large green/grey-roofed paddock building (paddock_bulds, x 84..117).
 PEOPLE=[(79.6,37.4,-1.35,(38,78,175),'blue',(52,36,24)),(78.3,38.6,1.9,(128,130,136),'grey',(28,26,25))]
 Y=0.0   # concrete under the overhang (physics 1CONCRETE_001 y -0.0)
 def marshal():
-    f=f'{Z}/zw_rpm.kn5';d=open(f,'rb').read()
+    f=f'{Z}/vf_i29_speedway.kn5';d=open(f,'rb').read()
     for n,o,l,c in K.scan(f)[1]:
         if n=='marsh001' and c==2:
             q=o+l+8;nv,=struct.unpack_from('<I',d,q);V=np.frombuffer(d,'<f4',nv*11,q+4).reshape(nv,11).copy();q2=q+4+nv*44;ni,=struct.unpack_from('<I',d,q2)

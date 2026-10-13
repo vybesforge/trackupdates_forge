@@ -1,7 +1,7 @@
 # I-29 Speedway drag tree + timeslip -- vanilla Assetto Corsa Python app (no CSP needed).
 # Install: copy apps/python/i29_dragtree into <assettocorsa>/apps/python/, enable "i29_dragtree"
 # in Content Manager > Settings > Assetto Corsa > Apps (or in-game app bar).
-# Works only on the I-29 Speedway track (folder zw_rpm); on other tracks the window shows a notice.
+# Works only on the I-29 Speedway track (folder vf_i29_speedway); on other tracks the window shows a notice.
 # Python 3.3 (AC's bundled interpreter): no f-strings.
 import os
 import sys
@@ -10,7 +10,7 @@ import ac
 import acsys
 import dragtree_logic as D
 
-TRACKS = ('zw_rpm',)
+TRACKS = ('vf_i29_speedway',)
 W_, H_ = 260, 330
 app = None
 tree = D.Tree()

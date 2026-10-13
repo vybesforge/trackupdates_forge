@@ -1,4 +1,4 @@
-"""NOTE: apply ONCE to the pre_vr3 files (TREEWALL move is not idempotent). VR3 edits on the CURRENT zw_rpm.kn5 / zw_vegetation.kn5 (backups: /workspace/rpotm/backup/zw_rpm.pre_vr3/):
+"""NOTE: apply ONCE to the pre_vr3 files (TREEWALL move is not idempotent). VR3 edits on the CURRENT vf_i29_speedway.kn5 / zw_vegetation.kn5 (backups: /workspace/rpotm/backup/zw_rpm.pre_vr3/):
 - hide paddock tents tentm_SUB0/5/6 (keep Vybes Forge tentm_SUB3 + big pit tent)          [item 6]
 - hide both wrecker/lifter trucks (liftertrucks_SUB1: staging/tower and pit-exit road)       [item 8]
 - FENCE_001: cut openings at drag exits A/B/C (A widened) so the west fence no longer crosses them [item 5]
@@ -7,7 +7,7 @@ Hidden = degenerate triangles (node, material, counts unchanged). All visual onl
 import sys,os,struct,numpy as np
 sys.path.insert(0,os.path.dirname(__file__));sys.path.insert(0,os.path.join(os.path.dirname(__file__),'north_ext'))
 import kn5patch as K
-ROOT=os.path.join(os.path.dirname(__file__),'..');Z=f'{ROOT}/zw_rpm'
+ROOT=os.path.join(os.path.dirname(__file__),'..');Z=f'{ROOT}/vf_i29_speedway'
 def clip_tri(tv,keep):
     out=tv
     for f_ in keep:
@@ -53,7 +53,7 @@ def f_rpm(name,V,I):
                 b=len(NV);NV+=poly
                 for j in range(1,len(poly)-1): NI.append([b,b+j,b+j+1])
         print('FENCE_001 openings at drag exits:',cut,'tris clipped');return np.array(NV),np.array(NI)
-print('zw_rpm.kn5 nodes edited:',edit(f'{Z}/zw_rpm.kn5',f_rpm))
+print('vf_i29_speedway.kn5 nodes edited:',edit(f'{Z}/vf_i29_speedway.kn5',f_rpm))
 import geo
 def f_veg(name,V,I):
     if name!='TREEWALL_001': return None
@@ -69,4 +69,4 @@ def f_big(name,V,I):
     C=V[I][:,:,[0,2]].mean(1);k=~((C[:,0]>50)&(C[:,0]<71)&(C[:,1]>62)&(C[:,1]<89));I=I.copy();I[k,1]=I[k,0];I[k,2]=I[k,0]
     print('bigtents: hid',int(k.sum()),'tris (3 tents), kept',int((~k).sum()));return V,I
 if __name__=='__main__' and '--bigtents-only' in sys.argv: pass
-print('zw_rpm.kn5 bigtents:',edit(f'{Z}/zw_rpm.kn5',f_big))
+print('vf_i29_speedway.kn5 bigtents:',edit(f'{Z}/vf_i29_speedway.kn5',f_big))

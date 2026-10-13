@@ -1,5 +1,5 @@
 """Move the 36 car spawns (AC_PIT_0..35) to the old tent area of the gravel paddock, behind (north, +z) of the large
-green paddock building (paddock_bulds, x 84..117, z 17..46). Rerunnable: reads /workspace/rpotm/backup/pre_spawn/zw_rpm.kn5.
+green paddock building (paddock_bulds, x 84..117, z 17..46). Rerunnable: reads /workspace/rpotm/backup/pre_spawn/vf_i29_speedway.kn5.
 - 4 rows x 9 cars, all facing -x (west) toward the paddock access road -> pit-exit gate (-30,38) -> 1PITS_OUT -> track.
   Row r at x = 92 + 15 r, cars every 6 m in z from 56 (odd rows staggered +3 m). Aisles 10 m between rows.
 - Dummy y = ground (1GRAVEL_PADDOCK, -0.10) + 0.40. Only the 4x4 dummy matrices are rewritten (same byte size).
@@ -8,7 +8,7 @@ green paddock building (paddock_bulds, x 84..117, z 17..46). Rerunnable: reads /
   rigidly by (+44, 0, +28) to the gravel lot west of the VF tent (x 10..16, z 67..73), clear of the exit route."""
 import sys,os,struct,numpy as np
 sys.path.insert(0,os.path.dirname(__file__));import kn5tree as T,kn5patch as K
-SRC='/workspace/rpotm/backup/pre_spawn/zw_rpm.kn5';DST=os.path.join(os.path.dirname(__file__),'..','zw_rpm','zw_rpm.kn5')
+SRC='/workspace/rpotm/backup/pre_spawn/vf_i29_speedway.kn5';DST=os.path.join(os.path.dirname(__file__),'..','vf_i29_speedway','vf_i29_speedway.kn5')
 GROUND=-0.10;LIFT=0.40
 def spots():
     out=[]

@@ -3,7 +3,7 @@ import sys,os,io,struct,numpy as np
 sys.path.insert(0,os.path.dirname(os.path.abspath(__file__)));import kn5patch as K,kn5write as W,vr7_common as C
 from PIL import Image,ImageDraw,ImageFont
 Image.MAX_IMAGE_PIXELS=None
-f=C.Z+'zw_rpm.kn5';d=open(f,'rb').read();mats=W.read_materials(f);ml=list(mats)
+f=C.Z+'vf_i29_speedway.kn5';d=open(f,'rb').read();mats=W.read_materials(f);ml=list(mats)
 X=[];U=[]
 for n,o,l,c in K.scan(f)[1]:
     if c!=2: continue
@@ -45,8 +45,8 @@ full=Image.fromarray(img.copy());D=ImageDraw.Draw(full,'RGBA')
 jj,ii=np.nonzero(sc[::1,::1])
 for j,i in zip(jj[::2],ii[::2]):
     x,y=P(g.xs[i],g.zs[j]);D.point((x,y),fill=(255,40,40,200))
-dd=open(C.Z+'zw_rpm_gp.kn5','rb').read()
-for n,o,l,c in K.scan(C.Z+'zw_rpm_gp.kn5')[1]:
+dd=open(C.Z+'vf_i29_speedway_gp.kn5','rb').read()
+for n,o,l,c in K.scan(C.Z+'vf_i29_speedway_gp.kn5')[1]:
     if n=='Cones_gp' and c==2:
         q=o+l+8;nv,=struct.unpack_from('<I',dd,q);CV=np.frombuffer(dd,'<f4',nv*11,q+4).reshape(nv,11)
         for v in CV[::10]: x,y=P(v[0],v[2]);D.ellipse([x-2,y-2,x+2,y+2],fill=(255,150,0,255))

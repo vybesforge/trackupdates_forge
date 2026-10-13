@@ -1,17 +1,17 @@
 """VR9: lidar re-drape. Applies a smooth vertical warp field D(x,z) (USGS 3DEP 2020 1 m DEM, project IA_WesternIA_2020_D21)
-to EVERY vertex / AC_ dummy of every kn5 in zw_rpm/ (visual + physics + props + spawns), plus the AI lines.
+to EVERY vertex / AC_ dummy of every kn5 in vf_i29_speedway/ (visual + physics + props + spawns), plus the AI lines.
   F(x,z)  = normalised-convolution of the DEM over PAVED physics cells only (sigma 10 m, ditches/embankments ignored),
             blended to sigma-25 m terrain away from pavement, then smoothed again (sigma 6 m)
   D       = w(x,z) * (F - F(start/finish)),  w = 1 within 120 m of pavement -> 0 at 400 m (far ground + north extension untouched)
 One continuous field for everything => visual/physics stay consistent, joins stay continuous, T1/T5 bumps are kept (added on top).
 Coarse flat meshes are first refined (conforming red-green edge splits, xz edges > 4 m drivable / 8 m visual ground) so the
 linear interpolation across a triangle follows D (zwiss 1DRAGstrip had 374 m triangles).
-Input = backup /workspace/rpotm/backup/pre_vr9/zw_rpm (idempotent). Run: venv python tools/vr9_lidar.py"""
+Input = backup /workspace/rpotm/backup/pre_vr9/vf_i29_speedway (idempotent). Run: venv python tools/vr9_lidar.py"""
 import sys,os,struct,json,numpy as np,rasterio
 sys.path.insert(0,os.path.dirname(os.path.abspath(__file__)))
 import kn5patch as K,kn5tree as KT,vr7_common as C
 from scipy import ndimage
-SRC='/workspace/rpotm/backup/pre_vr9/zw_rpm/';DST=C.Z;ROOT=os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+SRC='/workspace/rpotm/backup/pre_vr9/vf_i29_speedway/';DST=C.Z;ROOT=os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 A=np.load('/workspace/rpotm/geo/xz_to_utm.npy')
 PAVED={'ROAD','CURB','PITS','CONCRETE','DRAG','LAUNCHA','LAUNCHB','LAUNCHC','XROAD','XLOT','GRAVEL','SCUT'}
 GX0,GX1,GZ0,GZ1=-800.0,700.0,-1400.0,700.0

@@ -1,9 +1,9 @@
-"""VR2: move the gravel paddock triangles of 1CONCRETE_001 (zw_rpm.kn5) into a separate 1GRAVEL_PADDOCK mesh.
-Paddock tris (NAIP: gravel lot west of the pit buildings) -> degenerate in zw_rpm.kn5 (index buffer size unchanged),
+"""VR2: move the gravel paddock triangles of 1CONCRETE_001 (vf_i29_speedway.kn5) into a separate 1GRAVEL_PADDOCK mesh.
+Paddock tris (NAIP: gravel lot west of the pit buildings) -> degenerate in vf_i29_speedway.kn5 (index buffer size unchanged),
 and written to assets_src/paddock/paddock_mesh.npz (AC coords, world-planar UV, 2 m tile) for build_own_kn5.py."""
 import sys,os,struct,numpy as np
 sys.path.insert(0,os.path.dirname(__file__));import kn5patch as K,topview as T
-SRC='/workspace/rpotm/backup/vr2/zw_rpm.kn5';DST=sys.argv[1] if len(sys.argv)>1 else 'zw_rpm/zw_rpm.kn5'
+SRC='/workspace/rpotm/backup/vr2/vf_i29_speedway.kn5';DST=sys.argv[1] if len(sys.argv)>1 else 'vf_i29_speedway/vf_i29_speedway.kn5'
 d=bytearray(open(SRC,'rb').read());_,nodes=K.scan(SRC)
 for name,o,l,c in nodes:
     if c==2 and name=='1CONCRETE_001':

@@ -1,14 +1,14 @@
 """Integrate zw_ext.kn5: trim zwiss Berm (highway_SUB1) where the new ground band takes over, add model + surfaces entries."""
 import sys,os,struct,re,numpy as np
 sys.path.insert(0,os.path.join(os.path.dirname(__file__),'..'));import kn5patch as K
-ROOT=os.path.join(os.path.dirname(__file__),'..','..');Z=f'{ROOT}/zw_rpm';SRC='/workspace/rpotm/backup/zw_rpm.kn5.pre_north'
+ROOT=os.path.join(os.path.dirname(__file__),'..','..');Z=f'{ROOT}/vf_i29_speedway';SRC='/workspace/rpotm/backup/zw_rpm.kn5.pre_north'
 d=bytearray(open(SRC,'rb').read());_,nodes=K.scan(SRC);n=0
 for name,o,l,c in nodes:
     if c==2 and name=='highway_SUB1':
         q=o+l+8;nv,=struct.unpack_from('<I',d,q);V=np.frombuffer(bytes(d),'<f4',nv*11,q+4).reshape(nv,11);q+=4+nv*44
         ni,=struct.unpack_from('<I',d,q);I=np.frombuffer(bytes(d),'<u2',ni,q+4).reshape(-1,3).copy()
         cz=V[I][:,:,2].mean(1);cx=V[I][:,:,0].mean(1);cut=(cz<-2632)|((cx<-335)&(cz<-2500)&(cx>-1000));I[cut]=I[cut][:,[0]];n=int(cut.sum());d[q+4:q+4+ni*2]=I.astype('<u2').tobytes()
-open(f'{Z}/zw_rpm.kn5','wb').write(bytes(d));print('Berm tris hidden (north of z -2632 + US-34 berm in drivable band):',n)
+open(f'{Z}/vf_i29_speedway.kn5','wb').write(bytes(d));print('Berm tris hidden (north of z -2632 + US-34 berm in drivable band):',n)
 for lay in('main','short'):
     p=f'{Z}/models_{lay}.ini';s=open(p,'rb').read().decode()
     if 'zw_ext.kn5' not in s:
