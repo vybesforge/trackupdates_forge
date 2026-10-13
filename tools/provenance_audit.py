@@ -19,7 +19,7 @@ seen_tex={}
 for fn in sorted(glob.glob(NEW+'*.kn5')):
     b=os.path.basename(fn);M,T,TS=load(fn)
     if b in ZW:
-        Mo,To,_=load(OLD+b);om=collections.defaultdict(list)
+        Mo,To,_=load(OLD+b.replace('vf_i29_speedway','zw_rpm'));om=collections.defaultdict(list)
         for m in Mo: om[m['name']].append(m)
         for t in T: seen_tex[(b,t)]=('zwiss' if To.get(t)==T[t] else ('ours-replaced' if t in To else 'ours-new'),TS[t])
     for m in M:

@@ -503,3 +503,8 @@ Backup: `/workspace/rpotm/backup/pre_vr9b_holefix/zw_rpm.kn5` (004b983 state).
   - Validator: coverage, line of sight from camera to car over the whole window (0.5 m raster of every mesh: buildings, fences, trees, props), height above lidar ground, not inside geometry or on any track surface, inside the map. ALL OK. Previews: `docs_preview/cams_main.png`, `cams_short.png`.
 - **VR11 gravel/dirt restored** (undoes the dirt part of VR11b): `own_gravel*.dds`, `concrete_seams.dds` (compacted gravel) and `Muld Detailne.dds` (bare soil) are back to their 838af54 bytes (texture data only). `vf_ruts.kn5` and its models_*.ini entries are back. surfaces.ini GRAVEL `_EXT_SURFACE_TYPE=GRAVEL`/FIRM with vibration 0.45/0.35 is back, and so is the ext_config GrassFX occluder `vf_ruts`. The other 68 textures stay at their originals.
 - Checks: all kn5 parse; holecheck 0 enclosed holes (main, short); spawns 36/36; AI validate ALL OK; unit tests 10/10; camera validator ALL OK. Release zip not rebuilt.
+
+## v1.0.1
+- Rebuilt replay/TV cameras: 3 sets per layout (corner apex + straight cams), LOS-validated (VR12).
+- Restored dirt/gravel textures, vf_ruts, surfaces and ext_config (VR11).
+- Version 1.0.1 in `ui/{main,short}/ui_track.json`; release zip `I-29_Speedway_v1.0.1.zip`.
