@@ -1,0 +1,31 @@
+== original/cnds_raceway_park_2024/cnds_raceway_park_2024/cnds_objects.kn5
+ ver=6 textures=61 (0.0MB) materials=56 nodes=226 meshes=224 verts=611626
+ Y range (sampled) -4.45..33.61  pits=0 starts=0 AC_ nodes=['AC_HOTLAP_START_']
+ physics-surface meshes by key={'ROAD': 1}
+ sample names: ['FBX: cnds raceway_objects.fbx', 'PantallasEscritorios1_PantallasEscritorios1', 'PantallasEscritorios1_PantallasEscritorios1.002', 'Scaffold.010', 'Scaffold.005', 'Scaffold.007', 'Scaffold.008', 'Scaffold.001', 'Scaffold.004', 'Scaffold.002', 'Scaffold.006', 'Scaffold.009', 'Scaffold.003', 'Scaffold.011', 'semi_trailer_SUB3', 'semi_trailer.001_SUB2', 'semi_trailer.002_SUB2', 'semi_trailer_SUB2', 'semi_trailer.001_SUB1', 'semi_trailer_SUB1', 'semi_trailer.002_SUB1', 'semi_trailer_SUB0', 'semi_trailer.001_SUB0', 'semi_trailer.002_SUB0', '1ROAD_clot', 'tentwll2', 'Cylinder.004', 'Plank', 'Desk_Desk.001', 'Desk_Desk.004', 'viz_wl2', 'tentroof3', 'tentroof2', 'tentroof3.001', 'tentroof', 'tentroof4', 'Ground_Banners.006', 'Ground_Banners.005', 'Ground_Banners.012', 'Ground_Banners.010']
+== original/cnds_raceway_park_2024/cnds_raceway_park_2024/cnds_physics.kn5
+ ver=6 textures=2 (0.0MB) materials=2 nodes=16 meshes=15 verts=460284
+ Y range (sampled) -1.34..6.31  pits=0 starts=0 AC_ nodes=[]
+ physics-surface meshes by key={'WALL': 2, 'PITS': 3, 'ROAD': 10}
+ sample names: ['FBX: cnds_physics.fbx', '1WALL_gero', '1WALL_fk', '1PITS_IN.001', '1PITS_OUT.001', '1ROAD_006.001', '1ROAD_007.001', '1ROAD_008.001', '1PITS.001', '1ROAD_002.001', '1ROAD_001.001', '1ROAD_003.001', '1ROAD_004.001', '1ROAD_005.001', '1ROAD_009.001', '1ROAD_010.001']
+== original/cnds_raceway_park_2024/cnds_raceway_park_2024/cnds_raceway_park.kn5
+ ver=5 textures=162 (210.1MB) materials=141 nodes=503 meshes=456 verts=1093376
+ Y range (sampled) -54.17..154.45  pits=42 starts=0 AC_ nodes=['AC_PIT_', 'AC_TIME_0_L', 'AC_TIME_0_R', 'AC_TIME_1_L', 'AC_TIME_1_R']
+ physics-surface meshes by key={'ROAD': 11, 'CURBS': 5, 'WALL': 33, 'CONCRETE': 1, 'DRAG': 1, 'PITS': 3, 'GRASS': 1}
+ sample names: ['FBX: CNDS raceday 2024.fbx', 'highway_lights_SUB0', 'factory_poles_SUB0', 'tower_metal_SUB1', 'highway_sign_SUB1', 'drag_poles_SUB0', 'Highway_addpoles_SUB1', 'Grandstand_001_SUB2', 'Silo_001_SUB0', 'paddock_metal_SUB0', 'Grandstand_002_SUB0', 'Weatherstuff_SUB1', 'paddock_sign_SUB2', 'Shape', 'tower_metal_SUB0', 'drag_poles_SUB2', 'Grandstand_001metal3', 'Weatherstuff_SUB0', 'drag_metal_SUB0', 'Grandstand_002metal1', 'Grandstand_002metal2', 'Grandstand_001metal2', 'Grandstand_001metal1', 'highway_sign_SUB0', 'paddock_sign_SUB0', 'Grandstand_002_SUB4', 'paddock_metal_SUB2', 'drag_light_beton', 'Highway_addpoles_SUB0', 'paddock_scrut_SUB1', 'Silo_001_SUB2', 'Grandstand_001metal4', 'drag_boards_SUB2', 'paddock_bulds_SUB5', 'tower_SUB8', 'tower_metal_SUB3', 'banderin032_SUB025', 'banderin032_SUB013', 'banderin032_SUB011', 'banderin032_SUB029']
+== original/cnds_raceway_park_2024/cnds_raceway_park_2024/cnds_raceway_park_gp.kn5
+ ver=6 textures=8 (0.0MB) materials=5 nodes=14 meshes=9 verts=6657
+ Y range (sampled) -0.55..2.34  pits=0 starts=0 AC_ nodes=['AC_TIME_1_L', 'AC_TIME_1_R', 'AC_TIME_2_L', 'AC_TIME_2_R']
+ physics-surface meshes by key={}
+ sample names: ['FBX: layout_GP.FBX', 'wc_GP', 'racegroove', 'marsh009', 'marsh010', 'Cones_gp', 'AC_TIME_1_L', 'AC_TIME_1_L', 'AC_TIME_1_R', 'AC_TIME_1_R', 'AC_TIME_2_L', 'AC_TIME_2_L', 'AC_TIME_2_R', 'AC_TIME_2_R']
+== original/cnds_raceway_park_2024/cnds_raceway_park_2024/cnds_raceway_park_physical.kn5
+ ver=6 textures=1 (0.0MB) materials=1 nodes=18 meshes=17 verts=464361
+ Y range (sampled) -3.03..1.03  pits=0 starts=0 AC_ nodes=[]
+ physics-surface meshes by key={'ROAD': 11, 'PITS': 3, 'WALL': 3}
+ sample names: ['FBX: mesh.FBX', '1ROAD_001', '1ROAD_002', '1ROAD_003', '1ROAD_004', '1ROAD_005', '1ROAD_006', '1ROAD_007', '1ROAD_008', '1ROAD_009', '1ROAD_010', '1PITS_IN', '1WALL_marsh', '1WALL_TYRES', '1ROAD_pitout', '1PITS_OUT', '1WALL_armco', '1PITS']
+== original/cnds_raceway_park_2024/cnds_raceway_park_2024/cnds_raceway_park_vegetation.kn5
+ ver=5 textures=4 (48.2MB) materials=4 nodes=207 meshes=103 verts=7579
+ Y range (sampled) -18.66..34.84  pits=0 starts=0 AC_ nodes=[]
+ physics-surface meshes by key={}
+ sample names: ['zw_vegetation', 'GRASSES_001', 'GRASSES_001', 'BUSH_011', 'BUSH_011', 'BUSH_012', 'BUSH_012', 'BUSH_013', 'BUSH_013', 'BUSH_014', 'BUSH_014', 'BUSH_018', 'BUSH_018', 'BUSH_015', 'BUSH_015', 'BUSH_016', 'BUSH_016', 'BUSH_017', 'BUSH_017', 'BUSH_001', 'BUSH_001', 'BUSH_002', 'BUSH_002', 'BUSH_003', 'BUSH_003', 'BUSH_027', 'BUSH_027', 'BUSH_004', 'BUSH_004', 'BUSH_005', 'BUSH_005', 'BUSH_006', 'BUSH_006', 'BUSH_007', 'BUSH_007', 'BUSH_008', 'BUSH_008', 'BUSH_009', 'BUSH_009', 'BUSH_019']
+original/cnds_raceway_park_2024/cnds_raceway_park_2024/unpacked-cnds_raceway_park.kn5 PARSE FAIL [Errno 21] Is a directory: 'original/cnds_raceway_park_2024/cnds_raceway_park_2024/unpacked-cnds_raceway_park.kn5'

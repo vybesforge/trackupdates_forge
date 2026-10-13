@@ -1,0 +1,36 @@
+Mid America Motorplex v0.9
+==========================
+I got to know this track in GTR2. 'Porsche Guy' had created this real track from the midlands for Sports Car GT and I really loved the flow. Unfortunately: although the layout was pretty accurate, the scenery was fantasy..
+This version found its way to AC but since the scenery and athmosphare are totally wrong, I decided to remake the track in 3DS MAX from scratch.
+I did use the outline of the main layout as a starting point and build everything up from scratch.
+I hope you like it. I love the layout with Mazda MX, Porsche GT3 CUP etc..
+
+Feel free to send me p.m. for suggestions or contributions.
+
+The real track:
+==============
+The Mid America Motorplex is a relatively new club circuit located in Pacific Junction,
+Iowa that was designed by world-renowned track designer Alan Wilson. 
+The track is 2.23 miles long with 15 turns (increasing and decreasing radiuses),
+long straights, many passing zones, a very challenging chicane near the pit entrance,
+and a flat out kink." Lately it was renamed to 'Raceway Park of the Midlands'
+In 2019 the whole track was flooded and afterwards a lot of work was done to recover from that.
+FLOOD of 2019: https://www.youtube.com/watch?v=d--JCi5UiIU&list=WL&index=19
+
+Still to do:
+============
+Add some more track side objects (cars, trucks and tents)
+Add some more vegetation
+Fine tune the tarmac (add some patches)
+Add lights
+Add rain effects
+Fix grooves and skids
+Real traffic on the highway (who can help?)
+
+Credits:
+========
+Fanapryde: sections file and logo.
+I did borrow a few objects and textures left and right, but almost everything was made from scratched or edited.
+
+
+

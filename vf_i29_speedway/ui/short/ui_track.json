@@ -1,0 +1,27 @@
+{
+  "name": "I-29 Speedway Short Course",
+  "description": "Short course of I-29 Speedway (formerly Raceway Park of the Midlands), Pacific Junction, Iowa. Uses the drag strip as the main straight, with T1/T5 transition bumps. 36 paddock pit boxes. Based on zwiss's v0.9 scratch build; open source (Apache-2.0).",
+  "tags": [
+    "circuit",
+    "drag",
+    "drift",
+    "Vybes Forge",
+    "zwiss",
+    "USA",
+    "open source"
+  ],
+  "geotags": [
+    "41° 01′ 27″ N",
+    "95° 49′ 58″ W"
+  ],
+  "country": "USA",
+  "city": "Pacific Junction",
+  "length": "2.380 km",
+  "width": "12 m",
+  "pitboxes": "36",
+  "run": "clockwise",
+  "author": "Vybes Forge",
+  "version": "1.0.0",
+  "url": "https://vybesforge.com",
+  "year": 2026
+}

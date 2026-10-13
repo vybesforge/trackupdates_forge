@@ -1,0 +1,11 @@
+model,instance,x,y,z,yaw_deg,replaces_nodes,note
+tower,tower,-248.0,-0.1,-302.1,-90.0,tower_SUB0..tower_SUB8; tower_metal_SUB0..SUB3,centre of old tower footprint; front (windows) faces track (+x)
+grandstand,gs_1,-268.5,-0.2,-426.5,-90.0,Grandstand_001_SUB0..SUB3; Grandstand_001metal1..metal4,"4 x 20 m modules along old Grandstand_001 (x -279..-268, z -436..-358)"
+grandstand,gs_2,-268.5,-0.2,-406.5,-90.0,(same group),"4 x 20 m modules along old Grandstand_001 (x -279..-268, z -436..-358)"
+grandstand,gs_3,-268.5,-0.2,-386.5,-90.0,(same group),"4 x 20 m modules along old Grandstand_001 (x -279..-268, z -436..-358)"
+grandstand,gs_4,-268.5,-0.2,-366.5,-90.0,(same group),"4 x 20 m modules along old Grandstand_001 (x -279..-268, z -436..-358)"
+flagpole,flag,-241.65,-0.2,-320.3,0.0,whitepole_001; flag_001,18 m pole at old pole base near tower
+brakeboards,bb3,2.689,0.005,-39.379,-88.87,"(new, none in v0.9)",-150 m before T5 entry (short lane d=1869); 9 m left of AI line; board 3 plausibility: seen in footage
+brakeboards,bb2,-48.122,0.003,-44.452,-95.64,"(new, none in v0.9)",-100 m before T5 entry (short lane d=1919); 9 m left of AI line; board 2 plausibility: seen in footage
+brakeboards,bb1,-92.351,0.007,-37.426,-61.17,"(new, none in v0.9)","-50 m before T5 entry (short lane d=1969); 9 m left of AI line; board 1 plausibility: assumed, not confirmed"
+hut,hut,85.812,-0.001,-93.551,-147.18,"(new; marsh_boot_SUB* is one merged mesh for all booths, not hidden)","back straight mid (short d=1770), 14 m right of AI line, awning faces track"
