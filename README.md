@@ -8,8 +8,12 @@ An open-source Assetto Corsa track of **I-29 Speedway** (formerly Raceway Park o
 - 1/8-mile drag strip with a reactive two-lane tree. It runs on the pole with CSP; without CSP, the bundled Python app shows it on the monitor.
 - Paddock, north extension roads to the fuel stations and US-34, and night lights (CSP).
 
+## What's new in v1.0.1
+- Rebuilt replay cameras: 3 camera sets per layout, with corner-apex and straight cameras.
+- Restored dirt/gravel textures.
+
 ## Install
-Download `I-29_Speedway_v1.0.0.zip` (current release **v1.0.0**) from the GitHub Releases page or from `release/`. Unzip it into your Assetto Corsa root folder, or drag it onto Content Manager. It installs `content/tracks/vf_i29_speedway/` and the optional `apps/python/i29_dragtree/` app. Custom Shaders Patch (0.2.x) is recommended, but the track also runs in vanilla AC.
+Download `I-29_Speedway_v1.0.1.zip` (current release **v1.0.1**) from the GitHub Releases page or from `release/`. Unzip it into your Assetto Corsa root folder, or drag it onto Content Manager. It installs `content/tracks/vf_i29_speedway/` and the optional `apps/python/i29_dragtree/` app. Custom Shaders Patch (0.2.x) is recommended, but the track also runs in vanilla AC.
 
 If you have an old `content/tracks/zw_rpm` install, delete it first. If you clone this repo instead, you need Git LFS (`git lfs pull`), because the large files are stored in LFS. See `INSTALL_AGENT.md` for a scripted install.
 
