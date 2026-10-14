@@ -241,22 +241,59 @@ def house_sign(name,cx,cz,facing,w,h,bottom):
     X=lambda VI:ML.xform(VI,yaw,(cx,gy,cz))
     return X((Fv,Fi)),X(back),X(posts),dict(yaw=yaw,ground=gy,surfaces=surf)
 # ---------------- course meshes
+def tyre_uv(VI,lvl):
+    """v8: atlas columns 0 black, 1 yellow, 2 black, 3 white paint. Middle tyre yellow, top cap white."""
+    V,I=VI;V=V.copy();col=1 if lvl==1 else 0;top=V[:,4]>0.9
+    ang=np.arctan2(V[:,2]-V[:,2].mean(),V[:,0]-V[:,0].mean())/(2*np.pi)+0.5
+    V[:,6]=(col+0.1+0.8*ang)/4;V[:,7]=np.clip((V[:,1]-V[:,1].min())/0.21,0,1)
+    if lvl==2: V[top,6]=3.5/4;V[top,7]=0.5
+    V[V[:,4]<-0.9,6]=0.5/4;return V.astype('<f4'),I
+def wall_textures():
+    """v8 motorsport jersey barrier: 2 m red / 2 m white, weathered concrete, rubber scuffs low down, grime at the base. 512x256 + normal 256."""
+    rng=np.random.default_rng(29);H,Wd=256,512;y,x=np.mgrid[0:H,0:Wd]
+    n=sum(np.kron(rng.random((H//k,Wd//k)),np.ones((k,k)))*(k/62) for k in (2,4,8,16,32));n=(n-n.mean())/n.std()
+    col=np.where(x<Wd//2,1,0)[...,None]*np.array([196,30,32])+np.where(x<Wd//2,0,1)[...,None]*np.array([232,230,224])
+    c=col*(1+0.05*n[...,None]);v=y/H
+    c=c*(1-0.35*np.clip((v-0.88)/0.12,0,1))[...,None]+np.array([70,66,60])*0.35*np.clip((v-0.88)/0.12,0,1)[...,None]   # base grime
+    sc=np.zeros((H,Wd))
+    for _ in range(26):   # rubber scuffs: streaks along the wall, lower 35-90 %
+        cy=rng.uniform(0.38,0.86)*H;cx=rng.uniform(0,Wd);L=rng.uniform(40,220);th=rng.uniform(2,9);sl=rng.uniform(-0.08,0.08)
+        dx=((x-cx+Wd/2)%Wd)-Wd/2;m=np.exp(-((y-cy-sl*dx)/th)**2)*np.clip(1-np.abs(dx)/L,0,1)**0.6*rng.uniform(0.4,0.95);sc=np.maximum(sc,m)
+    sc*=np.clip(0.75+0.35*n,0,1);c=c*(1-sc[...,None])+np.array([24,22,22])*sc[...,None]
+    pits=rng.random((H,Wd))<0.004;c[pits]*=0.6
+    rgb=np.clip(c,0,255).astype(np.uint8);a=np.full((H,Wd),255,np.uint8)
+    hgt=n*0.6-pits*2.0;gy,gx=np.gradient(hgt);nn=np.dstack([-gx*1.4,-gy*1.4,np.ones_like(gx)]);nn/=np.linalg.norm(nn,axis=2,keepdims=True)
+    nm=((nn*0.5+0.5)*255).astype(np.uint8);nm=np.array(Image.fromarray(nm).resize((256,128),Image.LANCZOS))
+    Image.fromarray(rgb).save(f'{ROOT}/assets_src/vr2/barrier_v8.png')
+    t=np.zeros((64,256,3),np.uint8);t[:]=(22,22,24);t[:,64:128]=(238,190,20);t[:,192:]=(240,240,236);t[:,:192][(np.arange(64)%8<2)]=t[:,:192][(np.arange(64)%8<2)]*0.6   # tread bands
+    t[(np.arange(64)%8<2)[:,None]&(np.arange(256)[None]<192)]=(t[(np.arange(64)%8<2)[:,None]&(np.arange(256)[None]<192)]*0.7).astype(np.uint8)
+    return (B.write_dds(np.dstack([rgb,a]),'DXT1',9,None),B.write_dds(np.dstack([nm,np.full(nm.shape[:2],255,np.uint8)]),'DXT1',8,None),
+            B.write_dds(np.dstack([t,np.full((64,256),255,np.uint8)]),'DXT1',7,None))
 def course_meshes(hat):
     C=DC.course();out={'wall':[],'cone':[],'tyre':[],'paint':[]}
     prof=[(0.30,0.0),(0.30,0.08),(0.12,0.33),(0.08,0.81)]   # jersey barrier half-width / height
     for wi,w in enumerate(C['walls']):
         w=w[::2] if len(w)>4 else w;t=np.gradient(w,axis=0);t/=np.linalg.norm(t,axis=1,keepdims=True);nr=np.stack([t[:,1],-t[:,0]],1)
-        parts=[]
+        parts=[];S=np.r_[0,np.cumsum(np.linalg.norm(np.diff(w,axis=0),axis=1))]/4.0   # v8: u = metres/4 (2 m red + 2 m white per repeat), v = height
         for side in (-1,1):
             for a in range(len(prof)-1):
                 for i in range(len(w)-1):
                     P=[]
                     for (hw,hy),ii in ((prof[a],i),(prof[a],i+1),(prof[a+1],i+1),(prof[a+1],i)):
                         g=hat(*w[ii])-0.03;xy=w[ii]+side*hw*nr[ii];P.append((xy[0],g+hy+(0.03 if hy==0 else 0),xy[1]))
-                    mid=w[i]+side*nr[i];parts.append(face(P,[(0,0),(1,0),(1,1),(0,1)],(side*nr[i][0],0.3,side*nr[i][1])))
+                    va,vb=1-prof[a][1]/0.81,1-prof[a+1][1]/0.81
+                    parts.append(face(P,[(S[i],va),(S[i+1],va),(S[i+1],vb),(S[i],vb)],(side*nr[i][0],0.3,side*nr[i][1])))
+                # v8: retro-reflective strip on the upper slope (visual only, 8 mm proud), 0.55-0.62 m
+                (h0,y0),(h1,y1)=prof[2],prof[3];Q=[]
+                for i in range(len(w)-1):
+                    P=[]
+                    for f,ii in ((0.47,i),(0.47,i+1),(0.6,i+1),(0.6,i)):
+                        hw=h0+(h1-h0)*f+0.008;hy=y0+(y1-y0)*f;g=hat(*w[ii])-0.03;xy=w[ii]+side*hw*nr[ii];P.append((xy[0],g+hy,xy[1]))
+                    Q.append(face(P,[(S[i],0),(S[i+1],0),(S[i+1],1),(S[i],1)],(side*nr[i][0],0.15,side*nr[i][1])))
+                out.setdefault('refl',[]).extend(Q)
         for i in (0,len(w)-1):   # end caps
             g=hat(*w[i]);d=t[i]*(-1 if i==0 else 1);P=[(w[i][0]+s_*hw*nr[i][0],g+hy,w[i][1]+s_*hw*nr[i][1]) for s_,(hw,hy) in [(-1,prof[0]),(1,prof[0]),(1,prof[-1]),(-1,prof[-1])]]
-            parts.append(face(P,[(0,0),(1,0),(1,1),(0,1)],(d[0],0,d[1])))
+            parts.append(face(P,[(0.02,1),(0.12,1),(0.12,0),(0.02,0)],(d[0],0,d[1])))
         out['wall'].append(ML.merge(parts))
     cones=[];tyres=[];paint=[]
     def cone(x,z):
@@ -265,7 +302,7 @@ def course_meshes(hat):
     t,n,k=DC.frames()
     for (cx,cz),ci in zip(C['clips'],C['clip_idx']):
         g=hat(cx,cz)
-        for lvl in range(3): tyres.append(ML.cyl((cx,g+lvl*0.22,cz),0.33,0.21,n=14))
+        for lvl in range(3): tyres.append(tyre_uv(ML.cyl((cx,g+lvl*0.22,cz),0.33,0.21,n=14),lvl))
         for a in (0,2.1,4.2): cones+=cone(cx+1.3*np.cos(a),cz+1.3*np.sin(a))
     for cx,cz in C['line'][::40]: pass
     def ribbon(P,wd):
@@ -279,9 +316,9 @@ def course_meshes(hat):
     for (cx,cz) in C['clips']:
         a=np.linspace(0,2*np.pi,25);paint.append(ribbon(np.stack([cx+2.0*np.cos(a),cz+2.0*np.sin(a)],1),0.12))
     dx,dz,dr_=C['donut'];a=np.linspace(0,2*np.pi,73);paint.append(ribbon(np.stack([dx+dr_*np.cos(a),dz+dr_*np.sin(a)],1),0.2))
-    for lvl in range(3): tyres.append(ML.cyl((dx,hat(dx,dz)+lvl*0.22,dz),0.33,0.21,n=14))
+    for lvl in range(3): tyres.append(tyre_uv(ML.cyl((dx,hat(dx,dz)+lvl*0.22,dz),0.33,0.21,n=14),lvl))
     e=C['line'][0];tt=t[0];nr=np.array([tt[1],-tt[0]]);paint.append(ribbon(np.stack([e+s_*nr for s_ in np.linspace(-5,5,11)]),0.35))   # entry line
-    out['cone']=ML.merge(cones);out['tyre']=ML.merge(tyres);out['paint']=ML.merge(paint);return out
+    out['refl']=ML.merge(out['refl']);out['cone']=ML.merge(cones);out['tyre']=ML.merge(tyres);out['paint']=ML.merge(paint);return out
 def write_ext_config(n):
     e=f'{EXT}/ext_config.ini';c=open(e,'rb').read().decode();a=c.index('; >>> v1.1 tents');b=c.index('; <<< v1.1 tents')+len('; <<< v1.1 tents')
     L=['; >>> v1.1 tents: ad artwork is NOT set here any more. Advertiser / 2048 fallback textures live in skins/default/',
@@ -290,7 +327,9 @@ def write_ext_config(n):
        '','[MATERIAL_ADJUSTMENT_TENT_NIGHT]','DESCRIPTION = v1.1 tents: subtle self-lit fabric at night so ads stay readable','MATERIALS = vftent_slot??',
         'KEY_0 = ksEmissive','VALUE_0 = 1.0, 1.0, 1.0, 0.35','VALUE_0_OFF = 0, 0, 0','CONDITION = NIGHT_SMOOTH',
        '','[MATERIAL_ADJUSTMENT_BOARD_NIGHT]','DESCRIPTION = v1.1 drag-end billboards: backlit look at night','MATERIALS = vfboard_slot??',
-        'KEY_0 = ksEmissive','VALUE_0 = 1.0, 1.0, 1.0, 0.6','VALUE_0_OFF = 0, 0, 0','CONDITION = NIGHT_SMOOTH','','; <<< v1.1 tents']
+        'KEY_0 = ksEmissive','VALUE_0 = 1.0, 1.0, 1.0, 0.6','VALUE_0_OFF = 0, 0, 0','CONDITION = NIGHT_SMOOTH',
+       '','[MATERIAL_ADJUSTMENT_DRIFT_REFLECTORS]','DESCRIPTION = v1.1 drift barriers: retro-reflective strip glints at night','MATERIALS = vfc_reflector',
+        'KEY_0 = ksEmissive','VALUE_0 = 0.9, 0.9, 0.85, 0.5','VALUE_0_OFF = 0, 0, 0','CONDITION = NIGHT_SMOOTH','','; <<< v1.1 tents']
     c=c[:a]+'\n'.join(L)+c[b:];assert '\r' not in c;open(e,'wb').write(c.encode())
 _bj=os.path.join(ROOT,'assets_src','ads','brands.json')
 _SOLD={x for k,v in (_json.load(open(_bj)).items() if os.path.exists(_bj) else []) if not k.startswith('_') and not v.get('pending') for x in v.get('tent_slots',[])}   # slots with advertiser art in skins/default/ (tools/make_ad.py): never overwritten
@@ -308,8 +347,10 @@ if __name__=='__main__':
         return dict(name=name,shader='ksPerPixel',ab=0,at=0,dm=0,props=ML.props(base['props'],ksAmbient=0.45,ksDiffuse=0.5,ksSpecular=spec,ksSpecularEXP=exp,ksEmissive=(0,0,0)),samplers=[('txDiffuse',0,tn)])
     mats=[solid('vftent_frame_black','vft_black.dds',0.5,40),solid('vftent_sandbag','vft_sandbag.dds',0.03,4),solid('vftent_tabletop','vft_tabletop.dds',0.15,20),
           dict(name='vftent_shadow',shader=shm['shader'],ab=shm['ab'],at=shm['at'],dm=shm['dm'],props=shm['props'],samplers=[('txDiffuse',0,'vr6_blob_rect.dds')])]
-    texs+=[('vfc_concrete.dds',ML.solid_dds((178,176,170))),('vfc_cone.dds',ML.solid_dds((235,90,20))),('vfc_tyre.dds',ML.solid_dds((20,20,22))),('vfc_paint.dds',ML.solid_dds((235,235,230)))]
-    mats+=[solid('vfc_concrete','vfc_concrete.dds',0.05,8),solid('vfc_cone','vfc_cone.dds',0.2,20),solid('vfc_tyre','vfc_tyre.dds',0.1,10),solid('vfc_paint','vfc_paint.dds',0.05,8)]
+    wd,wn,td=wall_textures()
+    texs+=[('vfc_concrete.dds',wd),('vfc_concrete_nm.dds',wn),('vfc_reflector.dds',ML.solid_dds((250,250,245)))]
+    texs+=[('vfc_cone.dds',ML.solid_dds((235,90,20))),('vfc_tyre.dds',td),('vfc_paint.dds',ML.solid_dds((235,235,230)))]
+    mats+=[dict(solid('vfc_concrete','vfc_concrete.dds',0.08,10),shader='ksPerPixelNM',samplers=[('txDiffuse',0,'vfc_concrete.dds'),('txNormal',1,'vfc_concrete_nm.dds')]),solid('vfc_cone','vfc_cone.dds',0.2,20),solid('vfc_tyre','vfc_tyre.dds',0.1,10),solid('vfc_paint','vfc_paint.dds',0.05,8)]
     MI={'frame':0,'bag':1,'top':2,'shadow':3};meshes=[];os.makedirs(SKIN,exist_ok=True)
     CM=course_meshes(hat)
     import kn5patch as KP2
@@ -320,6 +361,7 @@ if __name__=='__main__':
     for pi,(V,I) in enumerate(pads): meshes.append(dict(name=f'1CONCRETE_DRIFT_{pi}',mat_index=ci,verts=V,idx=I,lod_out=0))   # physics: CONCRETE (surfaces.ini KEY=CONCRETE)
     print('drift pad: %d m2 cracked concrete'%ncell)
     for wi,(V,I) in enumerate(CM['wall']): meshes.append(dict(name=f'1WALL_DRIFT_{wi}',mat_index=4,verts=V,idx=I,lod_out=0))   # physics: collides (WALL)
+    mats.append(solid('vfc_reflector','vfc_reflector.dds',0.9,60));meshes.append(dict(name='vfc_reflectors',mat_index=len(mats)-1,verts=CM['refl'][0],idx=CM['refl'][1],lod_out=300,flags=(0,0,0)))   # visual only
     meshes.append(dict(name='vfc_cones',mat_index=5,verts=CM['cone'][0],idx=CM['cone'][1],lod_out=500))
     meshes.append(dict(name='1WALL_DRIFT_TYRES',mat_index=6,verts=CM['tyre'][0],idx=CM['tyre'][1],lod_out=500))
     meshes.append(dict(name='vfc_paint',mat_index=7,verts=CM['paint'][0],idx=CM['paint'][1],lod_out=400,flags=(1,0,0)))
