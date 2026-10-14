@@ -518,3 +518,9 @@ Backup: `/workspace/rpotm/backup/pre_vr9b_holefix/zw_rpm.kn5` (004b983 state).
 - Correction to v1.0.2: AssettoServer reads only `<server root>/cfg/data_track_params.ini` (never `system/data`); vanilla acServer needs no track params. README "Running a server" rewritten: no `system/data` edits, `cfg/` target, `extra_cfg.yml` `MissingTrackParams: true` alternative (UTC, not with LiveWeatherPlugin), checksum-failed troubleshooting.
 - `server/add_track_params.py`: takes a server root (-> `cfg/data_track_params.ini`) or file path; refuses `system/data`; idempotent with `.bak`. Snippet file has a comment header.
 - Version 1.0.3 in both ui_track.json; kn5/surfaces.ini/models*.ini byte-identical to v1.0.2 (checksums unchanged).
+
+## v1.0.4
+- `.gitattributes`: `-text` (no EOL conversion) for `vf_i29_speedway/**`, `server/**`, `apps/**` and `*.ini/*.json/*.lua/*.ai/*.kn5/*.csv/*.py/*.txt/*.md`; LFS lines unchanged. Cause of "checksum failed": Windows checkouts with `core.autocrlf=true` converted LF `.ini` files (models_*.ini, surfaces.ini, ext_config.ini) to CRLF. `git add --renormalize .` changed no content.
+- `server/add_track_params.py` audit: the v1.0.2 script opened the target only in append mode, so it never truncated an existing file, but when the target was missing or empty it created a new file containing only the `[vf_i29_speedway]` section — exactly 109 bytes (CRLF). v1.0.3 behaved the same for a missing/empty cfg file (107 bytes) but refused system/data. Hardened: append-only binary write with a post-check that existing bytes are unchanged, `.bak` copy, refuses missing/empty target unless `--create`, refuses `system/data`. Tests: `tests/test_add_track_params.py`.
+- README/INSTALL_AGENT: install from the zip; git installs need a fresh clone or `core.autocrlf false`; MD5 table of checksummed files.
+- Version 1.0.4 in both ui_track.json; checksummed files byte-identical to v1.0.3.
