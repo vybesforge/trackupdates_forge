@@ -22,6 +22,10 @@ ST190=np.array([
 # west-lot access road (inside the lot, between 190th St and the return road; google aerial light band, ~6 m wide)
 WR=np.array([(-344.5,-868.0),(-344.5,-820.0),(-344.5,-760.0),(-345.5,-700.0),(-346.5,-640.0),(-347.5,-580.0),(-347.5,-520.0),(-348.0,-480.0),(-348.0,-420.0),(-348.0,-370.0),(-348.0,-331.0)],float)
 EXIT=np.array([(-387.6,-845.5),(-366.0,-845.0),(-346.0,-845.0)],float)   # v14: lot's west exit to 190th St (satellite band z~-845), stops at the 190th shoulder
+# v15 (Dylan's orange loop): return-road extension to the apron + two cross links lot road <-> return road
+LOOP=[('1CONCRETE_LOOP_RETEXT',np.array([(-298.0,-552.0),(-299.0,-450.0),(-300.0,-331.0)],float),4.0),
+      ('1CONCRETE_LOOP_LINK800',np.array([(-345.0,-801.0),(-302.0,-801.0)],float),4.0),
+      ('1CONCRETE_LOOP_LINK624',np.array([(-345.5,-624.0),(-302.0,-624.0)],float),3.0)]
 JOIN_Z=-480.0   # v13: south of this the road is the new join to the 1CONCRETE_001 apron (z~-333)
 def uv_c(x,z): return (-0.0168*x+0.0109*z+1.79,-0.0109*x-0.0167*z)
 def uv_g(x,z): return (0.5*x,0.5*z)
@@ -67,6 +71,10 @@ def build_west_road():
     offs=np.linspace(-HALF,HALF,int(2*HALF/0.5)+1);G2=P2[:,None,:]+offs[None,:,None]*n2[:,None,:]
     Y2=sampleH(xs2,zs2,H2,G2.reshape(-1,2)).reshape(G2.shape[:2])+LIFT
     meshes+=strip_mesh(P2,n2,Y2,HALF,uv_c,'1CONCRETE_LOTEXIT',chunk=10**6)
+    for nm,pts,hw in LOOP:
+        _,Pl,_,nl=cline(pts);x0,x1=Pl[:,0].min()-hw-2,Pl[:,0].max()+hw+2;z0,z1=Pl[:,1].min()-hw-2,Pl[:,1].max()+hw+2
+        xl,zl,Hl,*_=top_H((x0,x1,z0,z1),0.25);offs=np.linspace(-hw,hw,int(2*hw/0.5)+1);Gl=Pl[:,None,:]+offs[None,:,None]*nl[:,None,:]
+        Yl=sampleH(xl,zl,Hl,Gl.reshape(-1,2)).reshape(Gl.shape[:2])+LIFT;meshes+=strip_mesh(Pl,nl,Yl,hw,uv_c,nm,chunk=10**6)
     return meshes,P,n
 def object_block(xs,zs,margin=0.75):
     """Cells covered by any object (visual non-ground meshes + collision boxes), dilated by margin."""
@@ -96,7 +104,7 @@ def dirt_mask():
     ndvi=(n[...,1]-n[...,0])/(n[...,1]+n[...,0]+1e-6)
     g_green=(g[...,1]>g[...,0]+8)&(g[...,1]>g[...,2]+8)
     dirt=(~g_green)&(ndvi<=0.06)&(g.mean(2)>125)&((g.max(2)-g.min(2))<55)
-    _,P1,_,n1=cline(ST190);_,P2,_,n2=cline(WR);_,P3,_,n3=cline(EXIT)
+    _,P1,_,n1=cline(ST190);_,P2,_,n2=cline(WR);_,P3,_,n3=cline(EXIT);LOOPC=[(cline(p)[1],cline(p)[3],hw) for _,p,hw in LOOP]
     def lat(P,nn,x,z):
         k=int(np.argmin((P[:,0]-x)**2+(P[:,1]-z)**2));along=(k==0 or k==len(P)-1)
         d=np.array([x,z])-P[k];return abs(float(d@nn[k])) if not along else float(np.hypot(*d))
@@ -107,7 +115,8 @@ def dirt_mask():
             l2=lat(P2,n2,x,z)
             if lat(P1,n1,x,z)<5.0 or l2<HALF+1.0: dirt[j,i]=False
             elif z>JOIN_Z-10 and l2<HALF+5.0: dirt[j,i]=False
-            elif lat(P3,n3,x,z)<HALF+5.0: dirt[j,i]=False   # v14: grass verge along the 190th exit   # v13: grass verge beside the new join
+            elif lat(P3,n3,x,z)<HALF+5.0: dirt[j,i]=False   # v14: grass verge along the 190th exit
+            elif any(lat(Pl,nl,x,z)<hw+5.0 for Pl,nl,hw in LOOPC): dirt[j,i]=False   # v15 verges   # v13: grass verge beside the new join
             if -306.5<=x<=-240.5 and -962<=z<=-333: dirt[j,i]=False
             if -391<=x<=-290 and ((-808<=z<=-794) or (-959<=z<=-945)): dirt[j,i]=False
     from numpy.lib.stride_tricks import sliding_window_view
@@ -159,7 +168,7 @@ def rebuild_roads(west_meshes):
     src='/tmp/vf_roads_v11.kn5' if os.path.exists('/tmp/vf_roads_v11.kn5') else f'{Z}/vf_roads.kn5'
     existing=[]
     for m in VM.vismeshes(src):
-        if m['name'].startswith(('1CONCRETE_WESTRD','1CONCRETE_LOTRD','1CONCRETE_LOTEXIT','1CONCRETE_DRAGX_B_west','1CONCRETE_DRAGX_C_west')): continue
+        if m['name'].startswith(('1CONCRETE_WESTRD','1CONCRETE_LOTRD','1CONCRETE_LOTEXIT','1CONCRETE_LOOP','1CONCRETE_DRAGX_B_west','1CONCRETE_DRAGX_C_west')): continue
         existing.append(dict(name=m['name'],mat_index=0,verts=m['V'].astype('<f4'),idx=m['I'].astype('<u2'),lod_out=0))
     cm=W.read_materials(MAIN)['Concrete01'];texs=[(tn,K.get_tex(MAIN,tn)) for tn in dict.fromkeys(t for _,_,t in cm['samplers'])]
     mats=[dict(name='Concrete01_roads',shader=cm['shader'],ab=cm['ab'],at=cm['at'],dm=cm['dm'],props=cm['props'],samplers=cm['samplers'])]

@@ -24,6 +24,23 @@ share=np.mean([names[k].startswith('1CONCRETE') for k in KEY[j,i]]);print(f'west
 q,P,t,nn=WL.cline(WL.EXIT);G=(P[:,None,:]+np.linspace(-2.5,2.5,6)[None,:,None]*nn[:,None,:]).reshape(-1,2);xs,zs,H,KEY,names=top((-392,-340,-855,-835),0.25)
 i=np.clip(np.round((G[:,0]-xs[0])/0.25).astype(int),0,len(xs)-1);j=np.clip(np.round((G[:,1]-zs[0])/0.25).astype(int),0,len(zs)-1)
 share=np.mean([names[k].startswith('1CONCRETE') for k in KEY[j,i]]);print(f'west-lot 190th exit (sampled +-2.5 m): {100*share:.1f} % concrete on top');fails+=share<0.97
+for nm,pts,hw in WL.LOOP:
+    q,P,t,nn=WL.cline(pts);G=(P[:,None,:]+np.linspace(-(hw-0.5),hw-0.5,6)[None,:,None]*nn[:,None,:]).reshape(-1,2)
+    bx=(G[:,0].min()-2,G[:,0].max()+2,G[:,1].min()-2,G[:,1].max()+2);xs,zs,H,KEY,names=top(bx,0.25)
+    i=np.clip(np.round((G[:,0]-xs[0])/0.25).astype(int),0,len(xs)-1);j=np.clip(np.round((G[:,1]-zs[0])/0.25).astype(int),0,len(zs)-1)
+    share=np.mean([names[k].startswith('1CONCRETE') for k in KEY[j,i]]);print(f'{nm}: {100*share:.1f} % concrete on top');fails+=share<0.97
+# loop connectivity: walk 1 m cells of concrete from the lot road north end; all loop pieces + apron must be reachable
+xs,zs,H,KEY,names=top((-395,-285,-875,-320),1.0);CON=np.vectorize(lambda k:k>=0 and names[k].startswith('1CONCRETE'))(KEY)
+from collections import deque
+st=(int(round(-866-zs[0])),int(round(-344.5-xs[0])));seen=np.zeros_like(CON);dq=deque([st]);seen[st]=True
+while dq:
+    j,i=dq.popleft()
+    for dj,di in ((0,1),(0,-1),(1,0),(-1,0)):
+        a,b=j+dj,i+di
+        if 0<=a<CON.shape[0] and 0<=b<CON.shape[1] and CON[a,b] and not seen[a,b]: seen[a,b]=True;dq.append((a,b))
+probes={'lot exit @190th':(-386,-845.5),'link800 east':(-305,-801),'link624 east':(-305,-624),'return road N':(-298,-900),'return ext S':(-300,-335),'apron':(-320,-325)}
+for k,(x,z) in probes.items():
+    ok=bool(seen[int(round(z-zs[0])),int(round(x-xs[0]))]);print(f'connected: {k}: {ok}');fails+=not ok
 q,P,t,nn=WL.cline(WL.ST190);xs,zs,H,KEY,names=top((-412,-380,-990,240),0.5)
 i=np.clip(np.round((P[:,0]-xs[0])/0.5).astype(int),0,len(xs)-1);j=np.clip(np.round((P[:,1]-zs[0])/0.5).astype(int),0,len(zs)-1)
 bad=sum(names[k].startswith(('1CONCRETE_LOTRD','1CONCRETE_LOTEXIT','1GRAVEL_WESTLOT')) for k in KEY[j,i] if k>=0);print(f'190th St centreline: {bad} points covered by new overlays (expect 0)');fails+=bad>0
@@ -60,7 +77,7 @@ for lay in ('main','short'):
 pits=[n['W'][3,:3] for n in T.walk(f'{Z}vf_i29_speedway.kn5') if n['cls']==1 and n['name'].startswith(('AC_PIT_','AC_START_','AC_HOTLAP'))]
 d=min(np.hypot(W_[:,0]-p[0],W_[:,2]-p[2]).min() for p in pits);print(f'spawns/start points: nearest proxy {d:.1f} m');fails+=d<6
 # AI lines: new overlays must not be the top surface under any AI point
-NEW=('1CONCRETE_LOTRD','1CONCRETE_LOTEXIT','1GRAVEL_WESTLOT')
+NEW=('1CONCRETE_LOTRD','1CONCRETE_LOTEXIT','1CONCRETE_LOOP','1GRAVEL_WESTLOT')
 for lay in ('main','short'):
     for ln in ('fast_lane','pit_lane'):
         p=f'{Z}{lay}/ai/{ln}.ai'
