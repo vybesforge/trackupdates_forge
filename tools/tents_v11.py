@@ -209,7 +209,8 @@ def concrete_pad(RAST,cell=1.0):
         V[:,3:6]=vn/np.linalg.norm(vn,axis=1,keepdims=True);I=ML.fix_winding(V,I.astype(int)).astype('<u2');meshes.append((V,I))
     return meshes,int(cellok.sum())
 # ---------------- house ads ("Advertise here / vybesforge.com"), each its own material so it is easy to remove
-HOUSE=[  # name, centre x, z, facing point (x,z), board w, h, bottom, collision
+HOUSE=[]  # v1.1: standalone house signs removed (Dylan); helpers kept for reference
+_HOUSE_OLD=[  # name, centre x, z, facing point (x,z), board w, h, bottom, collision
     ('spawn',60.0,45.0,(60.0,78.0),8.0,3.0,1.2,True),        # grass strip ahead of the spawn rows (cars face -z), 13 m off the exit route
     ('drag',-278.0,-336.0,(-255.0,-300.0),6.0,2.2,0.9,True), # grass west of the drag staging lanes, facing cars coming from the staging lot
     ('pit',-20.0,-33.0,(30.0,-49.0),7.0,2.4,1.0,True)]       # grass beside the main straight (cars run -x), 8 m off the road edge
@@ -314,14 +315,6 @@ if __name__=='__main__':
     pads,ncell=concrete_pad(RAST)
     for pi,(V,I) in enumerate(pads): meshes.append(dict(name=f'1CONCRETE_DRIFT_{pi}',mat_index=ci,verts=V,idx=I,lod_out=0))   # physics: CONCRETE (surfaces.ini KEY=CONCRETE)
     print('drift pad: %d m2 cracked concrete'%ncell)
-    texs.append(('house_advertise.dds',house_art()))
-    for nm,cx,cz,fp,w_,h_,b_,col in HOUSE:
-        (FV,FI),(BV,BI),(PV,PI),info=house_sign(nm,cx,cz,fp,w_,h_,b_)
-        mats.append(dict(name=f'vfhouse_{nm}',shader='ksPerPixel',ab=0,at=0,dm=0,props=ML.props(base['props'],ksAmbient=0.5,ksDiffuse=0.5,ksSpecular=0.05,ksSpecularEXP=8,ksEmissive=(0,0,0)),samplers=[('txDiffuse',0,'house_advertise.dds')]))
-        meshes.append(dict(name=f'vfhouse_{nm}_face',mat_index=len(mats)-1,verts=FV,idx=FI,lod_out=0))
-        meshes.append(dict(name=(f'1WALL_HOUSE_{nm}' if col else f'vfhouse_{nm}_stand'),mat_index=0,verts=BV,idx=BI,lod_out=0))
-        meshes.append(dict(name=f'vfhouse_{nm}_feet',mat_index=0,verts=PV,idx=PI,lod_out=300))
-        print(f'house sign {nm}: ({cx},{cz}) yaw {np.degrees(info["yaw"]):.0f} ground {info["ground"]:+.2f} surfaces {sorted(map(str,info["surfaces"]))}')
     for wi,(V,I) in enumerate(CM['wall']): meshes.append(dict(name=f'1WALL_DRIFT_{wi}',mat_index=4,verts=V,idx=I,lod_out=0))   # physics: collides (WALL)
     meshes.append(dict(name='vfc_cones',mat_index=5,verts=CM['cone'][0],idx=CM['cone'][1],lod_out=500))
     meshes.append(dict(name='vfc_tyre_stacks',mat_index=6,verts=CM['tyre'][0],idx=CM['tyre'][1],lod_out=500))

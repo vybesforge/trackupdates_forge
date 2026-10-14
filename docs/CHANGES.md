@@ -589,3 +589,7 @@ Backup: `/workspace/rpotm/backup/pre_vr9b_holefix/zw_rpm.kn5` (004b983 state).
   2 sellable end billboards. (4) pit straight: 7 x 2.4 m at (-20,-33) on grass, 17 m from the AI line, facing cars on the main straight.
   (2) all 18 tent fallback arts (kn5 512 + extension 2048 default DDS) now read "YOUR AD HERE / Advertise: vybesforge.com / SLOT NN"
   (valance + table skirt + flag: "YOUR BRAND HERE | ADVERTISE: VYBESFORGE.COM | SLOT NN"). spawn_verify 36/36, route found.
+- **v1.1: standalone house signs removed** (spawn board, drag staging panel, main-straight board: meshes vfhouse_*, materials
+  vfhouse_*, collision 1WALL_HOUSE_*, texture house_advertise.dds and its PNG). Tent fallback art keeps "Advertise: vybesforge.com".
+  Drag-end billboards (zw_vr5.kn5 + extension/board_slot01/02.dds) re-drawn in the v2 neutral style: "PLACE YOUR / AD HERE /
+  Advertise: vybesforge.com / BILLBOARD SLOT NN". spawn_verify 36/36, route found (main+short); tent/course checks 0 fails.

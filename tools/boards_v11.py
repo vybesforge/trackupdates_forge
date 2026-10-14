@@ -17,13 +17,13 @@ def font(sz,w=700):
     except Exception: pass
     return f
 def art(slot):
-    Wd,H=2048,1024;rng=np.random.default_rng(10+slot);n=rng.normal(0,1,(H//8,Wd//8));n=np.array(Image.fromarray(((n*20)+128).clip(0,255).astype(np.uint8)).resize((Wd,H)),np.float32)-128
-    im=Image.fromarray(np.clip(np.array(BG,np.float32)+n[...,None]*0.12+6,0,255).astype(np.uint8));D=ImageDraw.Draw(im)
-    D.rectangle([0,0,Wd,28],fill=MG);D.rectangle([0,40,Wd,56],fill=CY);D.rectangle([0,H-56,Wd,H-40],fill=CY);D.rectangle([0,H-28,Wd,H],fill=MG)
+    """v2 neutral style: light grey board, black frame bars, Space Grotesk"""
+    Wd,H=2048,1024;BK=(14,14,16);im=Image.new('RGB',(Wd,H),(236,236,234));D=ImageDraw.Draw(im)
+    D.rectangle([0,0,Wd,30],fill=BK);D.rectangle([0,H-30,Wd,H],fill=BK);D.rectangle([300,668,Wd-300,676],fill=(150,150,154))
     def ct(y,s,f,c):
         bb=D.textbbox((0,0),s,font=f);D.text(((Wd-(bb[2]-bb[0]))/2-bb[0],y-(bb[3]-bb[1])/2-bb[1]),s,font=f,fill=c)
-    ct(280,'PLACE YOUR',font(236),TX);ct(560,'AD HERE',font(300),CY);D.rectangle([600,750,1448,762],fill=MG)
-    ct(840,'ADVERTISE AT I-29 SPEEDWAY',font(68,500),TX);ct(920,f'BILLBOARD SLOT {slot:02d}',font(52,500),MG)
+    ct(250,'PLACE YOUR',font(210),BK);ct(500,'AD HERE',font(270),BK)
+    ct(790,'Advertise: vybesforge.com',font(110,500),(40,40,44));ct(925,f'BILLBOARD SLOT {slot:02d}',font(56,600),(100,100,104))
     im.save(f'{ROOT}/assets_src/brand/board_slot{slot:02d}.png');a=np.array(im)
     return B.write_dds(np.dstack([a,np.full(a.shape[:2],255,np.uint8)]),'DXT1',11,None)
 if __name__=='__main__':
