@@ -615,3 +615,6 @@ Backup: `/workspace/rpotm/backup/pre_vr9b_holefix/zw_rpm.kn5` (004b983 state).
 
 ## v1.1 – v9 sample ads
 - Two more sample advertisers placed with tools/make_ad.py, in skins/default only (no kn5 changes): Pepper Ahi (pepperahi.com) on tent slot 18 and RANDOMLY UNCONVENTIONAL / Chaos Energy Inc. (randomlyunconventional.com) on tent slot 13, which was reserved as pending. Both are text-only: neither site has a usable logo mark. brands.json updated. Preview script: tools/samples_v9_preview.py.
+
+## v1.1 – v10 paddock cameras
+- cameras_3.ini (Paddock Drift, both layouts): down from 7 drift cameras to 3 elevated wide ones (pd_west 12 m, pd_overview 26 m as the primary, pd_east 12 m), with FOV 34-56 and one long window each (25/50/25 % of the drift band). The rest of the TV High copy is unchanged; LF endings.
