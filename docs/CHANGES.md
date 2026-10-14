@@ -545,3 +545,12 @@ Backup: `/workspace/rpotm/backup/pre_vr9b_holefix/zw_rpm.kn5` (004b983 state).
 - Previews (no Blender): tools/tents_v11_preview.py (matplotlib top-down + numpy rasterizer).
 - **Recheck in game:** text orientation (assumes AC right-handed world), emissive strength, CSP override loading, old VR5 contact-shadow decals
   under slots 01-06 vs new canopy footprint, LOD/FPS, frame texture.
+- **v1.1 pass 2 (supersedes the tent layout/look above):** all 12 tents form one car-meet vendor cluster directly behind the
+  spawns: two facing columns of 6 (x 68 opens +x, x 82 opens -x), z 98..135.5 every 7.5 m (1.5 m gaps), 8 m aisle opening
+  toward the spawns. Neutral palette: charcoal roof, black frame, white print valance, light-grey back wall, grayscale
+  "YOUR AD HERE / VENDOR SLOT NN" type. New geometry: sagging roof panels, base plates + 2 sandbags per leg, 1.8 m table with
+  printed front skirt, feather flags on slots 01,03,05,07,09,11, contact-shadow decal per tent; procedural weave normal
+  `fabric_nm_v2.dds` (assets_src/vr2/fabric_nm_v2.png). zw_tents.kn5 = 9.0 MB (1024 fallback art embedded; CSP loads the 2048
+  `extension/tent_slotNN.dds`). Materials: vftent_slot01..12 + vftent_frame_black/sandbag/tabletop/shadow. 8256 tris.
+  Checks: 12/12 on 1GRAVEL_PADDOCK, >=9.4 m gap to spawned cars, >=43 m from the exit route.
+  zw_vr6.kn5: the 6 stale VR6 contact-shadow quads under the old tent spots (lot z>100) collapsed (pickup shadow kept).
