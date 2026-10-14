@@ -38,7 +38,7 @@ def write_kn5(path,textures,materials,meshes,rootname='vf_i29_speedway_own'):
         c=V[:,:3].mean(0);r=float(np.linalg.norm(V[:,:3]-c,axis=1).max())
         out+=struct.pack('<I',2)+ws(me['name'])+struct.pack('<I',0)+b'\x01'+bytes(me.get('flags',(1,1,0)))
         out+=struct.pack('<I',len(V))+V.tobytes()+struct.pack('<I',I.size)+I.tobytes()
-        out+=struct.pack('<II',me['mat_index'],0)+struct.pack('<ff',0,me.get('lod_out',0))+struct.pack('<3ff',*c,r)+b'\x01'
+        out+=struct.pack('<II',me['mat_index'],0)+struct.pack('<ff',0,me.get('lod_out',0))+struct.pack('<3ff',*c,r)+bytes([me.get('renderable',1)])
     open(path,'wb').write(bytes(out))
 def hide_nodes(src,dst,names):
     import kn5patch as k
