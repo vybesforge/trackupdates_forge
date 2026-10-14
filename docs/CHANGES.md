@@ -572,3 +572,11 @@ Backup: `/workspace/rpotm/backup/pre_vr9b_holefix/zw_rpm.kn5` (004b983 state).
   unchanged. Paint and contact shadows lifted above the pad. Tent fallback art in the kn5 reduced to 512 (CSP 2048 overrides
   unchanged) so zw_tents.kn5 stays 11.6 MB. Checksums: zw_tents.kn5 changes (already changing in v1.1); vf_i29_speedway.kn5,
   models_*.ini and surfaces.ini unchanged.
+- **v1.1: replay camera set 4 "Paddock Drift"** (`main|short/data/cameras_3.ini`, tools/paddock_cams.py, previews tools/paddock_cams_preview.py).
+  AC picks replay cameras by the car's fast_lane spline position; a car in the paddock projects onto the pit straight 150-250 m away,
+  so the whole course maps into a narrow band (main 0.8481-0.8564, short 0.7718-0.7825). The set is a copy of "TV High" with that band
+  cut out and split among 7 placed paddock cameras (entry 6 m pole, west 6 m pole, NW + donut on tent roofs 4.2 m, north 8 m pole,
+  east 6 m pole, 26 m overview mast); each spline bin gets the camera closest to the drift-line samples projecting there.
+  Active windows: main 5 cameras (overview, east, west, donut, northwest), short 7. Existing sets 1-3 unchanged (they stay CRLF);
+  new files LF. Windows tile 0..1 with no gaps/overlaps. Cuts are approximate (north and south parts at the same x share a spline
+  position); on-track cars in that band (pit straight) see a paddock camera in this set only.
