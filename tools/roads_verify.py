@@ -18,12 +18,20 @@ xs,zs,H,KEY,names=top((-302,-294,-950,-552));n=np.array(names)[KEY[KEY>=0]];shar
 # west-lot access road (x~-345) concrete on top; 190th St (vf_ext asphalt) untouched
 import west_lot as WL
 q,P,t,nn=WL.cline(WL.WR);G=(P[:,None,:]+np.linspace(-2.5,2.5,6)[None,:,None]*nn[:,None,:]).reshape(-1,2)
-xs,zs,H,KEY,names=top((-360,-330,-875,-475),0.25)
+xs,zs,H,KEY,names=top((-360,-330,-875,-325),0.25)
 i=np.clip(np.round((G[:,0]-xs[0])/0.25).astype(int),0,len(xs)-1);j=np.clip(np.round((G[:,1]-zs[0])/0.25).astype(int),0,len(zs)-1)
 share=np.mean([names[k].startswith('1CONCRETE') for k in KEY[j,i]]);print(f'west-lot access road (sampled +-2.5 m): {100*share:.1f} % concrete on top');fails+=share<0.97
 q,P,t,nn=WL.cline(WL.ST190);xs,zs,H,KEY,names=top((-412,-380,-990,240),0.5)
 i=np.clip(np.round((P[:,0]-xs[0])/0.5).astype(int),0,len(xs)-1);j=np.clip(np.round((P[:,1]-zs[0])/0.5).astype(int),0,len(zs)-1)
 bad=sum(names[k].startswith(('1CONCRETE_LOTRD','1GRAVEL_WESTLOT')) for k in KEY[j,i] if k>=0);print(f'190th St centreline: {bad} points covered by new overlays (expect 0)');fails+=bad>0
+import vismeshes as VM
+# v13: gravel lies on the ground (<=5 cm above 1GRASS terrain) and never on object footprints
+xs_,zs_,Ht,_,_,_=WL.terrain_H((-390,-300,-970,-310),0.5)
+gv=np.vstack([m['V'][:,:3].astype(float) for m in VM.vismeshes(f'{Z}vf_westlot.kn5')])
+dh=gv[:,1]-WL.sampleH(xs_,zs_,Ht,gv[:,[0,2]]);print(f'gravel height above ground: max {dh.max()*100:.1f} cm, min {dh.min()*100:.1f} cm');fails+=dh.max()>0.05
+bx=np.arange(-390,-300,0.5);bz=np.arange(-970,-310,0.5);OB=WL.object_block(bx,bz,0.0)
+ii=np.clip(((gv[:,0]-bx[0])/0.5).astype(int),0,len(bx)-1);jj=np.clip(((gv[:,2]-bz[0])/0.5).astype(int),0,len(bz)-1)
+inside=int(OB[jj,ii].sum());print(f'gravel vertices inside object footprints: {inside} (expect 0)');fails+=inside>0
 # west lot: gravel share on dirt-classified cells, grass elsewhere
 xs,zs,dirt,XX,ZZ=WL.dirt_mask();txs,tzs,H,KEY,names=top((-390,-308,-955,-325),1.0)
 ok=0;tot=0;grav=0;grass=0

@@ -20,7 +20,8 @@ ST190=np.array([
  (-404.7,51.1),(-401.9,75.9),(-397.6,100.5),(-398.9,125.4),(-398.7,150.4),(-398.7,175.4),
  (-400.3,200.3),(-402.0,225.0),(-400.4,238.0)],float)
 # west-lot access road (inside the lot, between 190th St and the return road; google aerial light band, ~6 m wide)
-WR=np.array([(-344.5,-868.0),(-344.5,-820.0),(-344.5,-760.0),(-345.5,-700.0),(-346.5,-640.0),(-347.5,-580.0),(-347.5,-520.0),(-348.0,-480.0)],float)
+WR=np.array([(-344.5,-868.0),(-344.5,-820.0),(-344.5,-760.0),(-345.5,-700.0),(-346.5,-640.0),(-347.5,-580.0),(-347.5,-520.0),(-348.0,-480.0),(-348.0,-420.0),(-348.0,-370.0),(-348.0,-331.0)],float)
+JOIN_Z=-480.0   # v13: south of this the road is the new join to the 1CONCRETE_001 apron (z~-333)
 def uv_c(x,z): return (-0.0168*x+0.0109*z+1.79,-0.0109*x-0.0167*z)
 def uv_g(x,z): return (0.5*x,0.5*z)
 def fixn(V,I):
@@ -50,18 +51,33 @@ def terrain_H(box,res=0.5):
     asT=[('m',m['name'],m['V'][m['I'].astype(int)][:,:,:3].astype(float)) for m in TM]
     return PR.raster(asT,box,res)
 def top_H(box,res=0.5):
-    files=[f for f in os.listdir(Z) if f.endswith('.kn5') and f not in('vf_roads.kn5','vf_westlot.kn5')]
+    files=[f for f in os.listdir(Z) if f.endswith('.kn5') and f not in('vf_roads.kn5','vf_westlot.kn5','vf_dragcol.kn5')]
     return PR.raster(PR.physmeshes(files,box),box,res)
 def sampleH(xs,zs,H,P):
     i=np.clip(np.round((P[:,0]-xs[0])/(xs[1]-xs[0])).astype(int),0,len(xs)-1)
     j=np.clip(np.round((P[:,1]-zs[0])/(zs[1]-zs[0])).astype(int),0,len(zs)-1);return H[j,i]
 def build_west_road():
-    q,P,t,n=cline(WR);box=(-360,-330,-880,-470)
+    q,P,t,n=cline(WR);box=(-360,-330,-880,-320)
     xs,zs,H,KEY,UP,names=top_H(box,0.25)
     offs=np.linspace(-HALF,HALF,int(2*HALF/0.5)+1);G=P[:,None,:]+offs[None,:,None]*n[:,None,:]
     Y=sampleH(xs,zs,H,G.reshape(-1,2)).reshape(G.shape[:2])+LIFT
     meshes=strip_mesh(P,n,Y,HALF,uv_c,'1CONCRETE_LOTRD',chunk=10**6)
     return meshes,P,n
+def object_block(xs,zs,margin=0.75):
+    """Cells covered by any object (visual non-ground meshes + collision boxes), dilated by margin."""
+    box=(xs[0]-2,xs[-1]+2,zs[0]-2,zs[-1]+2);B=np.zeros((len(zs),len(xs)),bool)
+    skip=('1GRASS','1CONCRETE','1ROAD','1XROAD','1GRAVEL','1DRAG','1LAUNCH','skybox','highway','cables','xline','FENCE_outside','gate_poles')
+    for fn in ('vf_i29_speedway.kn5','vf_dragcol.kn5','vf_tents.kn5','vf_i29_speedway_own.kn5'):
+        p=f'{Z}/{fn}'
+        if not os.path.exists(p): continue
+        for m in VM.vismeshes(p,box):
+            if m['name'].startswith(skip): continue
+            T=m['V'][m['I'].astype(int)][:,:,[0,2]].astype(float)
+            for t in T:
+                x0,x1=t[:,0].min()-margin,t[:,0].max()+margin;z0,z1=t[:,1].min()-margin,t[:,1].max()+margin
+                if x1<xs[0] or x0>xs[-1] or z1<zs[0] or z0>zs[-1] or (x1-x0)>40 or (z1-z0)>40: continue
+                B[np.searchsorted(zs,z0):np.searchsorted(zs,z1,'right'),np.searchsorted(xs,x0):np.searchsorted(xs,x1,'right')]=True
+    return B
 def dirt_mask():
     A=np.load('/workspace/rpotm/geo/xz_to_uv.npy')
     G=np.array(Image.open('/tmp/google2.png'))
@@ -83,7 +99,9 @@ def dirt_mask():
         for i in range(dirt.shape[1]):
             if not dirt[j,i]: continue
             x,z=X[j,i],Zg[j,i]
-            if lat(P1,n1,x,z)<5.0 or lat(P2,n2,x,z)<HALF+1.0: dirt[j,i]=False
+            l2=lat(P2,n2,x,z)
+            if lat(P1,n1,x,z)<5.0 or l2<HALF+1.0: dirt[j,i]=False
+            elif z>JOIN_Z-10 and l2<HALF+5.0: dirt[j,i]=False   # v13: grass verge beside the new join
             if -306.5<=x<=-240.5 and -962<=z<=-333: dirt[j,i]=False
             if -391<=x<=-290 and ((-808<=z<=-794) or (-959<=z<=-945)): dirt[j,i]=False
     from numpy.lib.stride_tricks import sliding_window_view
@@ -91,10 +109,15 @@ def dirt_mask():
         p=np.pad(m,1,constant_values=False);w=sliding_window_view(p,(3,3));er=w.all((-1,-2))
         p2=np.pad(er,1,constant_values=False);dil=sliding_window_view(p2,(3,3)).any((-1,-2))
         p3=np.pad(dil,1,constant_values=False);return sliding_window_view(p3,(3,3)).any((-1,-2))
-    return xs,zs,mop(dirt),X,Zg
+    dirt=mop(dirt)
+    # v13 softer edges: 5x5 majority
+    from numpy.lib.stride_tricks import sliding_window_view as swv
+    dirt=swv(np.pad(dirt,2),(5,5)).sum((-1,-2))>=13
+    dirt&=~object_block(xs,zs)    # never on containers / tents / huts / poles
+    return xs,zs,dirt,X,Zg
 def build_gravel():
     xs,zs,dirt,X,Zg=dirt_mask()
-    box=(-390,-300,-970,-310);tx,tz,H,KEY,UP,names=top_H(box,0.5)
+    box=(-390,-300,-970,-310);tx,tz,H,KEY,UP,names=terrain_H(box,0.5)
     H_,W_=dirt.shape;seen=np.zeros_like(dirt);patches=[];from collections import deque
     for j0 in range(H_):
         for i0 in range(W_):
@@ -118,6 +141,8 @@ def build_gravel():
                 u,w=uv_g(x,z);vid[gx,gz]=len(V);V.append([x,y,z,0,1,0,u,w,1,0,0])
             return vid[gx,gz]
         for j,i in cells:
+            cx=np.array([[xs[0]-0.5+i+dx,zs[0]-0.5+j+dz] for dx in (0,1) for dz in (0,1)])
+            if np.isnan(sampleH(tx,tz,H,cx)).any(): continue   # no grass terrain here (other ground mesh) -> no gravel
             a0,a1,a2,a3=v(i,j),v(i+1,j),v(i+1,j+1),v(i,j+1);I+=[[a0,a2,a1],[a0,a3,a2]]
             if len(V)>60000:
                 Vv,Ii=fixn(np.array(V,'<f4'),np.array(I));meshes.append((f'1GRAVEL_WESTLOT_{pi}_{part}',Vv,Ii));part+=1;V=[];I=[];vid={}
