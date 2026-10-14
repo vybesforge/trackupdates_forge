@@ -56,7 +56,7 @@ def terrain_H(box,res=0.5):
     asT=[('m',m['name'],m['V'][m['I'].astype(int)][:,:,:3].astype(float)) for m in TM]
     return PR.raster(asT,box,res)
 def top_H(box,res=0.5):
-    files=[f for f in os.listdir(Z) if f.endswith('.kn5') and f not in('vf_roads.kn5','vf_westlot.kn5','vf_dragcol.kn5')]
+    files=[f for f in os.listdir(Z) if f.endswith('.kn5') and f not in('vf_roads.kn5','vf_westlot.kn5','vf_dragcol.kn5','vf_dragtents.kn5')]
     return PR.raster(PR.physmeshes(files,box),box,res)
 def sampleH(xs,zs,H,P):
     i=np.clip(np.round((P[:,0]-xs[0])/(xs[1]-xs[0])).astype(int),0,len(xs)-1)
@@ -80,7 +80,7 @@ def object_block(xs,zs,margin=0.75):
     """Cells covered by any object (visual non-ground meshes + collision boxes), dilated by margin."""
     box=(xs[0]-2,xs[-1]+2,zs[0]-2,zs[-1]+2);B=np.zeros((len(zs),len(xs)),bool)
     skip=('1GRASS','1CONCRETE','1ROAD','1XROAD','1GRAVEL','1DRAG','1LAUNCH','skybox','highway','cables','xline','FENCE_outside','gate_poles')
-    for fn in ('vf_i29_speedway.kn5','vf_dragcol.kn5','vf_tents.kn5','vf_i29_speedway_own.kn5'):
+    for fn in ('vf_i29_speedway.kn5','vf_dragcol.kn5','vf_tents.kn5','vf_i29_speedway_own.kn5','vf_dragtents.kn5'):
         p=f'{Z}/{fn}'
         if not os.path.exists(p): continue
         for m in VM.vismeshes(p,box):

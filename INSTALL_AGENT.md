@@ -1,6 +1,6 @@
 # I-29 Speedway (`vf_i29_speedway`) — install guide for automation agents
 
-Current release: **v1.1.0** (drift course, ad slots, `zw_*` -> `vf_*` rename; checksummed files changed) · Repo: https://github.com/vybesforge/trackupdates_forge · Track folder id: `vf_i29_speedway` (was `zw_rpm` before the rename).
+Current release: **v1.1.1** (concrete roads + west-lot loop, drag-area collision, 20 ad tents; checksummed files changed) · Repo: https://github.com/vybesforge/trackupdates_forge · Track folder id: `vf_i29_speedway` (was `zw_rpm` before the rename).
 
 ## HARD RULES (read first)
 1. **Never modify, create or delete anything under the game's or the server's `system/` folder** — this includes `system/data/*`, `system/data/data_track_params.ini` and the global `system/data/surfaces.ini`. These files are shared by all tracks.
@@ -12,40 +12,44 @@ Current release: **v1.1.0** (drift course, ad slots, `zw_*` -> `vf_*` rename; ch
 4. If anything seems to require a change outside the list above (system files, other tracks, CM/CSP settings files), **stop and report to the user** instead of doing it.
 
 ## Source (prefer the release zip)
-- **Preferred:** GitHub Release v1.1.0 — https://github.com/vybesforge/trackupdates_forge/releases/tag/v1.1.0
-  - Asset: `I-29_Speedway_v1.1.0.zip` (~200 MB)
-  - SHA-256: `3f0865a2588f2e2b668b606db21561f669de5d0facf994e40094b8b56ef9c7a3` — **verify before installing; abort on mismatch.**
+- **Preferred:** GitHub Release v1.1.1 — https://github.com/vybesforge/trackupdates_forge/releases/tag/v1.1.1
+  - Asset: `I-29_Speedway_v1.1.1.zip` (~214 MB)
+  - SHA-256: `612eb096013ba23950aa35d42a6dc1d8744e7fa6b7021675b7e987824ef7c754` — **verify before installing; abort on mismatch.**
   - Zip layout: `content/tracks/vf_i29_speedway/`, `apps/python/i29_dragtree/`, `server/` (track-params snippet + `add_track_params.py`), `I-29_Speedway_docs/`.
-- **Alternative:** git + Git LFS from `main` or tag `v1.1.0` (not old feature branches). GitHub's "Download ZIP" of the repo contains LFS pointer files, not real data — do not use it.
+- **Alternative:** git + Git LFS from `main` or tag `v1.1.1` (not old feature branches). GitHub's "Download ZIP" of the repo contains LFS pointer files, not real data — do not use it.
   ```
   git lfs install
-  git clone --branch v1.1.0 https://github.com/vybesforge/trackupdates_forge.git && cd trackupdates_forge && git lfs pull
+  git clone --branch v1.1.1 https://github.com/vybesforge/trackupdates_forge.git && cd trackupdates_forge && git lfs pull
   ```
   Then use `vf_i29_speedway/`, `apps/python/i29_dragtree/` and `server/` from the clone in place of the zip folders below. Sanity check: `vf_i29_speedway/vf_i29_speedway.kn5` must be > 10 MB (not a ~130-byte pointer).
 
-## Byte-exact files and checksums (v1.1.0)
-AC compares `*.kn5`, `surfaces.ini` and `models*.ini` byte-for-byte between server and client. **Install only from the release zip.** If you must copy from a git worktree, it must be a fresh clone made after the `.gitattributes` fix (main ≥ v1.0.4, all shipped files `-text`) or a clone with `git config core.autocrlf false`; older Windows checkouts with `core.autocrlf=true` turned `.ini` files into CRLF and caused "checksum failed". v1.1.0 files (the old `zw_*.kn5` were renamed `vf_*.kn5`; delete any `zw_*.kn5` left in an install):
+## Byte-exact files and checksums (v1.1.1)
+AC compares `*.kn5`, `surfaces.ini` and `models*.ini` byte-for-byte between server and client. **Install only from the release zip.** If you must copy from a git worktree, it must be a fresh clone made after the `.gitattributes` fix (main ≥ v1.0.4, all shipped files `-text`) or a clone with `git config core.autocrlf false`; older Windows checkouts with `core.autocrlf=true` turned `.ini` files into CRLF and caused "checksum failed". v1.1.1 files (the old `zw_*.kn5` were renamed `vf_*.kn5`; delete any `zw_*.kn5` left in an install):
 
 | File (in `content/tracks/vf_i29_speedway/`) | Bytes | MD5 |
 |---|---|---|
 | `main/data/surfaces.ini` | 3800 | `a218d5ec21d093db03f2aec901ccd9b0` |
-| `models_main.ini` | 825 | `bfc135fbd591adf5998a4887028e02db` |
-| `models_short.ini` | 759 | `7c0b345724b51b6de9ffb1f43f7bcdf8` |
+| `models_main.ini` | 1097 | `887cb7057faa89dc90e1a2612e0ee8ad` |
+| `models_short.ini` | 1031 | `488a75318f91e797a72952bd983cc309` |
 | `short/data/surfaces.ini` | 3437 | `4cf76a43508412ec49498cca1404c0dd` |
+| `vf_dragcol.kn5` | 244144 | `e4dc4b78e508c5c3d1a9c0bcbd7811b1` |
 | `vf_dragexit.kn5` | 14370948 | `532c29b2a07b0cf431c02ef3118330f9` |
 | `vf_draglaunch.kn5` | 14070895 | `40e0dbe54c1982fa6638f214e978327b` |
+| `vf_dragtents.kn5` | 885449 | `9a755e9fb499a5dac956c5192d49f344` |
 | `vf_ext.kn5` | 43526931 | `45407bd30f22529814b219bd63636633` |
-| `vf_i29_speedway.kn5` | 257020369 | `df2ba88773cd749ab16ff4f927e61d68` |
+| `vf_i29_speedway.kn5` | 257020369 | `d35162d917c35c6c2544973c216fa382` |
 | `vf_i29_speedway_gp.kn5` | 11964180 | `11e896b8a4dec8555f14389593144c38` |
 | `vf_i29_speedway_own.kn5` | 18682981 | `0972422525b33967ca3ad880048f8bc2` |
 | `vf_i29_speedway_physical.kn5` | 24309908 | `e48d024b0e9dedb7b08506e57a8978ad` |
 | `vf_i29_speedway_sh.kn5` | 1044980 | `311c2d8d5618bd82d2a19632ddbcca86` |
+| `vf_roads.kn5` | 7500370 | `fb8b932368f4d0e0f0c36b3a39fe36f2` |
 | `vf_ruts.kn5` | 99292 | `5938ed345eaf34ad7eeb120f09c91b51` |
 | `vf_tents.kn5` | 12511265 | `e65c08493c2c8d10d2100fd0eae25f7c` |
 | `vf_vegetation.kn5` | 48601289 | `187a2519fece1ae0be0afe087d62ee6f` |
 | `vf_vr5.kn5` | 2798509 | `c95cf9de26f7ee0b9dae012dc9f00450` |
 | `vf_vr6.kn5` | 4410323 | `9599c678dc7e811caa9fa919cec75b3a` |
 | `vf_vr7_longcut.kn5` | 533884 | `de5e7a3b23eef128df59a091580fefa2` |
+| `vf_westlot.kn5` | 6923035 | `2a338d1d86bbf77cce80aec143989e2b` |
 
 Verify (PowerShell): `Get-FileHash -Algorithm MD5 <file>`; (Linux): `md5sum <file>`. Any mismatch → clean-reinstall from the zip.
 
@@ -54,8 +58,8 @@ Find AC: default `C:\Program Files (x86)\Steam\steamapps\common\assettocorsa`; o
 ```powershell
 $ErrorActionPreference = "Stop"
 $AC   = "C:\Program Files (x86)\Steam\steamapps\common\assettocorsa"   # adjust
-$Ver  = "v1.1.0"
-$Sha  = "3f0865a2588f2e2b668b606db21561f669de5d0facf994e40094b8b56ef9c7a3"
+$Ver  = "v1.1.1"
+$Sha  = "612eb096013ba23950aa35d42a6dc1d8744e7fa6b7021675b7e987824ef7c754"
 $Work = Join-Path $env:TEMP "i29_$Ver"; New-Item -ItemType Directory -Force $Work | Out-Null
 $Zip  = Join-Path $Work "I-29_Speedway_$Ver.zip"
 Invoke-WebRequest "https://github.com/vybesforge/trackupdates_forge/releases/download/$Ver/I-29_Speedway_$Ver.zip" -OutFile $Zip
@@ -77,13 +81,13 @@ Copy-Item "$Work\x\apps\python\i29_dragtree" $App -Recurse
 Note: AC/CM list every folder in `content/tracks`, so a `*.bak_*` folder may appear as an extra track. After the user confirms the new install works, the backups can be deleted (ask first).
 
 Verify:
-- `$Tracks\vf_i29_speedway\vf_i29_speedway.kn5` > 10 MB; `models_main.ini`, `models_short.ini`, `ui\main\ui_track.json`, `ui\short\ui_track.json` exist; `ui_track.json` `"version"` = `1.1.0`.
+- `$Tracks\vf_i29_speedway\vf_i29_speedway.kn5` > 10 MB; `models_main.ini`, `models_short.ini`, `ui\main\ui_track.json`, `ui\short\ui_track.json` exist; `ui_track.json` `"version"` = `1.1.1`.
 - Content Manager shows two layouts: "I-29 Speedway Long Course" (`main`) and "I-29 Speedway Short Course" (`short`).
 - Recommended: Content Manager + CSP 0.2.x (lights, grass, reactive drag tree on the pole). Without CSP, enable the "I-29 Drag Tree" app.
 
 ## Server install (Linux and Windows)
 The server needs the **same** track folder as the clients (it checksums `*.kn5`, `surfaces.ini`, `models*.ini`).
-1. Download and verify the v1.1.0 zip exactly as above (Linux: `curl -LO <url> && sha256sum I-29_Speedway_v1.1.0.zip`; compare with the hash above).
+1. Download and verify the v1.1.1 zip exactly as above (Linux: `curl -LO <url> && sha256sum I-29_Speedway_v1.1.1.zip`; compare with the hash above).
 2. Stop the server.
 3. Clean replace the track:
    - Linux: `TS=$(date +%Y%m%d_%H%M%S); cd <server>/content/tracks && { [ -d vf_i29_speedway ] && mv vf_i29_speedway vf_i29_speedway.bak_$TS; true; } && cp -r <unzipped>/content/tracks/vf_i29_speedway .`
@@ -101,7 +105,7 @@ The server needs the **same** track folder as the clients (it checksums `*.kn5`,
 6. Ensure server and clients have identical files — compare MD5 on both machines:
    - Linux: `cd <server>/content/tracks/vf_i29_speedway && md5sum *.kn5 main/data/surfaces.ini short/data/surfaces.ini models_*.ini`
    - Windows: `Get-ChildItem "$Tracks\vf_i29_speedway\*.kn5","$Tracks\vf_i29_speedway\models_*.ini","$Tracks\vf_i29_speedway\*\data\surfaces.ini" | Get-FileHash -Algorithm MD5`
-   Any difference → clean-reinstall v1.1.0 on the side that differs, restart the server.
+   Any difference → clean-reinstall v1.1.1 on the side that differs, restart the server.
 
 ## Repair a previously modified install
 If an earlier agent (or older instructions, v1.0.2) edited shared system files:
