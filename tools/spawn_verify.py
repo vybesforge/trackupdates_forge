@@ -2,7 +2,7 @@
 import sys,numpy as np,collections
 import os;sys.path.insert(0,os.path.dirname(os.path.abspath(__file__)));import kn5patch as K,kn5tree as T
 from physraster import physmeshes,raster
-Z='/workspace/rpotm/project/vf_i29_speedway/'
+Z=os.path.join(os.path.dirname(os.path.abspath(__file__)),'..','vf_i29_speedway')+'/'
 for f in ['vf_i29_speedway.kn5']: K.scan(Z+f);print('scan OK',f)
 pits=sorted([(int(n['name'][7:]),n['W']) for n in T.walk(Z+'vf_i29_speedway.kn5') if n['cls']==1 and n['name'].startswith('AC_PIT_')])
 print('pits',len(pits),'unique idx',len(set(i for i,_ in pits)))

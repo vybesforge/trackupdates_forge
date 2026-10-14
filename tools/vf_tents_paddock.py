@@ -8,8 +8,8 @@
 import sys,os,io,struct,numpy as np
 sys.path.insert(0,os.path.dirname(__file__));import kn5patch as K,kn5write as W,build_open_textures as B
 from PIL import Image,ImageDraw,ImageFont
-ROOT=os.path.abspath(os.path.join(os.path.dirname(__file__),'..'));Z=f'{ROOT}/vf_i29_speedway';SRC='/workspace/rpotm/backup/pre_tents2/vf_i29_speedway.kn5'
-FONT='/workspace/rpotm/brand/fonts/SpaceGrotesk%5Bwght%5D.ttf';LOGO=f'{ROOT}/assets_src/brand/vf_logo.jpg';OUT=f'{ROOT}/assets_src/brand'
+ROOT=os.path.abspath(os.path.join(os.path.dirname(__file__),'..'));Z=f'{ROOT}/vf_i29_speedway';SRC=os.environ.get('VF_BACKUP','/workspace/rpotm/backup')+'/pre_tents2/vf_i29_speedway.kn5'
+FONT=f'{ROOT}/assets_src/brand/fonts/SpaceGrotesk-wght.ttf';LOGO=f'{ROOT}/assets_src/brand/vf_logo.jpg';OUT=f'{ROOT}/assets_src/brand'
 BG=(2,6,15);CY=(41,213,233);MG=(191,51,138);AM=(255,176,0);TX=(232,236,245);N=1024;GROUND=-0.10
 def meshes(path):
     d=open(path,'rb').read();_,nodes=K.scan(path)

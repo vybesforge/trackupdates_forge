@@ -524,3 +524,23 @@ Backup: `/workspace/rpotm/backup/pre_vr9b_holefix/zw_rpm.kn5` (004b983 state).
 - `server/add_track_params.py` audit: the v1.0.2 script opened the target only in append mode, so it never truncated an existing file, but when the target was missing or empty it created a new file containing only the `[vf_i29_speedway]` section — exactly 109 bytes (CRLF). v1.0.3 behaved the same for a missing/empty cfg file (107 bytes) but refused system/data. Hardened: append-only binary write with a post-check that existing bytes are unchanged, `.bak` copy, refuses missing/empty target unless `--create`, refuses `system/data`. Tests: `tests/test_add_track_params.py`.
 - README/INSTALL_AGENT: install from the zip; git installs need a fresh clone or `core.autocrlf false`; MD5 table of checksummed files.
 - Version 1.0.4 in both ui_track.json; checksummed files byte-identical to v1.0.3.
+
+## v1.1 (branch tents-v1.1, unreleased): sellable tent + billboard ad slots
+- **zw_tents.kn5 rebuilt** (tools/tents_v11.py): 12 new 6 x 6 m pop-up canopies (4 galvanised legs + foot plates, eave frame, scissor truss,
+  4-panel peaked roof eave 2.4 / apex 3.4 m, 0.35 m valance, fabric back wall on +z; double-sided fabric; 2640 tris). One material +
+  2048 DXT1 texture per tent: `vftent_slot01..12` / `tent_slotNN.dds`. Frame: `vftent_frame` (own_galv). Visual only, no collision.
+  Slots 01-06 = VR4 spots (12,142) (66,142) (119,142) (39,185) (60,210) (90,190); new 07-12 = (14,170) (14,200) (140,165) (140,200) (39,142) (93,142).
+  All 12 are open "YOUR AD HERE / TENT SLOT NN" (house ads vybesforge.com / drivenbycrusemob.com removed per Dylan). Art: assets_src/brand/tent_slotNN.png.
+  Each tent base = lowest ground point under its footprint (lidar grade, max 12 cm spread).
+- Verified (tents_v11.py --verify-only, physics raster 0.25 m): every footprint +1 m margin is 1GRAVEL_PADDOCK only, >=59 m from all
+  36 AC_PIT spawns, >=86 m from the spawn exit route (tools/data/path_main.npy), >=26 m between tents. spawn_verify.py: 36/36 OK, route found (main+short).
+- **Drag-end billboards** (tools/boards_v11.py, zw_vr5.kn5): the shared `billboard_adhere` is split into `vfboard_slot01` (east, x -247..-242.5:
+  vr5_billboard_end_0/1) and `vfboard_slot02` (west, x -267..-262.3: end_2/3), 2048x1024 "PLACE YOUR AD HERE / BILLBOARD SLOT NN". Geometry unchanged.
+- **Checksum-safe ad rotation (CSP):** ext_config.ini `[SHADER_REPLACEMENT_TENT_SLOTNN]` / `[SHADER_REPLACEMENT_BOARD_SLOTNN]` override txDiffuse
+  with `extension/tent_slotNN.dds` / `board_slotNN.dds` (keep 2048x2048 / 2048x1024 DDS, same name). Swapping those files never changes a kn5.
+  Night: `[MATERIAL_ADJUSTMENT_TENT_NIGHT]` (ksEmissive 0.35) and `[MATERIAL_ADJUSTMENT_BOARD_NIGHT]` (0.6), NIGHT_SMOOTH.
+- Note: this branch itself changes zw_tents.kn5 and zw_vr5.kn5 -> server and all clients need the v1.1 files once. models_*.ini unchanged, files LF.
+- Paths: tent/verify scripts no longer need /workspace/rpotm/project; font copied to assets_src/brand/fonts (OFL); backups via $VF_BACKUP.
+- Previews (no Blender): tools/tents_v11_preview.py (matplotlib top-down + numpy rasterizer).
+- **Recheck in game:** text orientation (assumes AC right-handed world), emissive strength, CSP override loading, old VR5 contact-shadow decals
+  under slots 01-06 vs new canopy footprint, LOD/FPS, frame texture.

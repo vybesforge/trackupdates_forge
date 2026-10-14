@@ -14,7 +14,7 @@ Base y = gravel -0.10, dummy y = gravel + 0.40."""
 import sys,os,struct,numpy as np
 sys.path.insert(0,os.path.dirname(__file__));import kn5tree as T,kn5patch as K,kn5write as W,vf_tents_paddock as VT
 ROOT=os.path.abspath(os.path.join(os.path.dirname(__file__),'..'));Z=f'{ROOT}/vf_i29_speedway'
-SRC='/workspace/rpotm/backup/pre_vr4/vf_i29_speedway/vf_i29_speedway.kn5';DST=f'{Z}/vf_i29_speedway.kn5';GROUND=-0.10;LIFT=0.40
+SRC=os.environ.get('VF_BACKUP','/workspace/rpotm/backup')+'/pre_vr4/vf_i29_speedway/vf_i29_speedway.kn5';DST=f'{Z}/vf_i29_speedway.kn5';GROUND=-0.10;LIFT=0.40
 def spots(): return [(11+7.8*i,GROUND+LIFT,72.0) for i in range(18)]+[(7+7.8*i,GROUND+LIFT,83.0) for i in range(18)]
 FWD=np.array([0,0,-1.0]);UP=np.array([0,1.0,0]);RIGHT=np.cross(UP,FWD)
 BIG=(1.5,1.1,1.5)
