@@ -513,3 +513,8 @@ Backup: `/workspace/rpotm/backup/pre_vr9b_holefix/zw_rpm.kn5` (004b983 state).
 - Server fix: added `server/data_track_params_vf_i29_speedway.ini` (`[vf_i29_speedway]`, NAME=I-29 Speedway, LATITUDE=41.024167, LONGITUDE=-95.832778, TIMEZONE=America/Chicago; coordinates from the ui_track.json geotags 41°01′27″N 95°49′58″W, west = negative as in CSP's data_track_params.ini) and idempotent `server/add_track_params.py`. Fixes "No track params found for vf_i29_speedway" on AC dedicated / CM servers (entry was lost with the rename from `zw_rpm`). Shipped in the zip under `server/`, outside the track folder; the full data_track_params.ini is intentionally not shipped.
 - README: "Running a server" section.
 - Version 1.0.2 in `ui/{main,short}/ui_track.json`; release zip `I-29_Speedway_v1.0.2.zip`.
+
+## v1.0.3
+- Correction to v1.0.2: AssettoServer reads only `<server root>/cfg/data_track_params.ini` (never `system/data`); vanilla acServer needs no track params. README "Running a server" rewritten: no `system/data` edits, `cfg/` target, `extra_cfg.yml` `MissingTrackParams: true` alternative (UTC, not with LiveWeatherPlugin), checksum-failed troubleshooting.
+- `server/add_track_params.py`: takes a server root (-> `cfg/data_track_params.ini`) or file path; refuses `system/data`; idempotent with `.bak`. Snippet file has a comment header.
+- Version 1.0.3 in both ui_track.json; kn5/surfaces.ini/models*.ini byte-identical to v1.0.2 (checksums unchanged).
