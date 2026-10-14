@@ -12,7 +12,7 @@ Fix (visual = physics, both are the same meshes):
  3. ramps: on every pavement boundary edge that faces grass (not another pavement) with a step > 8 mm a grass skirt
     (1GRASS_RAMP_nn, visible + physics, grass material/UVs) starts exactly on the pavement edge vertices and runs out
     (<= 8 % grade, 1-6 m) until it dives 2 cm under the grass. No coplanar overlap, no step.
-Usage: python tools/vr11_flush.py   (operates on vf_i29_speedway/zw_ext.kn5 in place; restore from backup/pre_vr11 to rerun)"""
+Usage: python tools/vr11_flush.py   (operates on vf_i29_speedway/vf_ext.kn5 in place; restore from backup/pre_vr11 to rerun)"""
 import os, re, sys, struct, json, numpy as np
 from scipy.spatial import cKDTree
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
@@ -20,7 +20,7 @@ import kn5patch as K
 from vr9_split_phys import parse_tree
 from vr9_fill_holes import mesh_bytes, split_mesh
 Z = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'vf_i29_speedway')) + '/'
-EXT = Z + 'zw_ext.kn5'
+EXT = Z + 'vf_ext.kn5'
 PAVE = re.compile(r'^1(ROAD|XROAD|XLOT|GRAVEL|PITS|CONCRETE|DRAG|CURB|LAUNCH)')
 def files():
     fs = []
@@ -80,7 +80,7 @@ def shepard(P, O, X, lam=25.0, k=48):
 def main():
     fs = files(); allm = []
     for fn in fs: allm += load(fn)
-    ext = [m for m in allm if m['fn'] == 'zw_ext.kn5']
+    ext = [m for m in allm if m['fn'] == 'vf_ext.kn5']
     lo, hi = np.min([m['V'][:, [0, 2]].min(0) for m in ext], 0) - 50, np.max([m['V'][:, [0, 2]].max(0) for m in ext], 0) + 50
     near = lambda m: (m['V'][:, 0].max() > lo[0]) & (m['V'][:, 0].min() < hi[0]) & (m['V'][:, 2].max() > lo[1]) & (m['V'][:, 2].min() < hi[1])
     btree = {}
@@ -93,7 +93,7 @@ def main():
         return btree[name].query((x, z))[0]
     fixed = TriIndex(); rep = {}
     for m in allm:
-        if m['fn'] != 'zw_ext.kn5' and PAVE.match(m['name']) and near(m): fixed.add(m['V'][m['I']][:, :, :3].astype(float), m['name'])
+        if m['fn'] != 'vf_ext.kn5' and PAVE.match(m['name']) and near(m): fixed.add(m['V'][m['I']][:, :, :3].astype(float), m['name'])
     def pr(m):
         n = m['name']
         if n.startswith('1XROAD'): return (0, -len(m['I']))
@@ -243,7 +243,7 @@ def main():
         if m.get('moved'):
             d[m['voff']:m['voff'] + len(m['V']) * 44] = m['V'].astype('<f4').tobytes()
     d = bytes(d); info = parse_tree(d, EXT)
-    for fn in sorted({m['fn'] for m in allm if m.get('moved') and m['fn'] != 'zw_ext.kn5'}):
+    for fn in sorted({m['fn'] for m in allm if m.get('moved') and m['fn'] != 'vf_ext.kn5'}):
         dd = bytearray(open(Z + fn, 'rb').read())
         for m in allm:
             if m['fn'] == fn and m.get('moved'): dd[m['voff']:m['voff'] + len(m['V']) * 44] = m['V'].astype('<f4').tobytes()

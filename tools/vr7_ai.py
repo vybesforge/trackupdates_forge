@@ -1,5 +1,5 @@
 """VR7: regenerate AI lines (fast_lane.ai + pit_lane.ai) for main (long) and short layouts from the CURRENT physics.
-Also builds zw_vr7_longcut.kn5 (main/long only): invisible physics copy (+1 cm, bumps kept) of the short-course T1 hairpin road,
+Also builds vf_vr7_longcut.kn5 (main/long only): invisible physics copy (+1 cm, bumps kept) of the short-course T1 hairpin road,
 KEY SCUT = IS_VALID_TRACK 0, so cutting through the short course on the long layout counts as off-track.
 Seeds = zwiss's recorded 2023 lines (assets_src/ai_zwiss_orig/), which are only used as a lateral reference / direction:
  fast lane: lateral corridor from the physics raster (valid ROAD/CURB only), min-curvature relaxation inside the corridor
@@ -33,10 +33,10 @@ def build_cut():
     off=0;VV=[];II=[]
     for v,i in zip(V_,I_): VV.append(v);II.append(i+off);off+=len(v)
     VV=np.vstack(VV);II=np.vstack(II);print('long-course cut mesh 1SCUT_hairpin tris',len(II))
-    mat=W.read_materials(Z+'zw_tents.kn5');m0=list(mat.values())[0]
+    mat=W.read_materials(Z+'vf_tents.kn5');m0=list(mat.values())[0]
     M=[dict(name='vr7_cut_invisible',shader='ksPerPixel',ab=0,at=0,dm=m0['dm'],props=m0['props'],samplers=[])]
-    W.write_kn5(Z+'zw_vr7_longcut.kn5',[],M,[dict(name='1SCUT_hairpin',mat_index=0,verts=VV.astype(np.float32),idx=II)],rootname='zw_vr7_longcut')
-    print('hidden',W.hide_nodes(Z+'zw_vr7_longcut.kn5',Z+'zw_vr7_longcut.kn5',['1SCUT_hairpin']))
+    W.write_kn5(Z+'vf_vr7_longcut.kn5',[],M,[dict(name='1SCUT_hairpin',mat_index=0,verts=VV.astype(np.float32),idx=II)],rootname='vf_vr7_longcut')
+    print('hidden',W.hide_nodes(Z+'vf_vr7_longcut.kn5',Z+'vf_vr7_longcut.kn5',['1SCUT_hairpin']))
 # ---------------- helpers
 class Grid:
     def __init__(s,lay):

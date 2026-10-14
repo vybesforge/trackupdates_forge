@@ -7,16 +7,16 @@ The project is licensed under the **Apache License 2.0** (LICENSE). Copyright 20
   - `vf_i29_speedway.kn5` (was `zw_rpm.kn5`: track, terrain, buildings, pit/paddock, drag strip, grandstand shells)
   - `vf_i29_speedway_physical.kn5` (physics surfaces)
   - `vf_i29_speedway_gp.kn5`, `vf_i29_speedway_sh.kn5`
-  - `zw_vegetation.kn5` placement
+  - `vf_vegetation.kn5` placement
   - original zwiss textures (VR11's replacements were reverted in VR11b), including Fanapryde's MAM logo banner
   - cameras, the AI seed lines, the section layout and other v0.9 data files
-- **© OpenStreetMap contributors** (ODbL 1.0): road and building data used for the north extension (`zw_ext.kn5`).
+- **© OpenStreetMap contributors** (ODbL 1.0): road and building data used for the north extension (`vf_ext.kn5`).
 - **USGS 3DEP** (public domain): elevation. **USDA NAIP** (public domain): ground imagery and masks.
 - **ambientCG** and **Poly Haven** (CC0 1.0): textures and tree models.
 - **CNDS 2024** remodel (Geronimo Designs / MoxyShredz / Temple Productions): **reference only**. No geometry or textures were taken from it.
 - Project-made (vybesforge, Apache-2.0):
-  - `zw_rpm_own.kn5`, `zw_ext.kn5` models
-  - `zw_dragexit.kn5`, `zw_draglaunch.kn5`, `zw_tents.kn5`, `zw_vr5.kn5`, `zw_vr6.kn5` (including the Blender pickup, `assets_src/pickup/`)
+  - `zw_rpm_own.kn5`, `vf_ext.kn5` models
+  - `vf_dragexit.kn5`, `vf_draglaunch.kn5`, `vf_tents.kn5`, `vf_vr5.kn5`, `vf_vr6.kn5` (including the Blender pickup, `assets_src/pickup/`)
   - `tools/`
   - extension Lua and config
 

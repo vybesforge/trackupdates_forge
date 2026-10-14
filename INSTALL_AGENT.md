@@ -36,16 +36,18 @@ AC compares `*.kn5`, `surfaces.ini` and `models*.ini` byte-for-byte between serv
 | `vf_i29_speedway_gp.kn5` | 11964180 | `11e896b8a4dec8555f14389593144c38` |
 | `vf_i29_speedway_own.kn5` | 18682981 | `0972422525b33967ca3ad880048f8bc2` |
 | `vf_i29_speedway_physical.kn5` | 24309908 | `e48d024b0e9dedb7b08506e57a8978ad` |
+> Note (tents-v1.1 branch): the former `zw_*.kn5` files are renamed `vf_*.kn5` (same content). Sizes/MD5s below are v1.0.4; in v1.1 `vf_tents.kn5`, `vf_vr5.kn5` and `vf_vr6.kn5` change and must be re-measured at release. Delete old `zw_*.kn5` from installs.
+
 | `vf_i29_speedway_sh.kn5` | 1044980 | `311c2d8d5618bd82d2a19632ddbcca86` |
 | `vf_ruts.kn5` | 99292 | `5938ed345eaf34ad7eeb120f09c91b51` |
-| `zw_dragexit.kn5` | 14370948 | `532c29b2a07b0cf431c02ef3118330f9` |
-| `zw_draglaunch.kn5` | 14070895 | `40e0dbe54c1982fa6638f214e978327b` |
-| `zw_ext.kn5` | 43526931 | `45407bd30f22529814b219bd63636633` |
-| `zw_tents.kn5` | 5088880 | `64d5c0b14443c1be1d70db6b4c6bd663` |
-| `zw_vegetation.kn5` | 48601289 | `187a2519fece1ae0be0afe087d62ee6f` |
-| `zw_vr5.kn5` | 359787 | `7a80b5af861944652f4febf51a9e217d` |
-| `zw_vr6.kn5` | 4410323 | `2a1f5fbdca29a705e2ee97a17cb8b0a9` |
-| `zw_vr7_longcut.kn5` | 533884 | `de5e7a3b23eef128df59a091580fefa2` |
+| `vf_dragexit.kn5` | 14370948 | `532c29b2a07b0cf431c02ef3118330f9` |
+| `vf_draglaunch.kn5` | 14070895 | `40e0dbe54c1982fa6638f214e978327b` |
+| `vf_ext.kn5` | 43526931 | `45407bd30f22529814b219bd63636633` |
+| `vf_tents.kn5` | 5088880 | `64d5c0b14443c1be1d70db6b4c6bd663` |
+| `vf_vegetation.kn5` | 48601289 | `187a2519fece1ae0be0afe087d62ee6f` |
+| `vf_vr5.kn5` | 359787 | `7a80b5af861944652f4febf51a9e217d` |
+| `vf_vr6.kn5` | 4410323 | `2a1f5fbdca29a705e2ee97a17cb8b0a9` |
+| `vf_vr7_longcut.kn5` | 533884 | `de5e7a3b23eef128df59a091580fefa2` |
 
 Verify (PowerShell): `Get-FileHash -Algorithm MD5 <file>`; (Linux): `md5sum <file>`. Any mismatch → clean-reinstall from the zip.
 

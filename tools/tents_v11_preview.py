@@ -5,7 +5,7 @@ sys.path.insert(0,os.path.dirname(os.path.abspath(__file__)))
 import kn5patch as K,kn5write as W,tents_v11 as TV
 from PIL import Image
 import matplotlib;matplotlib.use('Agg');import matplotlib.pyplot as plt
-OUT=sys.argv[1] if len(sys.argv)>1 else '/workspace/tent_previews/v3';os.makedirs(OUT,exist_ok=True);KN5=f'{TV.Z}/zw_tents.kn5'
+OUT=sys.argv[1] if len(sys.argv)>1 else '/workspace/tent_previews/v3';os.makedirs(OUT,exist_ok=True);KN5=f'{TV.Z}/vf_tents.kn5'
 def load(KN5=KN5):
     d=open(KN5,'rb').read();_,nodes=K.scan(KN5);mats=list(W.read_materials(KN5).items());tex={};ms=[]
     for name,o,l,c in nodes:
@@ -98,6 +98,6 @@ if __name__=='__main__':
     render(ms,tex,(75,1.25,83),(75,1.8,120),70,ground=G).save(f'{OUT}/view_from_spawn.png')
     render(ms,tex,(60,6,78),(60,0,100),60,ground=(0,160,60,93,hat(60,90)-0.01)).save(f'{OUT}/gravel_concrete_edge.png')
     s1=TV.SLOTS[7];render(ms,tex,(s1[1]-11*np.sin(s1[3]),1.7,s1[2]-11*np.cos(s1[3])),(s1[1],1.6,s1[2]),60,ground=G).save(f'{OUT}/tent_closeup_slot{s1[0]:02d}.png')
-    bm,bt=load(f'{TV.Z}/zw_vr5.kn5')
+    bm,bt=load(f'{TV.Z}/vf_vr5.kn5')
     render(bm,bt,(-255,2.5,-575),(-255,3.6,-606),50,ground=(-290,-220,-625,-560,-0.1)).save(f'{OUT}/boards_drag_end.png')
     print('renders done')

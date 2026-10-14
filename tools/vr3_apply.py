@@ -1,4 +1,4 @@
-"""NOTE: apply ONCE to the pre_vr3 files (TREEWALL move is not idempotent). VR3 edits on the CURRENT vf_i29_speedway.kn5 / zw_vegetation.kn5 (backups: /workspace/rpotm/backup/zw_rpm.pre_vr3/):
+"""NOTE: apply ONCE to the pre_vr3 files (TREEWALL move is not idempotent). VR3 edits on the CURRENT vf_i29_speedway.kn5 / vf_vegetation.kn5 (backups: /workspace/rpotm/backup/zw_rpm.pre_vr3/):
 - hide paddock tents tentm_SUB0/5/6 (keep Vybes Forge tentm_SUB3 + big pit tent)          [item 6]
 - hide both wrecker/lifter trucks (liftertrucks_SUB1: staging/tower and pit-exit road)       [item 8]
 - FENCE_001: cut openings at drag exits A/B/C (A widened) so the west fence no longer crosses them [item 5]
@@ -62,7 +62,7 @@ def f_veg(name,V,I):
     vs=np.unique(I[sel]);V[vs,2]-=330.0
     nat,_=geo.natural(V[vs][:,[0,2]]);V[vs,1]+=np.maximum(nat,-0.1)+0.1
     print('TREEWALL_001: moved',sel.sum(),'tris /',len(vs),'verts 330 m north (now z',V[vs,2].min().round(),'..',V[vs,2].max().round(),')');return V,I
-print('zw_vegetation.kn5 nodes edited:',edit(f'{Z}/zw_vegetation.kn5',f_veg))
+print('vf_vegetation.kn5 nodes edited:',edit(f'{Z}/vf_vegetation.kn5',f_veg))
 # (appended) big tents: keep only the one nearest the pit lane (x 51..70, z 63..88), hide the other three
 def f_big(name,V,I):
     if name!='bigtents': return None

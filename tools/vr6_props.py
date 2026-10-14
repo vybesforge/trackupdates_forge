@@ -1,4 +1,4 @@
-"""VR6 props -> vf_i29_speedway/zw_vr6.kn5 (MODEL_10, main + short). Rerunnable (inputs: assets_src/pickup/*, tools/vr5_* data).
+"""VR6 props -> vf_i29_speedway/vf_vr6.kn5 (MODEL_10, main + short). Rerunnable (inputs: assets_src/pickup/*, tools/vr5_* data).
 - Blender-modelled crew-cab pickup (tools/vr6_pickup_blender.py -> assets_src/pickup/pickup.obj + baked AO/colour) at the
   VR5 spot (-279.7, -331.8), nose -x (toward the west gate). One texture atlas (colour x AO), per-part materials for spec.
 - Contact-shadow decals (alpha-blended, self-made soft blob texture, +1.2 cm): under the pickup, the 6 paddock tents,
@@ -97,8 +97,8 @@ if __name__=='__main__':
     V,I=L.merge(sh);ME.append(dict(name='vr6_contact_shadow_rect',mat_index=mi['blob_r'],verts=V,idx=I))
     V,I=L.merge(sd);ME.append(dict(name='vr6_contact_shadow_people',mat_index=mi['blob_o'],verts=V,idx=I))
     (PV,PI),(HV,HI)=pole_meshes();ME.append(dict(name='vr6_light_poles',mat_index=mi['pole'],verts=PV,idx=PI));ME.append(dict(name='vr6_lamp_glow',mat_index=mi['lens'],verts=HV,idx=HI))
-    W.write_kn5(f'{Z}/zw_vr6.kn5',T,mats,ME,rootname='zw_vr6');print('zw_vr6.kn5',[(x['name'],len(x['idx'])) for x in ME])
+    W.write_kn5(f'{Z}/vf_vr6.kn5',T,mats,ME,rootname='vf_vr6');print('vf_vr6.kn5',[(x['name'],len(x['idx'])) for x in ME])
     ext_ini()
     for ini in('models_main.ini','models_short.ini'):
         p=f'{Z}/{ini}';s=open(p).read()
-        if 'zw_vr6.kn5' not in s: open(p,'a').write('\n[MODEL_10]\nFILE=zw_vr6.kn5\nPOSITION=0,0,0\nROTATION=0,0,0\n')
+        if 'vf_vr6.kn5' not in s: open(p,'a').write('\n[MODEL_10]\nFILE=vf_vr6.kn5\nPOSITION=0,0,0\nROTATION=0,0,0\n')

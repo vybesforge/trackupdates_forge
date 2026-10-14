@@ -1,4 +1,4 @@
-"""Drag-strip end gantry billboards (z -606) as 2 sellable ad slots. Rewrites vf_i29_speedway/zw_vr5.kn5 (MODEL_9; it holds only
+"""Drag-strip end gantry billboards (z -606) as 2 sellable ad slots. Rewrites vf_i29_speedway/vf_vr5.kn5 (MODEL_9; it holds only
 the 4 vr5_billboard_end_* panels) with one material + texture per billboard, same geometry as v1.0.4:
   vfboard_slot01 = east billboard (x -247..-242.5: big upper panel vr5_billboard_end_1 + small lower panel _end_0)
   vfboard_slot02 = west billboard (x -267..-262.3: upper _end_3 + lower _end_2)
@@ -9,7 +9,7 @@ import sys,os,struct,numpy as np
 sys.path.insert(0,os.path.dirname(os.path.abspath(__file__)))
 import kn5patch as K,kn5write as W,build_open_textures as B
 from PIL import Image,ImageDraw,ImageFont
-ROOT=os.path.abspath(os.path.join(os.path.dirname(__file__),'..'));Z=f'{ROOT}/vf_i29_speedway';KN5=f'{Z}/zw_vr5.kn5'
+ROOT=os.path.abspath(os.path.join(os.path.dirname(__file__),'..'));Z=f'{ROOT}/vf_i29_speedway';KN5=f'{Z}/vf_vr5.kn5'
 FONT=f'{ROOT}/assets_src/brand/fonts/SpaceGrotesk-wght.ttf';BG=(2,6,15);CY=(41,213,233);MG=(191,51,138);TX=(232,236,245)
 SLOTS={1:('vr5_billboard_end_0','vr5_billboard_end_1'),2:('vr5_billboard_end_2','vr5_billboard_end_3')}
 def font(sz,w=700):
@@ -41,4 +41,4 @@ if __name__=='__main__':
         tn=f'board_slot{s:02d}.dds';b=art(s);texs.append((tn,b));(None if s in _SOLD else open(f'{Z}/skins/default/{tn}','wb').write(b))
         mats.append(dict(name=f'vfboard_slot{s:02d}',shader=base['shader'],ab=0,at=0,dm=base['dm'],props=base['props'],samplers=[('txDiffuse',0,tn)]))
         for n in names: ME.append(dict(name=n,mat_index=len(mats)-1,verts=mesh[n][0],idx=mesh[n][1]))
-    W.write_kn5(KN5,texs,mats,ME,rootname='zw_vr5');print('zw_vr5.kn5:',[(m['name'],mats[m['mat_index']]['name']) for m in ME])
+    W.write_kn5(KN5,texs,mats,ME,rootname='vf_vr5');print('vf_vr5.kn5:',[(m['name'],mats[m['mat_index']]['name']) for m in ME])

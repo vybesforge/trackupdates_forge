@@ -2,7 +2,7 @@
 z ~17.5, wall z ~22, x 84..117) instead of the small scrutineering canopy. Same model as our corner workers: zwiss's
 marshal figure `marsh001` (908 tris, 1.78 m, UV atlas commissario_new.dds) is copied, rotated and placed; each copy gets
 its own recoloured atlas (shirt/torso + sleeves islands only; trousers, head, hands keep the corner-worker look).
-Static, visual only (no physics). Contact shadows: round decals in zw_vr6.kn5 (tools/vr6_props.py uses PEOPLE)."""
+Static, visual only (no physics). Contact shadows: round decals in vf_vr6.kn5 (tools/vr6_props.py uses PEOPLE)."""
 import sys,os,io,struct,numpy as np
 sys.path.insert(0,os.path.dirname(os.path.abspath(__file__)));import kn5patch as K,build_open_textures as B,vr5_meshlib as L
 from PIL import Image,ImageDraw,ImageFilter

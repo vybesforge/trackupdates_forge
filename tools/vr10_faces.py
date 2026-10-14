@@ -1,4 +1,4 @@
-"""VR10: better heads for the 2 paddock figures (zw_vr6.kn5, rewritten in place with kn5write).
+"""VR10: better heads for the 2 paddock figures (vf_vr6.kn5, rewritten in place with kn5write).
 Adds per person: eye whites + pupils, brows (hair colour), nose and ears (skin), mouth (lip colour), a denser
 hair shell with a softer hairline and sideburns; the grey-shirt figure also gets a navy cap (crown + brim).
 All parts are small ellipsoids (~1.9k tris per person), placed on the VR8 head (same centre/axes as
@@ -6,7 +6,7 @@ tools/vr7_people.py) and shifted by the lidar warp the head already received. Vi
 import os, sys, struct, numpy as np
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import kn5patch as K, kn5write as W, vr5_meshlib as L, vr7_people as P
-F = os.path.join(P.Z, 'zw_vr6.kn5')
+F = os.path.join(P.Z, 'vf_vr6.kn5')
 def read_meshes(fn):
     d = open(fn, 'rb').read(); out = []
     for name, o, l, c in K.scan(fn)[1]:
@@ -87,5 +87,5 @@ def build():
         emit(f'vr10_eyes_{nm}', m_white, parts[m_white]); emit(f'vr10_pupils_{nm}', m_dark, parts[m_dark])
         emit(f'vr10_mouth_{nm}', m_lip, parts[m_lip]); emit(f'vr10_cap_{nm}', m_cap, parts[m_cap])
         print(nm, 'warp dy', round(dy, 3))
-    W.write_kn5(F, tex, mats, meshes, rootname='zw_vr6'); K.scan(F); print(rep, 'total new tris', sum(n for _, n in rep))
+    W.write_kn5(F, tex, mats, meshes, rootname='vf_vr6'); K.scan(F); print(rep, 'total new tris', sum(n for _, n in rep))
 if __name__ == '__main__': build()

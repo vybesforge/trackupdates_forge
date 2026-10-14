@@ -25,8 +25,8 @@ def tile(im,n=2,s=512):
     return c.resize((512,512))
 pair(tile(tex(f'{BK}/vf_i29_speedway.kn5','track_cracksa.dds')),tile(tex(f'{Z}/vf_i29_speedway_own.kn5','own_gravel.dds')),'BEFORE paddock: Concrete01 (track_cracksa)','AFTER paddock: own_gravel (ambientCG Gravel022, desat.) + normal','vr2_paddock_texture.png')
 pair(tile(tex(f'{BK}/vf_i29_speedway.kn5','gravelroad.dds')),tile(tex(f'{Z}/vf_i29_speedway.kn5','concrete_seams.dds')),'BEFORE road detail: gravelroad (Gravel022)','AFTER: concrete_seams (Concrete034 + joints)','vr2_road_texture.png')
-pair(tex(f'{BK}/zw_vegetation.kn5','tree2.dds').resize((768,768)),tex(f'{Z}/zw_vegetation.kn5','tree2.dds').resize((768,768)),'BEFORE tree2 atlas (procedural)','AFTER tree2 atlas (Poly Haven CC0 renders)','vr2_trees_tree2.png')
-pair(tex(f'{BK}/zw_vegetation.kn5','tree3.dds').resize((768,768)),tex(f'{Z}/zw_vegetation.kn5','tree3.dds').resize((768,768)),'BEFORE tree3 atlas','AFTER tree3 atlas','vr2_trees_tree3.png')
+pair(tex(f'{BK}/vf_vegetation.kn5','tree2.dds').resize((768,768)),tex(f'{Z}/vf_vegetation.kn5','tree2.dds').resize((768,768)),'BEFORE tree2 atlas (procedural)','AFTER tree2 atlas (Poly Haven CC0 renders)','vr2_trees_tree2.png')
+pair(tex(f'{BK}/vf_vegetation.kn5','tree3.dds').resize((768,768)),tex(f'{Z}/vf_vegetation.kn5','tree3.dds').resize((768,768)),'BEFORE tree3 atlas','AFTER tree3 atlas','vr2_trees_tree3.png')
 # paddock top view: before (Concrete01 everywhere) vs after (gravel mesh)
 L0=[(f'{BK}/vf_i29_speedway.kn5',lambda n:n=='1CONCRETE_001',(255,255,0,110))]
 L1=[(f'{Z}/vf_i29_speedway.kn5',lambda n:n=='1CONCRETE_001',(255,255,0,110)),(f'{Z}/vf_i29_speedway_own.kn5',lambda n:n.startswith('1GRAVEL'),(255,120,0,130))]

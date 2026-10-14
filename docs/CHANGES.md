@@ -606,3 +606,9 @@ Backup: `/workspace/rpotm/backup/pre_vr9b_holefix/zw_rpm.kn5` (004b983 state).
 - DDS writer fixes the header: correct linear size, RGBBitCount 0 (Pillow wrote pitch 8204 and 32 bpp on DXT1).
 - Drift tyre stacks are now the physics mesh `1WALL_DRIFT_TYRES` (they collide). zw_tents.kn5 checksum changes.
 - make_ad.py --apply writes to skins/default/.
+
+## v1.1 – v8: barrier paint, tyre-stack bands, entrance lane, file renames
+- Drift jersey barriers (`1WALL_DRIFT_n`): painted in 2 m red / 2 m white sections, weathered concrete with a normal map (ksPerPixelNM), rubber scuffs low on the wall, grimy base. A visual-only reflective strip (`vfc_reflectors`) runs along the upper slope and is self-lit at night (`[MATERIAL_ADJUSTMENT_DRIFT_REFLECTORS]`). Only the UVs changed; the collision shapes are identical.
+- Tyre stacks (`1WALL_DRIFT_TYRES`): black/yellow/black bands, white-painted top; geometry unchanged.
+- Entrance lane from behind spawn row 2 (z 83) to the drift entry: painted edge lines, chevrons, a `DRIFT ENTRY` decal (`vfc_entry_text`) and cones. Its centre line is 5.4 m from the spawned cars, 38 m from the exit route and 5.6 m from the barriers.
+- Renamed `zw_{ext,tents,vegetation,draglaunch,vr6,dragexit,vr5,vr7_longcut}.kn5` to `vf_*` and updated models_main/short.ini, ext_config.ini, drag_tree.lua, tools, tests, CREDITS, INSTALL_AGENT and assets.csv. The kn5 contents are unchanged, except vf_tents, which now has root node `vf_tents`. Old release notes, audits and build logs keep the old names as history. The surfaces.ini comments still say `zw_*` on purpose, so that checksummed file stays untouched. The `zw_rpm` / `*_zwiss_orig` names are left as credit history.

@@ -1,7 +1,7 @@
 """VR10: re-drape the north extension and make the whole map follow one lidar field (tools/vr10_field.py).
-For every kn5: delta = T_final - (field already applied): VR9 field for the track files, 0 for zw_ext.kn5
+For every kn5: delta = T_final - (field already applied): VR9 field for the track files, 0 for vf_ext.kn5
 (taken from the flat stage backup/pre_vr9). Ground-like meshes are warped per vertex (refined first so long
-triangles follow the field); 3D props in zw_ext (stations, canopies, signs, poles, lamps...) are moved rigidly per
+triangles follow the field); 3D props in vf_ext (stations, canopies, signs, poles, lamps...) are moved rigidly per
 connected part by the field value at their footprint. AC_ dummies and AI lines get the same delta.
 Input vf_i29_speedway.kn5 must be the split, un-filled VR9 file (hole fills are regenerated afterwards).
 Then run: vr9_split_phys.py on all kn5, vr9_holecheck.py, vr9_fill_holes.py, vr9_holecheck.py."""
@@ -24,7 +24,7 @@ def main(vf_i29_speedway_src):
     rep = {}
     for fn in sorted(os.listdir(DST)):
         if not fn.endswith('.kn5'): continue
-        ext = fn == 'zw_ext.kn5'
+        ext = fn == 'vf_ext.kn5'
         src = FLAT + fn if ext else (vf_i29_speedway_src if fn == 'vf_i29_speedway.kn5' else DST + fn)
         d, nodes = L.nodes_full(src); newmesh = {}; dummy = {}; moved = set(); nref = 0; nrigid = 0; dmax = 0.0
         applied = (lambda x, z: np.zeros(len(np.atleast_1d(x)))) if ext else D9

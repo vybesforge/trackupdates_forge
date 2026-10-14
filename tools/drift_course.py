@@ -1,5 +1,5 @@
 """Paddock-lot drift course (v1.1 pass 3): drift line, clipping points, outer zones, barriers, markings and tent slots.
-Pure geometry/data; tents_v11.py builds the meshes into zw_tents.kn5 and the previews draw it.
+Pure geometry/data; tents_v11.py builds the meshes into vf_tents.kn5 and the previews draw it.
 Course (clockwise seen from above, x right / z up on the map): entry from the spawn side at the SW corner (38,106) heading +z, linked
 left-right transitions up the west side, big sweeper around the north donut area (donut centre (78,166), painted ring r 9),
 east sweeper/hairpin, then a long south straight back towards the entry. Width of the run-off: barriers 7.5 m outside the

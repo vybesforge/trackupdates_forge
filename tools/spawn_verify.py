@@ -7,7 +7,7 @@ for f in ['vf_i29_speedway.kn5']: K.scan(Z+f);print('scan OK',f)
 pits=sorted([(int(n['name'][7:]),n['W']) for n in T.walk(Z+'vf_i29_speedway.kn5') if n['cls']==1 and n['name'].startswith('AC_PIT_')])
 print('pits',len(pits),'unique idx',len(set(i for i,_ in pits)))
 res=0.5;box=(-230,180,-60,245)
-for lay,files in [('main',['vf_i29_speedway.kn5','vf_i29_speedway_physical.kn5','vf_i29_speedway_gp.kn5','vf_i29_speedway_own.kn5','zw_ext.kn5','zw_dragexit.kn5','zw_tents.kn5','zw_vegetation.kn5']),('short',['vf_i29_speedway.kn5','vf_i29_speedway_physical.kn5','vf_i29_speedway_sh.kn5','vf_i29_speedway_own.kn5','zw_ext.kn5','zw_dragexit.kn5','zw_tents.kn5','zw_vegetation.kn5'])]:
+for lay,files in [('main',['vf_i29_speedway.kn5','vf_i29_speedway_physical.kn5','vf_i29_speedway_gp.kn5','vf_i29_speedway_own.kn5','vf_ext.kn5','vf_dragexit.kn5','vf_tents.kn5','vf_vegetation.kn5']),('short',['vf_i29_speedway.kn5','vf_i29_speedway_physical.kn5','vf_i29_speedway_sh.kn5','vf_i29_speedway_own.kn5','vf_ext.kn5','vf_dragexit.kn5','vf_tents.kn5','vf_vegetation.kn5'])]:
     M=physmeshes(files,box);xs,zs,H,KEY,UP,names=raster(M,box,res)
     ok=0;worst=0
     for i,W in pits:

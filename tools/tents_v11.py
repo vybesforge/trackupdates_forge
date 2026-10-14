@@ -1,5 +1,5 @@
 """Tents v1.1 (pass 3: v2 tent design around the paddock drift course in tools/drift_course.py): 12-tent car-meet vendor cluster right behind the spawns, one material + texture per slot.
-Builds vf_i29_speedway/zw_tents.kn5, CSP override textures vf_i29_speedway/extension/tent_slotNN.dds (2048) and art PNGs
+Builds vf_i29_speedway/vf_tents.kn5, track-skin textures vf_i29_speedway/skins/default/tent_slotNN.dds (2048) and art PNGs
 assets_src/brand/tent_slotNN.png. kn5 embeds 1024 fallbacks (keeps the file < 20 MB); CSP loads the 2048 overrides.
 Layout: two facing columns of 6 (x 68 opens +x, x 82 opens -x), z 98..135.5 every 7.5 m (1.5 m gaps), 8 m aisle opening
 towards the spawns (-z). Tent: 6 x 6 m, black frame, charcoal sagging 4-panel roof (eave 2.4, apex 3.3), 0.30 m white
@@ -146,7 +146,7 @@ def verify(report=print):
     global SLOTS
     HMAX.clear()
     box=(-40,170,30,240);res=0.25;fails=0
-    files=['vf_i29_speedway.kn5','vf_i29_speedway_physical.kn5','vf_i29_speedway_gp.kn5','vf_i29_speedway_own.kn5','zw_ext.kn5','zw_dragexit.kn5','zw_vegetation.kn5']
+    files=['vf_i29_speedway.kn5','vf_i29_speedway_physical.kn5','vf_i29_speedway_gp.kn5','vf_i29_speedway_own.kn5','vf_ext.kn5','vf_dragexit.kn5','vf_vegetation.kn5']
     M=physmeshes(files,box);xs,zs,H,KEY,UP,names=raster(M,box,res)
     pits=[n['W'][3,:3] for n in T.walk(f'{Z}/vf_i29_speedway.kn5') if n['cls']==1 and n['name'].startswith('AC_PIT_')]
     path=np.load(f'{ROOT}/tools/data/path_main.npy');GRAV=names.index('1GRAVEL_PADDOCK')
@@ -230,7 +230,7 @@ def house_art(w=2048,h=768):
     small=np.array(Image.fromarray(rgba).resize((1024,384),Image.LANCZOS));return B.write_dds(small,'DXT1',9,None)
 def ground_fn(box):
     from physraster import physmeshes,raster
-    M=physmeshes(['vf_i29_speedway.kn5','vf_i29_speedway_physical.kn5','vf_i29_speedway_gp.kn5','vf_i29_speedway_own.kn5','zw_draglaunch.kn5'],box);xs,zs,H,K,UP,nm=raster(M,box,0.5)
+    M=physmeshes(['vf_i29_speedway.kn5','vf_i29_speedway_physical.kn5','vf_i29_speedway_gp.kn5','vf_i29_speedway_own.kn5','vf_draglaunch.kn5'],box);xs,zs,H,K,UP,nm=raster(M,box,0.5)
     def g(x,z):
         j=int(round((z-zs[0])/0.5));i=int(round((x-xs[0])/0.5));return (float(H[j,i]) if np.isfinite(H[j,i]) else 0.0),(nm[K[j,i]] if K[j,i]>=0 else None)
     return g
@@ -367,10 +367,10 @@ _SOLD={x for k,v in (_json.load(open(_bj)).items() if os.path.exists(_bj) else [
 if __name__=='__main__':
     fails,GY,RD=verify();hat=RD[-2];RAST=RD[-1]
     if fails or '--verify-only' in sys.argv: sys.exit(1 if fails else 0)
-    _m=W.read_materials(f'{Z}/zw_tents.kn5');base=_m.get('vftent_adhere') or _m['vftent_slot01']
+    _m=W.read_materials(f'{Z}/vf_tents.kn5');base=_m.get('vftent_adhere') or _m['vftent_slot01']
     blob=None
     import kn5patch as KP
-    blob=KP.get_tex(f'{Z}/zw_vr6.kn5','vr6_blob_rect.dds');shm=W.read_materials(f'{Z}/zw_vr6.kn5')['vr6_shadow_rect']
+    blob=KP.get_tex(f'{Z}/vf_vr6.kn5','vr6_blob_rect.dds');shm=W.read_materials(f'{Z}/vf_vr6.kn5')['vr6_shadow_rect']
     fmp=open(f'{ROOT}/assets_src/vr2/fabric_maps.dds','rb').read()
     texs=[('fabric_nm_v2.dds',fabric_normal()),('fabric_maps.dds',fmp),('NULL.dds',ML.solid_dds((255,255,255))),('vft_black.dds',ML.solid_dds((18,18,20))),
           ('vft_sandbag.dds',ML.solid_dds((52,50,46))),('vft_tabletop.dds',ML.solid_dds((236,236,236))),('vr6_blob_rect.dds',blob)]
@@ -408,11 +408,11 @@ if __name__=='__main__':
         meshes.append(dict(name=f'vftent_slot{s:02d}',mat_index=len(mats)-1,verts=parts['fab'][0],idx=parts['fab'][1],lod_out=0))
         for k in ('frame','bag','top'): meshes.append(dict(name=f'vftent_slot{s:02d}_{k}',mat_index=MI[k],verts=parts[k][0],idx=parts[k][1],lod_out=400))
         meshes.append(dict(name=f'vftent_slot{s:02d}_shadow',mat_index=3,verts=parts['shadow'][0],idx=parts['shadow'][1],lod_out=300,flags=(1,0,0)))
-    W.write_kn5(f'{Z}/zw_tents.kn5',texs,mats,meshes,rootname='zw_tents');write_ext_config(NSLOTS)
-    print('zw_tents.kn5:',len(meshes),'meshes',sum(len(m['idx']) for m in meshes),'tris',len(mats),'materials',os.path.getsize(f'{Z}/zw_tents.kn5')//1024,'KB')
-    # stale VR6 contact-shadow quads under the old paddock tents (lot x>0, z>100) -> collapsed (zw_vr6.kn5, byte splice)
+    W.write_kn5(f'{Z}/vf_tents.kn5',texs,mats,meshes,rootname='vf_tents');write_ext_config(NSLOTS)
+    print('vf_tents.kn5:',len(meshes),'meshes',sum(len(m['idx']) for m in meshes),'tris',len(mats),'materials',os.path.getsize(f'{Z}/vf_tents.kn5')//1024,'KB')
+    # stale VR6 contact-shadow quads under the old paddock tents (lot x>0, z>100) -> collapsed (vf_vr6.kn5, byte splice)
     import struct
-    p6=f'{Z}/zw_vr6.kn5';d=bytearray(open(p6,'rb').read());n=0
+    p6=f'{Z}/vf_vr6.kn5';d=bytearray(open(p6,'rb').read());n=0
     for name,o,l,c in KP.scan(p6)[1]:
         if c==2 and name=='vr6_contact_shadow_rect':
             q=o+l+8;nv,=struct.unpack_from('<I',d,q);V=np.frombuffer(bytes(d[q+4:q+4+nv*44]),'<f4').reshape(nv,11).copy()
@@ -420,4 +420,4 @@ if __name__=='__main__':
                 Q=V[g:g+4]
                 if (Q[:,0].mean()>0) and (Q[:,2].mean()>100): V[g:g+4,:3]=Q[0,:3];n+=1
             d[q+4:q+4+nv*44]=V.astype('<f4').tobytes()
-    open(p6,'wb').write(bytes(d));print('zw_vr6.kn5: stale tent shadow quads collapsed:',n)
+    open(p6,'wb').write(bytes(d));print('vf_vr6.kn5: stale tent shadow quads collapsed:',n)

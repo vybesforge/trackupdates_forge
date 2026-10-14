@@ -1,4 +1,4 @@
-"""Build zw_ext.kn5 (north extension: ground band, roads + physics, lots, two fuel stations, I-29 interchange visuals,
+"""Build vf_ext.kn5 (north extension: ground band, roads + physics, lots, two fuel stations, I-29 interchange visuals,
 roadside dressing, invisible walls). Run after textures.py. AC frame = track frame (see geo.py)."""
 import sys,os,json,math,struct,numpy as np,cv2
 sys.path.insert(0,os.path.join(os.path.dirname(__file__),'..'));sys.path.insert(0,os.path.dirname(__file__))
@@ -347,14 +347,14 @@ wall([(WALLX,float(geo.zb(WALLX))),(WALLX,Z0)]);wall([(WALLX,Z0),(X0,Z0)]);wall(
 emit('1WALL_EXT','ext_invisible',mwall)
 # ---------------------------------------------------------------- write
 TEXL=[(n,b) for n,b in TEX.items()]
-out=f'{Z}/zw_ext.kn5';W.write_kn5(out,TEXL,MATS,MESH,rootname='zw_ext')
+out=f'{Z}/vf_ext.kn5';W.write_kn5(out,TEXL,MATS,MESH,rootname='vf_ext')
 # physics-only / invisible meshes: castShadows 0, renderable 0 (like vf_i29_speedway_physical); visual roads stay rendered
 d=bytearray(open(out,'rb').read());_,nodes=K.scan(out);ninv=0
 for name,o,l,c in nodes:
     if c==2 and name.startswith('1WALL_EXT'):
         q=o+l+5;d[q]=0;nv,=struct.unpack_from('<I',d,q+3);r=q+3+4+nv*44;ni,=struct.unpack_from('<I',d,r);r+=4+ni*2+8+4+4+16;d[r]=0;ninv+=1
 open(out,'wb').write(bytes(d))
-tris=sum(len(m['idx']) for m in MESH);LOG.append(f'zw_ext.kn5: {len(MESH)} meshes, {tris} tris, {len(TEXL)} textures, {os.path.getsize(out)/1e6:.1f} MB; invisible wall meshes {ninv}')
+tris=sum(len(m['idx']) for m in MESH);LOG.append(f'vf_ext.kn5: {len(MESH)} meshes, {tris} tris, {len(TEXL)} textures, {os.path.getsize(out)/1e6:.1f} MB; invisible wall meshes {ninv}')
 by={}
 for m in MESH: k=m['name'].split('_')[0];by[k]=by.get(k,0)+len(m['idx'])
 LOG.append('tris by group: '+', '.join(f'{k} {v}' for k,v in sorted(by.items(),key=lambda t:-t[1])))

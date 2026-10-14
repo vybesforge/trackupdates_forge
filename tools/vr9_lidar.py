@@ -23,10 +23,10 @@ def build_field():
     dem=ndimage.map_coordinates(D,[rr-0.5,c-0.5],order=1,mode='nearest').reshape(X.shape)
     import physraster as PR
     c_='/workspace/vr9/raster_wide.npz'
-    WB=(-500,300,-1000,300);TRK=[f for f in C.FILES['main'] if f!='zw_ext.kn5']
+    WB=(-500,300,-1000,300);TRK=[f for f in C.FILES['main'] if f!='vf_ext.kn5']
     if not os.path.exists(c_):
         PR.Z=SRC;r_=PR.raster(PR.physmeshes(TRK,WB),WB,0.5);np.savez(c_,xs=r_[0],zs=r_[1],H=r_[2],KEY=r_[3],UP=r_[4],names=np.array(r_[5],object))
-        r2=PR.raster(PR.physmeshes(['zw_ext.kn5'],WB),WB,0.5);np.savez('/workspace/vr9/raster_ext.npz',xs=r2[0],zs=r2[1],KEY=r2[3],UP=r2[4],names=np.array(r2[5],object))
+        r2=PR.raster(PR.physmeshes(['vf_ext.kn5'],WB),WB,0.5);np.savez('/workspace/vr9/raster_ext.npz',xs=r2[0],zs=r2[1],KEY=r2[3],UP=r2[4],names=np.array(r2[5],object))
     r_=np.load(c_,allow_pickle=True);xs,zs,H,KEY,UP,names=r_['xs'],r_['zs'],r_['H'],r_['KEY'],r_['UP'],list(r_['names']);Kd=C.keys();kn=np.array([C.mesh_key(n,Kd) or '' for n in names]+[''])
     pav=np.isin(kn[KEY],list(PAVED))&UP
     # 0.5 m raster -> 1 m field grid
@@ -35,7 +35,7 @@ def build_field():
     num=ndimage.gaussian_filter(M*dem,10);den=ndimage.gaussian_filter(M,10);Fp=num/np.maximum(den,1e-9)
     Ft=ndimage.gaussian_filter(dem,25);a=np.clip(den/0.15,0,1);F=ndimage.gaussian_filter(a*Fp+(1-a)*Ft,6)
     dist=ndimage.distance_transform_edt(M==0);w=np.clip(1-(dist-120)/280,0,1);w=w*w*(3-2*w)
-    # the north-extension roads (zw_ext.kn5, built flat at the zwiss level here) are NOT re-draped: fade D to 0 near them
+    # the north-extension roads (vf_ext.kn5, built flat at the zwiss level here) are NOT re-draped: fade D to 0 near them
     e_=np.load('/workspace/vr9/raster_ext.npz',allow_pickle=True);ek=np.array([C.mesh_key(n,Kd) or '' for n in e_['names']]+[''])
     ed=np.isin(ek[e_['KEY']],list(PAVED|{'GRASS'}))&e_['UP'];Me=np.zeros(X.shape);jj,ii=np.nonzero(ed&np.isin(ek[e_['KEY']],list(PAVED)))
     Me[np.round(e_['zs'][jj]-GZ0).astype(int),np.round(e_['xs'][ii]-GX0).astype(int)]=1
@@ -126,7 +126,7 @@ def main():
     allD=[]
     for fn in sorted(os.listdir(SRC)):
         if not fn.endswith('.kn5'): continue
-        if fn=='zw_ext.kn5':
+        if fn=='vf_ext.kn5':
             import shutil;shutil.copy(SRC+fn,DST+fn);print(fn,'copied unchanged (north extension: not re-draped, D faded to 0 within 25..85 m of its roads)');continue
         d,nodes=nodes_full(SRC+fn);newmesh={};dummy={}
         moved_paths=set()

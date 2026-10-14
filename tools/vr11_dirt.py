@@ -48,7 +48,7 @@ def keep_alpha(old, w, h):
     o = np.array(Image.open(io.BytesIO(old)).convert('RGBA'))[..., 3]; return cv2.resize(o, (w, h))
 def textures():
     out = {}; prev = {}
-    for fn in ('vf_i29_speedway_own.kn5', 'zw_ext.kn5', 'vf_i29_speedway.kn5'):
+    for fn in ('vf_i29_speedway_own.kn5', 'vf_ext.kn5', 'vf_i29_speedway.kn5'):
         p = TR + fn; names = [t[0] for t in K.scan(p)[0]]; rep = {}
         for n in names:
             old = K.get_tex(p, n); w, h, _, _ = B.info(old); key = (n, w, h)
