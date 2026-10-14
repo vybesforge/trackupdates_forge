@@ -37,13 +37,13 @@ def art(slot):
         else: d.text((4-bb[0],4-bb[1]),s,font=f,fill=fill)
         t=t.resize((t.width,max(1,int(t.height*sy))),Image.LANCZOS);im.paste(t,(int(cx-t.width/2),int(cy-t.height/2)),t);return t.width
     # roof (charcoal): clean wordmark + thin rule
-    ct(N//2,700,'YOUR BRAND',font(150,700),WH,sp=6);D.rectangle([N//2-260,800,N//2+260,806],fill=MG_);ct(N//2,880,'AD SPACE',font(70,400),(190,190,194),sp=18)
+    ct(N//2,700,'YOUR BRAND',font(150,700),WH,sp=6);D.rectangle([N//2-260,800,N//2+260,806],fill=MG_);ct(N//2,880,'VYBESFORGE.COM',font(62,400),(190,190,194),sp=10)
     # valance print strip (white): 256 px = 0.30 m, 2048 px = 6 m -> text squashed 2.0x vertically compensated
-    ct(N//2,1152,f'YOUR BRAND HERE   |   AD SLOT {slot:02d}   |   I-29 SPEEDWAY',font(64,600),BK,sy=1.0)
+    ct(N//2,1152,f'YOUR BRAND HERE   |   ADVERTISE: VYBESFORGE.COM   |   SLOT {slot:02d}',font(62,600),BK,sy=1.0)
     # back wall (light grey)
     D.rectangle([160,1340,N-160,1346],fill=BK)
-    ct(N//2,1560,'YOUR AD HERE',font(230,700),BK,0.95,sp=4);ct(N//2,1760,'ADVERTISE AT I-29 SPEEDWAY',font(80,400),(60,60,64),0.95,sp=10)
-    ct(N//2,1900,f'VENDOR SLOT {slot:02d}',font(56,500),(90,90,94),0.95,sp=14)
+    ct(N//2,1540,'YOUR AD HERE',font(230,700),BK,0.95,sp=4);ct(N//2,1745,'Advertise: vybesforge.com',font(104,500),(40,40,44),0.95,sp=2)
+    ct(N//2,1905,f'SLOT {slot:02d}',font(60,600),(90,90,94),0.95,sp=16)
     a=np.array(im).astype(np.float32);a=np.clip(a+w[...,None]*0.08,0,255).astype(np.uint8)
     rgba=np.dstack([a,np.full((N,N),255,np.uint8)]);Image.fromarray(rgba).save(f'{OUT}/tent_slot{slot:02d}.png')
     small=np.array(Image.fromarray(rgba).resize((NK,NK),Image.LANCZOS))
@@ -62,6 +62,7 @@ def face(P,UV,out):
     t=(e1*d2[1]-e2*d1[1])/det if abs(det)>1e-9 else e1;t-=n*np.dot(t,n);t/=np.linalg.norm(t)+1e-12
     V=np.zeros((len(P),11));V[:,:3]=P;V[:,3:6]=n;V[:,6:8]=UV;V[:,8:11]=t
     I=np.array([[0,1,2]] if len(P)==3 else [[0,1,2],[0,2,3]]);return V,ML.fix_winding(V,I)
+
 def two(P,UV,out,UVback=None):
     ub=UVback if UVback is not None else [PLAIN]*len(P);return [face(P,UV,out),face(P,ub,-np.asarray(out,float))]
 def roof_panel(L,R,A,out,n=6):
@@ -207,6 +208,34 @@ def concrete_pad(RAST,cell=1.0):
         for c in range(3): np.add.at(vn,I[:,c].astype(int),fn)
         V[:,3:6]=vn/np.linalg.norm(vn,axis=1,keepdims=True);I=ML.fix_winding(V,I.astype(int)).astype('<u2');meshes.append((V,I))
     return meshes,int(cellok.sum())
+# ---------------- house ads ("Advertise here / vybesforge.com"), each its own material so it is easy to remove
+HOUSE=[  # name, centre x, z, facing point (x,z), board w, h, bottom, collision
+    ('spawn',60.0,45.0,(60.0,78.0),8.0,3.0,1.2,True),        # grass strip ahead of the spawn rows (cars face -z), 13 m off the exit route
+    ('drag',-278.0,-336.0,(-255.0,-300.0),6.0,2.2,0.9,True), # grass west of the drag staging lanes, facing cars coming from the staging lot
+    ('pit',-20.0,-33.0,(30.0,-49.0),7.0,2.4,1.0,True)]       # grass beside the main straight (cars run -x), 8 m off the road edge
+def house_art(w=2048,h=768):
+    im=Image.new('RGB',(w,h),(236,236,234));D=ImageDraw.Draw(im)
+    D.rectangle([0,0,w,22],fill=BK);D.rectangle([0,h-22,w,h],fill=BK);D.rectangle([120,h//2+6,w-120,h//2+12],fill=(150,150,154))
+    def ct(cy,s_,f,fill):
+        bb=D.textbbox((0,0),s_,font=f);D.text(((w-(bb[2]-bb[0]))/2-bb[0],cy-(bb[3]-bb[1])/2-bb[1]),s_,font=f,fill=fill)
+    ct(h*0.29,'ADVERTISE HERE',font(210,700),BK);ct(h*0.71,'vybesforge.com',font(190,500),(30,30,34))
+    a=np.array(im);rgba=np.dstack([a,np.full(a.shape[:2],255,np.uint8)]);Image.fromarray(rgba).save(f'{OUT}/house_advertise.png')
+    small=np.array(Image.fromarray(rgba).resize((1024,384),Image.LANCZOS));return B.write_dds(small,'DXT1',9,None)
+def ground_fn(box):
+    from physraster import physmeshes,raster
+    M=physmeshes(['vf_i29_speedway.kn5','vf_i29_speedway_physical.kn5','vf_i29_speedway_gp.kn5','vf_i29_speedway_own.kn5','zw_draglaunch.kn5'],box);xs,zs,H,K,UP,nm=raster(M,box,0.5)
+    def g(x,z):
+        j=int(round((z-zs[0])/0.5));i=int(round((x-xs[0])/0.5));return (float(H[j,i]) if np.isfinite(H[j,i]) else 0.0),(nm[K[j,i]] if K[j,i]>=0 else None)
+    return g
+def house_sign(name,cx,cz,facing,w,h,bottom):
+    g=ground_fn((cx-12,cx+12,cz-12,cz+12));gy=min(g(cx+a,cz+b)[0] for a in(-w/2,0,w/2) for b in(-0.3,0.3))-0.05;surf={g(cx+a,cz+b)[1] for a in np.linspace(-w/2,w/2,7) for b in(-0.3,0.3)}
+    yaw=float(np.arctan2(-(facing[0]-cx),-(facing[1]-cz)));top=bottom+h
+    # face: local -z side, u along local -x (viewer's right in AC's right-handed world)
+    Fv,Fi=face([(w/2,top,-0.07),(-w/2,top,-0.07),(-w/2,bottom,-0.07),(w/2,bottom,-0.07)],[(0,0),(1,0),(1,1),(0,1)],(0,0,-1))
+    back=ML.box((0,(top+0.15)/2,0),(w+0.12,top+0.15,0.12))          # black stand/backing = collision body
+    posts=ML.merge([ML.box((sx*(w/2-0.3),0.05,0),(0.5,0.1,0.5)) for sx in(-1,1)])
+    X=lambda VI:ML.xform(VI,yaw,(cx,gy,cz))
+    return X((Fv,Fi)),X(back),X(posts),dict(yaw=yaw,ground=gy,surfaces=surf)
 # ---------------- course meshes
 def course_meshes(hat):
     C=DC.course();out={'wall':[],'cone':[],'tyre':[],'paint':[]}
@@ -285,6 +314,14 @@ if __name__=='__main__':
     pads,ncell=concrete_pad(RAST)
     for pi,(V,I) in enumerate(pads): meshes.append(dict(name=f'1CONCRETE_DRIFT_{pi}',mat_index=ci,verts=V,idx=I,lod_out=0))   # physics: CONCRETE (surfaces.ini KEY=CONCRETE)
     print('drift pad: %d m2 cracked concrete'%ncell)
+    texs.append(('house_advertise.dds',house_art()))
+    for nm,cx,cz,fp,w_,h_,b_,col in HOUSE:
+        (FV,FI),(BV,BI),(PV,PI),info=house_sign(nm,cx,cz,fp,w_,h_,b_)
+        mats.append(dict(name=f'vfhouse_{nm}',shader='ksPerPixel',ab=0,at=0,dm=0,props=ML.props(base['props'],ksAmbient=0.5,ksDiffuse=0.5,ksSpecular=0.05,ksSpecularEXP=8,ksEmissive=(0,0,0)),samplers=[('txDiffuse',0,'house_advertise.dds')]))
+        meshes.append(dict(name=f'vfhouse_{nm}_face',mat_index=len(mats)-1,verts=FV,idx=FI,lod_out=0))
+        meshes.append(dict(name=(f'1WALL_HOUSE_{nm}' if col else f'vfhouse_{nm}_stand'),mat_index=0,verts=BV,idx=BI,lod_out=0))
+        meshes.append(dict(name=f'vfhouse_{nm}_feet',mat_index=0,verts=PV,idx=PI,lod_out=300))
+        print(f'house sign {nm}: ({cx},{cz}) yaw {np.degrees(info["yaw"]):.0f} ground {info["ground"]:+.2f} surfaces {sorted(map(str,info["surfaces"]))}')
     for wi,(V,I) in enumerate(CM['wall']): meshes.append(dict(name=f'1WALL_DRIFT_{wi}',mat_index=4,verts=V,idx=I,lod_out=0))   # physics: collides (WALL)
     meshes.append(dict(name='vfc_cones',mat_index=5,verts=CM['cone'][0],idx=CM['cone'][1],lod_out=500))
     meshes.append(dict(name='vfc_tyre_stacks',mat_index=6,verts=CM['tyre'][0],idx=CM['tyre'][1],lod_out=500))

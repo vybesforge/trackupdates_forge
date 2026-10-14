@@ -580,3 +580,12 @@ Backup: `/workspace/rpotm/backup/pre_vr9b_holefix/zw_rpm.kn5` (004b983 state).
   Active windows: main 5 cameras (overview, east, west, donut, northwest), short 7. Existing sets 1-3 unchanged (they stay CRLF);
   new files LF. Windows tile 0..1 with no gaps/overlaps. Cuts are approximate (north and south parts at the same x share a spline
   position); on-track cars in that band (pit straight) see a paddock camera in this set only.
+- **v1.1: house ads "ADVERTISE HERE / vybesforge.com"** (tools/tents_v11.py HOUSE list, art assets_src/brand/house_advertise.png,
+  baked 1024x384 DXT1 `house_advertise.dds` in zw_tents.kn5, no CSP needed). Each sign is its own material (`vfhouse_spawn`,
+  `vfhouse_drag`, `vfhouse_pit`) + meshes `vfhouse_<name>_face/_feet` + black stand `1WALL_HOUSE_<name>` (collision); remove a sign by
+  deleting its entry in HOUSE and rebuilding.
+  (1) spawn: 8 x 3 m at (60,45) on the grass strip ahead of the spawn rows (cars face -z), facing them; 13 m off the exit route.
+  (3) drag: 6 x 2.2 m at (-278,-336) on grass west of the staging lanes, facing cars coming from the staging lot; separate from the
+  2 sellable end billboards. (4) pit straight: 7 x 2.4 m at (-20,-33) on grass, 17 m from the AI line, facing cars on the main straight.
+  (2) all 18 tent fallback arts (kn5 512 + extension 2048 default DDS) now read "YOUR AD HERE / Advertise: vybesforge.com / SLOT NN"
+  (valance + table skirt + flag: "YOUR BRAND HERE | ADVERTISE: VYBESFORGE.COM | SLOT NN"). spawn_verify 36/36, route found.
