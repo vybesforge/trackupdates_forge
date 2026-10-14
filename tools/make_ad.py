@@ -3,14 +3,14 @@ Tent atlas (see tents_v11.py): rows 0-1024 roof triangle (apex top centre, base 
 panels), 1024-1280 valance strip (also the table front skirt, u 0.15-0.85, and the feather flag, u 0.1-0.9 running bottom->top),
 1280-2032 back wall (6 x 2.4 m), 2032-2048 plain fabric (undersides). Art is drawn readable; the mesh UVs handle orientation.
 Usage:
-  python3 tools/make_ad.py --brand pussynip --apply            # brands from assets_src/ads/brands.json -> extension/ (CSP overrides)
+  python3 tools/make_ad.py --brand pussynip --apply            # brands from assets_src/ads/brands.json -> skins/default/ (AC track-skin texture override)
   python3 tools/make_ad.py --name "ACME" --domain acme.com --bg "#111" --fg "#fff" --accent "#f40" [--logo x.png] --tent 7 --board 2 --apply
-  (without --apply files go to assets_src/ads/out/). Only vf_i29_speedway/extension/*.dds are written: no kn5 / checksummed file changes."""
+  (without --apply files go to assets_src/ads/out/). Only vf_i29_speedway/skins/default/*.dds are written: no kn5 / checksummed file changes."""
 import os,sys,json,argparse,numpy as np
 sys.path.insert(0,os.path.dirname(os.path.abspath(__file__)))
 import build_open_textures as B
 from PIL import Image,ImageDraw,ImageFont,ImageColor
-ROOT=os.path.abspath(os.path.join(os.path.dirname(__file__),'..'));EXT=f'{ROOT}/vf_i29_speedway/extension';FONT=f'{ROOT}/assets_src/brand/fonts/SpaceGrotesk-wght.ttf'
+ROOT=os.path.abspath(os.path.join(os.path.dirname(__file__),'..'));EXT=f'{ROOT}/vf_i29_speedway/skins/default';FONT=f'{ROOT}/assets_src/brand/fonts/SpaceGrotesk-wght.ttf'
 N=2048
 def C(c): return ImageColor.getrgb(c) if isinstance(c,str) else tuple(c)
 def font(sz,w=700):

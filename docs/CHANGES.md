@@ -600,3 +600,9 @@ Backup: `/workspace/rpotm/backup/pre_vr9b_holefix/zw_rpm.kn5` (004b983 state).
   tent slot09 + billboard slot02 = CHICKENPERIOD / chickenperiod.com / EST 2026. Slot 13 reserved for the pending "randomly...com" brand
   (brands.json entry marked pending; --apply refuses until filled in). tents_v11.py / boards_v11.py no longer overwrite sold slots.
   No kn5, models ini, surfaces.ini or camera file changed; baked fallback art stays YOUR AD HERE.
+
+## v1.1 – ad overrides moved to skins/default, tyre-stack collision
+- Advertiser / 2048 fallback art moved from `extension/*_slotNN.dds` (CSP `[SHADER_REPLACEMENT] RESOURCE_FILE`, did not show in-game) to `vf_i29_speedway/skins/default/tent_slotNN.dds` and `board_slotNN.dds`. AC itself swaps any kn5 texture that has the same file name in the track's `skins/default` ("SKINNED TEXTURE ... FOUND, OVERRIDING" in log.txt), in vanilla AC and with CSP. The tent/board SHADER_REPLACEMENT sections are gone; the night MATERIAL_ADJUSTMENTs stay.
+- DDS writer fixes the header: correct linear size, RGBBitCount 0 (Pillow wrote pitch 8204 and 32 bpp on DXT1).
+- Drift tyre stacks are now the physics mesh `1WALL_DRIFT_TYRES` (they collide). zw_tents.kn5 checksum changes.
+- make_ad.py --apply writes to skins/default/.

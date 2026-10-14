@@ -11,7 +11,9 @@ import sys,os,numpy as np
 sys.path.insert(0,os.path.dirname(os.path.abspath(__file__)))
 import kn5write as W,vr5_meshlib as ML,build_open_textures as B
 from PIL import Image,ImageDraw,ImageFont
-ROOT=os.path.abspath(os.path.join(os.path.dirname(__file__),'..'));Z=f'{ROOT}/vf_i29_speedway';EXT=f'{Z}/extension';OUT=f'{ROOT}/assets_src/brand'
+ROOT=os.path.abspath(os.path.join(os.path.dirname(__file__),'..'));Z=f'{ROOT}/vf_i29_speedway';EXT=f'{Z}/extension'
+SKIN=f'{Z}/skins/default';OUT=f'{ROOT}/assets_src/brand'
+# SKIN = AC track skin folder: textures there override kn5 textures with the same name (vanilla AC + CSP)
 FONT=f'{OUT}/fonts/SpaceGrotesk-wght.ttf';LOGO=f'{OUT}/vf_logo.jpg'
 CH=(42,43,46);WH=(244,244,244);LG=(214,214,214);MG_=(120,120,124);BK=(14,14,16);N=2048;NK=512   # kn5 fallback art 512 (CSP loads the 2048 overrides) to make room for the drift-pad concrete textures
 W_,D_,EAVE,APEX,VAL,SAG,BACK_WALL=6.0,6.0,2.4,3.3,0.30,0.07,True
@@ -282,17 +284,16 @@ def course_meshes(hat):
     out['cone']=ML.merge(cones);out['tyre']=ML.merge(tyres);out['paint']=ML.merge(paint);return out
 def write_ext_config(n):
     e=f'{EXT}/ext_config.ini';c=open(e,'rb').read().decode();a=c.index('; >>> v1.1 tents');b=c.index('; <<< v1.1 tents')+len('; <<< v1.1 tents')
-    L=['; >>> v1.1 tents: per-slot ad artwork (rotate ads by replacing extension/tent_slotNN.dds / board_slotNN.dds; kn5 files stay unchanged)',
-       f'; {n} tent slots + 2 drag-end billboard slots, all open (YOUR AD HERE). Without CSP the art baked in the kn5 shows.']
-    for i in range(1,n+1): L+=['',f'[SHADER_REPLACEMENT_TENT_SLOT{i:02d}]','ACTIVE = 1',f'MATERIALS = vftent_slot{i:02d}','RESOURCE_0 = txDiffuse',f'RESOURCE_FILE_0 = tent_slot{i:02d}.dds']
-    L+=['','[MATERIAL_ADJUSTMENT_TENT_NIGHT]','DESCRIPTION = v1.1 tents: subtle self-lit fabric at night so ads stay readable','MATERIALS = vftent_slot??',
-        'KEY_0 = ksEmissive','VALUE_0 = 1.0, 1.0, 1.0, 0.35','VALUE_0_OFF = 0, 0, 0','CONDITION = NIGHT_SMOOTH']
-    for i in (1,2): L+=['',f'[SHADER_REPLACEMENT_BOARD_SLOT{i:02d}]','ACTIVE = 1',f'MATERIALS = vfboard_slot{i:02d}','RESOURCE_0 = txDiffuse',f'RESOURCE_FILE_0 = board_slot{i:02d}.dds']
-    L+=['','[MATERIAL_ADJUSTMENT_BOARD_NIGHT]','DESCRIPTION = v1.1 drag-end billboards: backlit look at night','MATERIALS = vfboard_slot??',
+    L=['; >>> v1.1 tents: ad artwork is NOT set here any more. Advertiser / 2048 fallback textures live in skins/default/',
+       ';     (tent_slotNN.dds, board_slotNN.dds): AC replaces kn5 textures with same-named files there (vanilla AC and CSP).',
+       f'; {n} tent slots + 2 drag-end billboard slots. Night look only:',
+       '','[MATERIAL_ADJUSTMENT_TENT_NIGHT]','DESCRIPTION = v1.1 tents: subtle self-lit fabric at night so ads stay readable','MATERIALS = vftent_slot??',
+        'KEY_0 = ksEmissive','VALUE_0 = 1.0, 1.0, 1.0, 0.35','VALUE_0_OFF = 0, 0, 0','CONDITION = NIGHT_SMOOTH',
+       '','[MATERIAL_ADJUSTMENT_BOARD_NIGHT]','DESCRIPTION = v1.1 drag-end billboards: backlit look at night','MATERIALS = vfboard_slot??',
         'KEY_0 = ksEmissive','VALUE_0 = 1.0, 1.0, 1.0, 0.6','VALUE_0_OFF = 0, 0, 0','CONDITION = NIGHT_SMOOTH','','; <<< v1.1 tents']
     c=c[:a]+'\n'.join(L)+c[b:];assert '\r' not in c;open(e,'wb').write(c.encode())
 _bj=os.path.join(ROOT,'assets_src','ads','brands.json')
-_SOLD={x for k,v in (_json.load(open(_bj)).items() if os.path.exists(_bj) else []) if not k.startswith('_') and not v.get('pending') for x in v.get('tent_slots',[])}   # slots with advertiser art in extension/ (tools/make_ad.py): never overwritten
+_SOLD={x for k,v in (_json.load(open(_bj)).items() if os.path.exists(_bj) else []) if not k.startswith('_') and not v.get('pending') for x in v.get('tent_slots',[])}   # slots with advertiser art in skins/default/ (tools/make_ad.py): never overwritten
 if __name__=='__main__':
     fails,GY,RD=verify();hat=RD[-2];RAST=RD[-1]
     if fails or '--verify-only' in sys.argv: sys.exit(1 if fails else 0)
@@ -309,7 +310,7 @@ if __name__=='__main__':
           dict(name='vftent_shadow',shader=shm['shader'],ab=shm['ab'],at=shm['at'],dm=shm['dm'],props=shm['props'],samplers=[('txDiffuse',0,'vr6_blob_rect.dds')])]
     texs+=[('vfc_concrete.dds',ML.solid_dds((178,176,170))),('vfc_cone.dds',ML.solid_dds((235,90,20))),('vfc_tyre.dds',ML.solid_dds((20,20,22))),('vfc_paint.dds',ML.solid_dds((235,235,230)))]
     mats+=[solid('vfc_concrete','vfc_concrete.dds',0.05,8),solid('vfc_cone','vfc_cone.dds',0.2,20),solid('vfc_tyre','vfc_tyre.dds',0.1,10),solid('vfc_paint','vfc_paint.dds',0.05,8)]
-    MI={'frame':0,'bag':1,'top':2,'shadow':3};meshes=[];os.makedirs(EXT,exist_ok=True)
+    MI={'frame':0,'bag':1,'top':2,'shadow':3};meshes=[];os.makedirs(SKIN,exist_ok=True)
     CM=course_meshes(hat)
     import kn5patch as KP2
     SRCM=f'{Z}/vf_i29_speedway.kn5';cm=W.read_materials(SRCM)['Concrete01']
@@ -320,12 +321,12 @@ if __name__=='__main__':
     print('drift pad: %d m2 cracked concrete'%ncell)
     for wi,(V,I) in enumerate(CM['wall']): meshes.append(dict(name=f'1WALL_DRIFT_{wi}',mat_index=4,verts=V,idx=I,lod_out=0))   # physics: collides (WALL)
     meshes.append(dict(name='vfc_cones',mat_index=5,verts=CM['cone'][0],idx=CM['cone'][1],lod_out=500))
-    meshes.append(dict(name='vfc_tyre_stacks',mat_index=6,verts=CM['tyre'][0],idx=CM['tyre'][1],lod_out=500))
+    meshes.append(dict(name='1WALL_DRIFT_TYRES',mat_index=6,verts=CM['tyre'][0],idx=CM['tyre'][1],lod_out=500))
     meshes.append(dict(name='vfc_paint',mat_index=7,verts=CM['paint'][0],idx=CM['paint'][1],lod_out=400,flags=(1,0,0)))
     for f in os.listdir(EXT):
-        if f.startswith('tent_slot') and int(f[9:11])>NSLOTS: os.remove(f'{EXT}/{f}')
+        if f.startswith('tent_slot') or f.startswith('board_slot'): os.remove(f'{EXT}/{f}')   # v1.1: overrides moved to skins/default
     for s,x,z,yaw in SLOTS:
-        big,small=art(s);tn=f'tent_slot{s:02d}.dds';texs.append((tn,small));(None if s in _SOLD else open(f'{EXT}/{tn}','wb').write(big))
+        big,small=art(s);tn=f'tent_slot{s:02d}.dds';texs.append((tn,small));(None if s in _SOLD else open(f'{SKIN}/{tn}','wb').write(big))
         mats.append(dict(name=f'vftent_slot{s:02d}',shader=base['shader'],ab=0,at=0,dm=base['dm'],props=base['props'],
                          samplers=[('txDiffuse',0,tn),('txNormal',1,'fabric_nm_v2.dds'),('txMaps',2,'fabric_maps.dds'),('txDetail',3,'NULL.dds')]))
         parts=canopy(x,z,GY[s],yaw,s,lift=HMAX[(round(x,2),round(z,2))]-GY[s]+CONC_LIFT+0.025)

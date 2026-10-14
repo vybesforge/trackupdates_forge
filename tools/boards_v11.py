@@ -3,7 +3,7 @@ the 4 vr5_billboard_end_* panels) with one material + texture per billboard, sam
   vfboard_slot01 = east billboard (x -247..-242.5: big upper panel vr5_billboard_end_1 + small lower panel _end_0)
   vfboard_slot02 = west billboard (x -267..-262.3: upper _end_3 + lower _end_2)
 Art 2048x1024 DXT1 'PLACE YOUR AD HERE' + slot label -> assets_src/brand/board_slotNN.png, embedded in the kn5 and copied to
-vf_i29_speedway/extension/board_slotNN.dds (CSP SHADER_REPLACEMENT override, rotate ads without touching the kn5)."""
+vf_i29_speedway/skins/default/board_slotNN.dds (AC track-skin override by texture name, rotate ads without touching the kn5)."""
 import json as _json
 import sys,os,struct,numpy as np
 sys.path.insert(0,os.path.dirname(os.path.abspath(__file__)))
@@ -36,9 +36,9 @@ if __name__=='__main__':
         q=o+l+8;nv,=struct.unpack_from('<I',d,q);V=np.frombuffer(d,'<f4',nv*11,q+4).reshape(nv,11).copy()
         q2=q+4+nv*44;ni,=struct.unpack_from('<I',d,q2);mesh[name]=(V,np.frombuffer(d,'<u2',ni,q2+4).reshape(-1,3).copy())
     assert sorted(mesh)==sorted(sum(SLOTS.values(),())),sorted(mesh)
-    texs=[];mats=[];ME=[];os.makedirs(f'{Z}/extension',exist_ok=True)
+    texs=[];mats=[];ME=[];os.makedirs(f'{Z}/skins/default',exist_ok=True)
     for s,names in SLOTS.items():
-        tn=f'board_slot{s:02d}.dds';b=art(s);texs.append((tn,b));(None if s in _SOLD else open(f'{Z}/extension/{tn}','wb').write(b))
+        tn=f'board_slot{s:02d}.dds';b=art(s);texs.append((tn,b));(None if s in _SOLD else open(f'{Z}/skins/default/{tn}','wb').write(b))
         mats.append(dict(name=f'vfboard_slot{s:02d}',shader=base['shader'],ab=0,at=0,dm=base['dm'],props=base['props'],samplers=[('txDiffuse',0,tn)]))
         for n in names: ME.append(dict(name=n,mat_index=len(mats)-1,verts=mesh[n][0],idx=mesh[n][1]))
     W.write_kn5(KN5,texs,mats,ME,rootname='zw_vr5');print('zw_vr5.kn5:',[(m['name'],mats[m['mat_index']]['name']) for m in ME])
