@@ -564,3 +564,11 @@ Backup: `/workspace/rpotm/backup/pre_vr9b_holefix/zw_rpm.kn5` (004b983 state).
   outside the loop, opening towards the drift line: >=15.2 m from the line (tent edge >=10.9 m), >=7.9 m from barriers, >=9.2 m
   gap to spawned cars, >=57 m from the exit route, >=12.8 m apart; footprints (r 5.25 m) on gravel only. ext_config tent block
   regenerated for 18 slots (LF). zw_tents.kn5 = 13.7 MB, 17120 tris. spawn_verify.py with the new walls: 36/36, route found (main+short).
+- **v1.1 pass 3b: drift pad = cracked concrete.** New physics+visual meshes `1CONCRETE_DRIFT_0..2` in zw_tents.kn5: 1 m grid
+  (19,160 m2) over every 1GRAVEL_PADDOCK cell with z >= 93, following the lidar grade +2 cm (physics ray hits the pad first),
+  straight clean edge at z 93; spawn rows (z 72/83) stay gravel (36/36 spawns on 1GRAVEL_PADDOCK, spawn_verify OK).
+  Material `Concrete01_drift` = copy of the existing `Concrete01` (1CONCRETE_001: track_cracksa / rpm_cracks_02 / tarmac noise,
+  ksMultilayer_fresnel_nm, same world-UV scale). Surface key CONCRETE (FRICTION 0.95, existing surfaces.ini entry) -> surfaces.ini
+  unchanged. Paint and contact shadows lifted above the pad. Tent fallback art in the kn5 reduced to 512 (CSP 2048 overrides
+  unchanged) so zw_tents.kn5 stays 11.6 MB. Checksums: zw_tents.kn5 changes (already changing in v1.1); vf_i29_speedway.kn5,
+  models_*.ini and surfaces.ini unchanged.

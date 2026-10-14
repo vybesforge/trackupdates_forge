@@ -12,7 +12,7 @@ import kn5write as W,vr5_meshlib as ML,build_open_textures as B
 from PIL import Image,ImageDraw,ImageFont
 ROOT=os.path.abspath(os.path.join(os.path.dirname(__file__),'..'));Z=f'{ROOT}/vf_i29_speedway';EXT=f'{Z}/extension';OUT=f'{ROOT}/assets_src/brand'
 FONT=f'{OUT}/fonts/SpaceGrotesk-wght.ttf';LOGO=f'{OUT}/vf_logo.jpg'
-CH=(42,43,46);WH=(244,244,244);LG=(214,214,214);MG_=(120,120,124);BK=(14,14,16);N=2048;NK=1024
+CH=(42,43,46);WH=(244,244,244);LG=(214,214,214);MG_=(120,120,124);BK=(14,14,16);N=2048;NK=512   # kn5 fallback art 512 (CSP loads the 2048 overrides) to make room for the drift-pad concrete textures
 W_,D_,EAVE,APEX,VAL,SAG,BACK_WALL=6.0,6.0,2.4,3.3,0.30,0.07,True
 # slot, x, z, yaw (rad; 0 = opening faces -z). Left column opens +x (yaw -pi/2), right column opens -x (yaw +pi/2).
 import drift_course as DC
@@ -85,7 +85,7 @@ def roof_panel(L,R,A,out,n=6):
     UVu=UV.copy();UVu[:,0]=1-UVu[:,0]
     return [mk(vn,UV),mk(-vn,UVu)]
 def strip_uv(u0,u1): return [(u0,1024/N),(u1,1024/N),(u1,1280/N),(u0,1280/N)]
-def canopy_local(slot):
+def canopy_local(slot,lift=0.012):
     """local coords: centre (0,0,0) on the ground, opening towards -z. returns dict material-> (V,I)"""
     hw,hd=W_/2,D_/2;e=EAVE;A=(0,APEX,0);fab=[];fr=[];bag=[];top=[]
     C={'fl':(-hw,-hd),'fr':(hw,-hd),'br':(hw,hd),'bl':(-hw,hd)}
@@ -124,19 +124,23 @@ def canopy_local(slot):
         for i in range(n):
             (a0,b0),(a1,b1)=pts[i],pts[i+1];u0,u1=0.1+0.8*i/n,0.1+0.8*(i+1)/n
             fab+=two([a0,a1,b1,b0],[(u0,1024/N),(u1,1024/N),(u1,1280/N),(u0,1280/N)],(1,0,0),[(u0,1280/N),(u1,1280/N),(u1,1024/N),(u0,1024/N)])
-    sh=[ML.quad((-hw-0.4,0.012,hd+0.4),(hw+0.4,0.012,hd+0.4),(hw+0.4,0.012,-hd-0.4),(-hw-0.4,0.012,-hd-0.4))]
+    sh=[ML.quad((-hw-0.4,lift,hd+0.4),(hw+0.4,lift,hd+0.4),(hw+0.4,lift,-hd-0.4),(-hw-0.4,lift,-hd-0.4))]
     FV,FI=ML.merge(fab);FV=FV.copy()
     # AC world is right-handed (y up; looking +z the viewer's right is -x): flip u once for all fabric -> art unmirrored
     FV[:,6]=1-FV[:,6];FV[:,8:11]*=-1
     return {'fab':(FV,FI),'frame':ML.merge(fr),'bag':ML.merge(bag),'top':ML.merge(top),'shadow':ML.merge(sh)}
-def canopy(cx,cz,gy,yaw,slot):
-    return {k:ML.xform(VI,yaw,(cx,gy,cz)) for k,VI in canopy_local(slot).items()}
+def canopy(cx,cz,gy,yaw,slot,lift=0.012):
+    return {k:ML.xform(VI,yaw,(cx,gy,cz)) for k,VI in canopy_local(slot,lift).items()}
 # ---------------- verification (spawns, exit route, footprints on gravel)
+HMAX={}
+CONC_Z0=93.0   # drift pad (cracked concrete) starts here; spawn zone z < 93 stays gravel
+CONC_LIFT=0.02
 def verify(report=print):
     """course + tent placement checks on the physics raster; fills SLOTS. returns fails, ground heights, raster data"""
     from physraster import physmeshes,raster
     import kn5tree as T
     global SLOTS
+    HMAX.clear()
     box=(-40,170,30,240);res=0.25;fails=0
     files=['vf_i29_speedway.kn5','vf_i29_speedway_physical.kn5','vf_i29_speedway_gp.kn5','vf_i29_speedway_own.kn5','zw_ext.kn5','zw_dragexit.kn5','zw_vegetation.kn5']
     M=physmeshes(files,box);xs,zs,H,KEY,UP,names=raster(M,box,res)
@@ -150,7 +154,7 @@ def verify(report=print):
                 j,i=cell(x+rr*np.cos(a),z+rr*np.sin(a))
                 if KEY[j,i]!=GRAV: return False,None
                 hs.append(H[j,i])
-        return np.ptp(hs)<0.15,float(np.min(hs))
+        HMAX[(round(x,2),round(z,2))]=float(np.max(hs));return np.ptp(hs)<0.15,float(np.min(hs))
     def cargap(x,z,half=4.25):
         return min(np.hypot(max(0,abs(p[0]-x)-half-1.1),max(0,abs(p[2]-z)-half-2.6)) for p in pits)
     onlot=lambda x,z:disc_ok(x,z,4.25+1)[0];carclear=lambda x,z:cargap(x,z)>=9;exitclear=lambda x,z:np.hypot(path[:,0]-x,path[:,1]-z).min()>=25
@@ -173,7 +177,36 @@ def verify(report=print):
     if len(SLOTS)<NSLOTS: fails+=1
     def hat(x,z):
         j,i=cell(x,z);v=H[j,i];return float(v) if np.isfinite(v) else -0.25
-    return fails,heights,(xs,zs,H,KEY,names,pits,path,hat)
+    return fails,heights,(xs,zs,H,KEY,names,pits,path,hat,(xs,zs,H,KEY,GRAV))
+# ---------------- drift pad: cracked concrete overlay (same material/textures as 1CONCRETE_001 'Concrete01', surface key CONCRETE)
+def concrete_pad(RAST,cell=1.0):
+    """1 m grid over every gravel cell of the paddock lot with z >= CONC_Z0, +2 cm above the gravel (physics ray hits it first).
+    Clean straight edge at z = CONC_Z0 towards the gravel spawn zone. Returns list of (V,I) meshes (<65k verts each)."""
+    xs,zs,H,KEY,GRAV=RAST;res=xs[1]-xs[0]
+    def k(x,z):
+        j=int(round((z-zs[0])/res));i=int(round((x-xs[0])/res));return KEY[j,i]==GRAV,H[j,i]
+    X=np.arange(4,160+cell,cell);Zs=np.arange(CONC_Z0,224+cell,cell);ok=np.zeros((len(Zs),len(X)),bool);hh=np.zeros(ok.shape)
+    for a,z in enumerate(Zs):
+        for b,x in enumerate(X): ok[a,b],hh[a,b]=k(x,z)
+    cellok=ok[:-1,:-1]&ok[1:,:-1]&ok[:-1,1:]&ok[1:,1:]
+    T=np.array([0.8396,0,-0.5432])
+    def uv(x,z): return (-0.0168*x+0.0109*z+1.79,-0.0109*x-0.0167*z)
+    meshes=[];rows=np.array_split(np.arange(cellok.shape[0]),3)
+    for rr in rows:
+        vid={};V=[];I=[]
+        def v(a,b):
+            if (a,b) not in vid:
+                x,z=X[b],Zs[a];u,w=uv(x,z);vid[a,b]=len(V);V.append([x,hh[a,b]+CONC_LIFT,z,0,1,0,u,w,*T])
+            return vid[a,b]
+        for a in rr:
+            for b in np.nonzero(cellok[a])[0]:
+                p0,p1,p2,p3=v(a,b),v(a,b+1),v(a+1,b+1),v(a+1,b);I+=[[p0,p2,p1],[p0,p3,p2]]
+        V=np.array(V,'<f4');I=np.array(I,'<u2')
+        # smooth vertex normals from the lidar grade
+        P=V[:,:3].astype(float);fn=np.cross(P[I[:,1]]-P[I[:,0]],P[I[:,2]]-P[I[:,0]]);fn*=np.sign(fn[:,1:2]+1e-12);vn=np.zeros_like(P)
+        for c in range(3): np.add.at(vn,I[:,c].astype(int),fn)
+        V[:,3:6]=vn/np.linalg.norm(vn,axis=1,keepdims=True);I=ML.fix_winding(V,I.astype(int)).astype('<u2');meshes.append((V,I))
+    return meshes,int(cellok.sum())
 # ---------------- course meshes
 def course_meshes(hat):
     C=DC.course();out={'wall':[],'cone':[],'tyre':[],'paint':[]}
@@ -206,7 +239,7 @@ def course_meshes(hat):
         P=np.asarray(P);t_=np.gradient(P,axis=0);t_/=np.linalg.norm(t_,axis=1,keepdims=True);nr=np.stack([t_[:,1],-t_[:,0]],1);parts=[]
         for i in range(len(P)-1):
             Q=[]
-            for ii,sd in ((i,-1),(i+1,-1),(i+1,1),(i,1)): xy=P[ii]+sd*wd/2*nr[ii];Q.append((xy[0],hat(*xy)+0.02,xy[1]))
+            for ii,sd in ((i,-1),(i+1,-1),(i+1,1),(i,1)): xy=P[ii]+sd*wd/2*nr[ii];Q.append((xy[0],hat(*xy)+CONC_LIFT+0.025,xy[1]))
             parts.append(face(Q,[(0,0),(1,0),(1,1),(0,1)],(0,1,0)))
         return ML.merge(parts)
     for zl in C['zones']: paint.append(ribbon(zl,0.15))
@@ -228,7 +261,7 @@ def write_ext_config(n):
         'KEY_0 = ksEmissive','VALUE_0 = 1.0, 1.0, 1.0, 0.6','VALUE_0_OFF = 0, 0, 0','CONDITION = NIGHT_SMOOTH','','; <<< v1.1 tents']
     c=c[:a]+'\n'.join(L)+c[b:];assert '\r' not in c;open(e,'wb').write(c.encode())
 if __name__=='__main__':
-    fails,GY,RD=verify();hat=RD[-1]
+    fails,GY,RD=verify();hat=RD[-2];RAST=RD[-1]
     if fails or '--verify-only' in sys.argv: sys.exit(1 if fails else 0)
     _m=W.read_materials(f'{Z}/zw_tents.kn5');base=_m.get('vftent_adhere') or _m['vftent_slot01']
     blob=None
@@ -245,6 +278,13 @@ if __name__=='__main__':
     mats+=[solid('vfc_concrete','vfc_concrete.dds',0.05,8),solid('vfc_cone','vfc_cone.dds',0.2,20),solid('vfc_tyre','vfc_tyre.dds',0.1,10),solid('vfc_paint','vfc_paint.dds',0.05,8)]
     MI={'frame':0,'bag':1,'top':2,'shadow':3};meshes=[];os.makedirs(EXT,exist_ok=True)
     CM=course_meshes(hat)
+    import kn5patch as KP2
+    SRCM=f'{Z}/vf_i29_speedway.kn5';cm=W.read_materials(SRCM)['Concrete01']
+    for t in dict.fromkeys(t for _,_,t in cm['samplers']): texs.append((t,KP2.get_tex(SRCM,t)))
+    mats.append(dict(name='Concrete01_drift',shader=cm['shader'],ab=cm['ab'],at=cm['at'],dm=cm['dm'],props=cm['props'],samplers=cm['samplers']));ci=len(mats)-1
+    pads,ncell=concrete_pad(RAST)
+    for pi,(V,I) in enumerate(pads): meshes.append(dict(name=f'1CONCRETE_DRIFT_{pi}',mat_index=ci,verts=V,idx=I,lod_out=0))   # physics: CONCRETE (surfaces.ini KEY=CONCRETE)
+    print('drift pad: %d m2 cracked concrete'%ncell)
     for wi,(V,I) in enumerate(CM['wall']): meshes.append(dict(name=f'1WALL_DRIFT_{wi}',mat_index=4,verts=V,idx=I,lod_out=0))   # physics: collides (WALL)
     meshes.append(dict(name='vfc_cones',mat_index=5,verts=CM['cone'][0],idx=CM['cone'][1],lod_out=500))
     meshes.append(dict(name='vfc_tyre_stacks',mat_index=6,verts=CM['tyre'][0],idx=CM['tyre'][1],lod_out=500))
@@ -255,7 +295,7 @@ if __name__=='__main__':
         big,small=art(s);tn=f'tent_slot{s:02d}.dds';texs.append((tn,small));open(f'{EXT}/{tn}','wb').write(big)
         mats.append(dict(name=f'vftent_slot{s:02d}',shader=base['shader'],ab=0,at=0,dm=base['dm'],props=base['props'],
                          samplers=[('txDiffuse',0,tn),('txNormal',1,'fabric_nm_v2.dds'),('txMaps',2,'fabric_maps.dds'),('txDetail',3,'NULL.dds')]))
-        parts=canopy(x,z,GY[s],yaw,s)
+        parts=canopy(x,z,GY[s],yaw,s,lift=HMAX[(round(x,2),round(z,2))]-GY[s]+CONC_LIFT+0.025)
         meshes.append(dict(name=f'vftent_slot{s:02d}',mat_index=len(mats)-1,verts=parts['fab'][0],idx=parts['fab'][1],lod_out=0))
         for k in ('frame','bag','top'): meshes.append(dict(name=f'vftent_slot{s:02d}_{k}',mat_index=MI[k],verts=parts[k][0],idx=parts[k][1],lod_out=400))
         meshes.append(dict(name=f'vftent_slot{s:02d}_shadow',mat_index=3,verts=parts['shadow'][0],idx=parts['shadow'][1],lod_out=300,flags=(1,0,0)))

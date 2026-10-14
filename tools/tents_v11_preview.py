@@ -58,13 +58,15 @@ if __name__=='__main__':
     import drift_course as DC
     from matplotlib.patches import Patch,Polygon
     from matplotlib.lines import Line2D
-    fails,GY,(xs,zs,H,KEY,names,pits,path,hat)=TV.verify(lambda s:None);C=DC.course()
+    fails,GY,(xs,zs,H,KEY,names,pits,path,hat,_R)=TV.verify(lambda s:None);C=DC.course()
     fig,ax=plt.subplots(figsize=(12,10),dpi=130);lut={n:i for i,n in enumerate(names)};cls=np.full(KEY.shape,0.0)
     for n,i in lut.items():
         v=1 if 'GRAVEL' in n else 2 if ('CONCRETE' in n or 'PITS' in n or 'ROAD' in n or 'ASPH' in n) else 3 if 'GRASS' in n else 4
         cls[KEY==i]=v
+    cls[(cls==1)&(zs[:,None]>=TV.CONC_Z0)]=5   # drift pad overlay (1CONCRETE_DRIFT_n)
     from matplotlib.colors import ListedColormap
-    ax.imshow(cls,origin='lower',extent=(xs[0],xs[-1],zs[0],zs[-1]),cmap=ListedColormap(['#222','#b8a88a','#888','#6a9a55','#556']),vmin=0,vmax=4,interpolation='nearest')
+    ax.imshow(cls,origin='lower',extent=(xs[0],xs[-1],zs[0],zs[-1]),cmap=ListedColormap(['#222','#b8a88a','#888','#6a9a55','#556','#cfcfc8']),vmin=0,vmax=5,interpolation='nearest')
+    ax.axhline(TV.CONC_Z0,xmin=0,xmax=1,c='k',lw=0.8,ls=':')
     ax.plot(path[:,0],path[:,1],'-',c='orange',lw=2)
     P=np.array(pits);ax.scatter(P[:,0],P[:,2],s=10,c='white',marker='s')
     L=np.vstack([C['line'],C['line'][:1]]);ax.plot(L[:,0],L[:,1],'-',c='#d00000',lw=2.2)
@@ -82,10 +84,11 @@ if __name__=='__main__':
     h=[Line2D([],[],c='#d00000',lw=2,label='drift line (direction ->)'),Line2D([],[],c='#2050ff',lw=3,label='jersey barrier, collision (1WALL_DRIFT_n)'),
        Line2D([],[],c='white',ls='--',label='painted outer clipping zone (5.5 m)'),Line2D([],[],marker='o',ls='',mfc='#ff7a00',mec='k',label='inner clip: tyre stack + cones'),
        Patch(fc='#3a3b3e',ec='k',label='vendor tent slot NN (white edge = open side)'),Line2D([],[],marker='s',ls='',mfc='white',mec='white',label='AC_PIT spawns (36)'),
-       Line2D([],[],c='orange',lw=2,label='spawn exit route')]
-    ax.legend(handles=h,loc='lower left',fontsize=7,facecolor='#999');ax.set_xlim(-10,165);ax.set_ylim(40,228);ax.set_xlabel('x (m)');ax.set_ylabel('z (m)')
+       Line2D([],[],c='orange',lw=2,label='spawn exit route'),Patch(fc='#cfcfc8',label='drift pad: cracked concrete (1CONCRETE_DRIFT, CONCRETE grip 0.95)'),
+       Patch(fc='#b8a88a',label='gravel (spawn zone, 1GRAVEL_PADDOCK)'),Patch(fc='#888',label='existing concrete / road'),Patch(fc='#6a9a55',label='grass')]
+    ax.legend(handles=h,loc='lower left',fontsize=6.5,facecolor='#999');ax.set_xlim(-10,165);ax.set_ylim(40,228);ax.set_xlabel('x (m)');ax.set_ylabel('z (m)')
     ax.set_title(f'I-29 Speedway paddock drift course: {len(C["line"])} m line, {len(TV.SLOTS)} tent ad slots');fig.tight_layout();fig.savefig(f'{OUT}/course_topdown.png');print('topdown')
-    ms,tex=load();gy=float(np.median(list(GY.values())));G=(0,160,88,222,gy-0.03)
+    ms,tex=load();gy=float(np.median(list(GY.values())));G=(0,160,60,222,float(np.nanmin(H[(zs[:,None]>60)&(zs[:,None]<222)&(xs[None,:]>0)&(xs[None,:]<160)]))-0.03)   # below the lowest lot point
     render(ms,tex,(78,55,40),(78,0,160),55,ground=G).save(f'{OUT}/course_aerial.png')
     render(ms,tex,(78,55,40),(78,0,160),55,night=True,ground=G).save(f'{OUT}/course_aerial_night.png')
     render(ms,tex,(150,30,90),(70,0,160),55,ground=G).save(f'{OUT}/course_aerial_se.png')
@@ -93,6 +96,7 @@ if __name__=='__main__':
     for nm,i in (('driver_view_entry',5),('driver_view_west_transition',55),('driver_view_north_sweeper',125),('driver_view_east',200)):
         p0=Ln[i];p1=Ln[(i+14)%len(Ln)];render(ms,tex,(p0[0],hat(*p0)+1.15,p0[1]),(p1[0],hat(*p0)+1.0,p1[1]),70,ground=(G[0],G[1],G[2],G[3],hat(*p0)-0.01))   # local ground level (lidar grade).save(f'{OUT}/{nm}.png')
     render(ms,tex,(75,1.25,83),(75,1.8,120),70,ground=G).save(f'{OUT}/view_from_spawn.png')
+    render(ms,tex,(60,6,78),(60,0,100),60,ground=(0,160,60,93,hat(60,90)-0.01)).save(f'{OUT}/gravel_concrete_edge.png')
     s1=TV.SLOTS[7];render(ms,tex,(s1[1]-11*np.sin(s1[3]),1.7,s1[2]-11*np.cos(s1[3])),(s1[1],1.6,s1[2]),60,ground=G).save(f'{OUT}/tent_closeup_slot{s1[0]:02d}.png')
     bm,bt=load(f'{TV.Z}/zw_vr5.kn5')
     render(bm,bt,(-255,2.5,-575),(-255,3.6,-606),50,ground=(-290,-220,-625,-560,-0.1)).save(f'{OUT}/boards_drag_end.png')
