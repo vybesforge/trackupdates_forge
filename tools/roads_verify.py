@@ -21,9 +21,12 @@ q,P,t,nn=WL.cline(WL.WR);G=(P[:,None,:]+np.linspace(-2.5,2.5,6)[None,:,None]*nn[
 xs,zs,H,KEY,names=top((-360,-330,-875,-325),0.25)
 i=np.clip(np.round((G[:,0]-xs[0])/0.25).astype(int),0,len(xs)-1);j=np.clip(np.round((G[:,1]-zs[0])/0.25).astype(int),0,len(zs)-1)
 share=np.mean([names[k].startswith('1CONCRETE') for k in KEY[j,i]]);print(f'west-lot access road (sampled +-2.5 m): {100*share:.1f} % concrete on top');fails+=share<0.97
+q,P,t,nn=WL.cline(WL.EXIT);G=(P[:,None,:]+np.linspace(-2.5,2.5,6)[None,:,None]*nn[:,None,:]).reshape(-1,2);xs,zs,H,KEY,names=top((-392,-340,-855,-835),0.25)
+i=np.clip(np.round((G[:,0]-xs[0])/0.25).astype(int),0,len(xs)-1);j=np.clip(np.round((G[:,1]-zs[0])/0.25).astype(int),0,len(zs)-1)
+share=np.mean([names[k].startswith('1CONCRETE') for k in KEY[j,i]]);print(f'west-lot 190th exit (sampled +-2.5 m): {100*share:.1f} % concrete on top');fails+=share<0.97
 q,P,t,nn=WL.cline(WL.ST190);xs,zs,H,KEY,names=top((-412,-380,-990,240),0.5)
 i=np.clip(np.round((P[:,0]-xs[0])/0.5).astype(int),0,len(xs)-1);j=np.clip(np.round((P[:,1]-zs[0])/0.5).astype(int),0,len(zs)-1)
-bad=sum(names[k].startswith(('1CONCRETE_LOTRD','1GRAVEL_WESTLOT')) for k in KEY[j,i] if k>=0);print(f'190th St centreline: {bad} points covered by new overlays (expect 0)');fails+=bad>0
+bad=sum(names[k].startswith(('1CONCRETE_LOTRD','1CONCRETE_LOTEXIT','1GRAVEL_WESTLOT')) for k in KEY[j,i] if k>=0);print(f'190th St centreline: {bad} points covered by new overlays (expect 0)');fails+=bad>0
 import vismeshes as VM
 # v13: gravel lies on the ground (<=5 cm above 1GRASS terrain) and never on object footprints
 xs_,zs_,Ht,_,_,_=WL.terrain_H((-390,-300,-970,-310),0.5)
@@ -57,7 +60,7 @@ for lay in ('main','short'):
 pits=[n['W'][3,:3] for n in T.walk(f'{Z}vf_i29_speedway.kn5') if n['cls']==1 and n['name'].startswith(('AC_PIT_','AC_START_','AC_HOTLAP'))]
 d=min(np.hypot(W_[:,0]-p[0],W_[:,2]-p[2]).min() for p in pits);print(f'spawns/start points: nearest proxy {d:.1f} m');fails+=d<6
 # AI lines: new overlays must not be the top surface under any AI point
-NEW=('1CONCRETE_LOTRD','1GRAVEL_WESTLOT')
+NEW=('1CONCRETE_LOTRD','1CONCRETE_LOTEXIT','1GRAVEL_WESTLOT')
 for lay in ('main','short'):
     for ln in ('fast_lane','pit_lane'):
         p=f'{Z}{lay}/ai/{ln}.ai'
