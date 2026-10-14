@@ -141,10 +141,10 @@ zw_rpm_sh.kn5,racegroove.dds,43776,replaced,low,"DONE textures/open: rubbered-in
 zw_rpm_sh.kn5,signs_new.dds,699216,own/zwiss,low,Keep under project asset license (zwiss reuse approval); spot-check for embedded photos,,,
 zw_rpm_sh.kn5,cone.dds,1512,replaced,low,DONE textures/open: UV atlas: 1/4-res colour layout only,ambientCG Plastic006 + coarse colour layout,CC0 1.0 https://docs.ambientcg.com/license/,32x64 DXT1 mips7
 zw_rpm_sh.kn5,red01.dds,87536,stock,low,Generic detail/normal map; regenerate from CC0 to be safe,,,
-zw_vegetation.kn5,rpm_grasses.dds,699216,own/zwiss,low,Keep under project asset license (zwiss reuse approval); spot-check for embedded photos,,,
-zw_vegetation.kn5,rpm_treeline2.dds,2796432,own/zwiss,low,Keep under project asset license (zwiss reuse approval); spot-check for embedded photos,,,
-zw_vegetation.kn5,tree2.dds,22369776,replaced,low,DONE VR2,Poly Haven tree_small_02 / island_tree_01 renders (VR2),CC0 1.0 https://polyhaven.com/license,4096x4096 DXT5 mips13
-zw_vegetation.kn5,tree3.dds,22369776,replaced,low,DONE VR2,Poly Haven tree_small_02 / island_tree_01 renders (VR2),CC0 1.0 https://polyhaven.com/license,4096x4096 DXT5 mips13
+vf_vegetation.kn5,rpm_grasses.dds,699216,own/zwiss,low,Keep under project asset license (zwiss reuse approval); spot-check for embedded photos,,,
+vf_vegetation.kn5,rpm_treeline2.dds,2796432,own/zwiss,low,Keep under project asset license (zwiss reuse approval); spot-check for embedded photos,,,
+vf_vegetation.kn5,tree2.dds,22369776,replaced,low,DONE VR2,Poly Haven tree_small_02 / island_tree_01 renders (VR2),CC0 1.0 https://polyhaven.com/license,4096x4096 DXT5 mips13
+vf_vegetation.kn5,tree3.dds,22369776,replaced,low,DONE VR2,Poly Haven tree_small_02 / island_tree_01 renders (VR2),CC0 1.0 https://polyhaven.com/license,4096x4096 DXT5 mips13
 zw_rpm.kn5,concrete_seams.dds,699192,new,low,DONE VR2,ambientCG Concrete034 + procedural joints (VR2; replaces gravelroad.dds),CC0 1.0 https://docs.ambientcg.com/license/,1024x1024 DXT1 mips11
 zw_rpm.kn5,rubber_maps.dds,174904,new,low,DONE VR2,procedural (VR2),"CC0 1.0 (procedural, project-made) https://creativecommons.org/publicdomain/zero/1.0/",512x512 DXT1 mips10
 zw_rpm.kn5,armco_maps.dds,87528,new,low,DONE VR2,procedural (VR2),"CC0 1.0 (procedural, project-made) https://creativecommons.org/publicdomain/zero/1.0/",256x512 DXT1 mips10
@@ -165,56 +165,56 @@ zw_rpm_own.kn5,own_awning_nm.dds,699192,new,low,DONE VR2,ambientCG Fabric026 (VR
 zw_rpm_own.kn5,own_awning_maps.dds,174904,new,low,DONE VR2,procedural (VR2),"CC0 1.0 (procedural, project-made) https://creativecommons.org/publicdomain/zero/1.0/",512x512 DXT1 mips10
 zw_rpm_own.kn5,own_glass_maps.dds,2872,new,low,DONE VR2,procedural (VR2),"CC0 1.0 (procedural, project-made) https://creativecommons.org/publicdomain/zero/1.0/",64x64 DXT1 mips7
 zw_rpm_own.kn5,flat_nm.dds,2872,new,low,DONE VR2,procedural (VR2),"CC0 1.0 (procedural, project-made) https://creativecommons.org/publicdomain/zero/1.0/",64x64 DXT1 mips7
-zw_ext.kn5,ext_ground.dds,2796360,new,low,DONE north extension,"USDA NAIP 2021 (public domain), colour-matched",Public domain (USDA/USGS),
-zw_ext.kn5,ext_ground_mask.dds,1398288,new,low,DONE north extension,"USDA NAIP 2021 (public domain), colour-matched",Public domain (USDA/USGS),
-zw_ext.kn5,rpm_grass1.dds,2785408,new,low,DONE north extension,procedural / project-made (north extension),CC0 1.0 https://creativecommons.org/publicdomain/zero/1.0/,
-zw_ext.kn5,Muld Detailne.dds,5592560,new,low,DONE north extension,procedural / project-made (north extension),CC0 1.0 https://creativecommons.org/publicdomain/zero/1.0/,
-zw_ext.kn5,concrete_seams.dds,699192,new,low,DONE north extension,procedural / project-made (north extension),CC0 1.0 https://creativecommons.org/publicdomain/zero/1.0/,
-zw_ext.kn5,mud2.dds,5592560,new,low,DONE north extension,procedural / project-made (north extension),CC0 1.0 https://creativecommons.org/publicdomain/zero/1.0/,
-zw_ext.kn5,waterbump2.dds,174904,new,low,DONE north extension,procedural / project-made (north extension),CC0 1.0 https://creativecommons.org/publicdomain/zero/1.0/,
-zw_ext.kn5,ext_asphalt.dds,699192,new,low,DONE north extension,ambientCG Asphalt012,CC0 1.0 https://docs.ambientcg.com/license/,
-zw_ext.kn5,ext_asphalt_nm.dds,699192,new,low,DONE north extension,ambientCG Asphalt012,CC0 1.0 https://docs.ambientcg.com/license/,
-zw_ext.kn5,ext_asphalt_maps.dds,43832,new,low,DONE north extension,ambientCG Asphalt012,CC0 1.0 https://docs.ambientcg.com/license/,
-zw_ext.kn5,ext_flat_nm.dds,824,new,low,DONE north extension,procedural / project-made (north extension),CC0 1.0 https://creativecommons.org/publicdomain/zero/1.0/,
-zw_ext.kn5,ext_concrete_nm.dds,699192,new,low,DONE north extension,procedural / project-made (north extension),CC0 1.0 https://creativecommons.org/publicdomain/zero/1.0/,
-zw_ext.kn5,concrete_maps.dds,174904,new,low,DONE north extension,procedural / project-made (north extension),CC0 1.0 https://creativecommons.org/publicdomain/zero/1.0/,
-zw_ext.kn5,own_gravel.dds,2796344,new,low,DONE north extension,reused from existing kn5 (see rows above),,
-zw_ext.kn5,own_gravel_nm.dds,2796344,new,low,DONE north extension,reused from existing kn5 (see rows above),,
-zw_ext.kn5,own_gravel_maps.dds,699192,new,low,DONE north extension,reused from existing kn5 (see rows above),,
-zw_ext.kn5,ext_white.dds,824,new,low,DONE north extension,procedural / project-made (north extension),CC0 1.0 https://creativecommons.org/publicdomain/zero/1.0/,
-zw_ext.kn5,ext_yellow.dds,824,new,low,DONE north extension,procedural / project-made (north extension),CC0 1.0 https://creativecommons.org/publicdomain/zero/1.0/,
-zw_ext.kn5,ext_wall_tan.dds,699192,new,low,DONE north extension,procedural / project-made (north extension),CC0 1.0 https://creativecommons.org/publicdomain/zero/1.0/,
-zw_ext.kn5,ext_wall_nm.dds,699192,new,low,DONE north extension,procedural / project-made (north extension),CC0 1.0 https://creativecommons.org/publicdomain/zero/1.0/,
-zw_ext.kn5,ext_paint_maps.dds,2872,new,low,DONE north extension,procedural / project-made (north extension),CC0 1.0 https://creativecommons.org/publicdomain/zero/1.0/,
-zw_ext.kn5,ext_wall_grey.dds,699192,new,low,DONE north extension,procedural / project-made (north extension),CC0 1.0 https://creativecommons.org/publicdomain/zero/1.0/,
-zw_ext.kn5,ext_corr_nm.dds,699192,new,low,DONE north extension,procedural / project-made (north extension),CC0 1.0 https://creativecommons.org/publicdomain/zero/1.0/,
-zw_ext.kn5,ext_metal_maps.dds,2872,new,low,DONE north extension,procedural / project-made (north extension),CC0 1.0 https://creativecommons.org/publicdomain/zero/1.0/,
-zw_ext.kn5,own_galv.dds,699192,new,low,DONE north extension,reused from existing kn5 (see rows above),,
-zw_ext.kn5,own_galv_nm.dds,699192,new,low,DONE north extension,reused from existing kn5 (see rows above),,
-zw_ext.kn5,own_galv_maps.dds,699192,new,low,DONE north extension,reused from existing kn5 (see rows above),,
-zw_ext.kn5,ext_canopy.dds,174904,new,low,DONE north extension,procedural / project-made (north extension),CC0 1.0 https://creativecommons.org/publicdomain/zero/1.0/,
-zw_ext.kn5,ext_canopy_nm.dds,174904,new,low,DONE north extension,procedural / project-made (north extension),CC0 1.0 https://creativecommons.org/publicdomain/zero/1.0/,
-zw_ext.kn5,own_tower_glass.dds,174904,new,low,DONE north extension,reused from existing kn5 (see rows above),,
-zw_ext.kn5,own_glass_maps.dds,2872,new,low,DONE north extension,reused from existing kn5 (see rows above),,
-zw_ext.kn5,ext_pump.dds,43832,new,low,DONE north extension,procedural / project-made (north extension),CC0 1.0 https://creativecommons.org/publicdomain/zero/1.0/,
-zw_ext.kn5,ext_wood.dds,174904,new,low,DONE north extension,procedural / project-made (north extension),CC0 1.0 https://creativecommons.org/publicdomain/zero/1.0/,
-zw_ext.kn5,ext_fence.dds,87568,new,low,DONE north extension,procedural / project-made (north extension),CC0 1.0 https://creativecommons.org/publicdomain/zero/1.0/,
-zw_ext.kn5,ext_stop.dds,349680,new,low,DONE north extension,"MUTCD R1-1 design (public domain), project-drawn",CC0 1.0 https://creativecommons.org/publicdomain/zero/1.0/,
-zw_ext.kn5,ext_stop_back.dds,349680,new,low,DONE north extension,"MUTCD R1-1 design (public domain), project-drawn",CC0 1.0 https://creativecommons.org/publicdomain/zero/1.0/,
-zw_ext.kn5,ext_sign_travelstop.dds,699192,new,low,DONE north extension,project-made generic signage,CC0 1.0 https://creativecommons.org/publicdomain/zero/1.0/,
-zw_ext.kn5,ext_sign_fuel.dds,349672,new,low,DONE north extension,project-made generic signage,CC0 1.0 https://creativecommons.org/publicdomain/zero/1.0/,
-zw_ext.kn5,ext_fascia_ts.dds,174920,new,low,DONE north extension,procedural / project-made (north extension),CC0 1.0 https://creativecommons.org/publicdomain/zero/1.0/,
-zw_ext.kn5,ext_fascia_fuel.dds,174920,new,low,DONE north extension,procedural / project-made (north extension),CC0 1.0 https://creativecommons.org/publicdomain/zero/1.0/,
-zw_ext.kn5,ext_street_188.dds,174920,new,low,DONE north extension,procedural / project-made (north extension),CC0 1.0 https://creativecommons.org/publicdomain/zero/1.0/,
-zw_ext.kn5,ext_street_190.dds,174920,new,low,DONE north extension,procedural / project-made (north extension),CC0 1.0 https://creativecommons.org/publicdomain/zero/1.0/,
-zw_ext.kn5,ext_allway.dds,87528,new,low,DONE north extension,procedural / project-made (north extension),CC0 1.0 https://creativecommons.org/publicdomain/zero/1.0/,
-zw_ext.kn5,(geometry),,new,low,DONE north extension,"OSM centrelines/footprints (ODbL, attributed in CREDITS.md); USGS 3DEP 1 m DEM (public domain)",https://www.openstreetmap.org/copyright,
-zw_dragexit.kn5,drag_exit_asphalt.dds,1398248,new,low,DONE drag exit,ambientCG Asphalt012 (lightened to NAIP grey) + procedural tyre marks,CC0 1.0 https://docs.ambientcg.com/license/,1024x2048 DXT1 mips12
+vf_ext.kn5,ext_ground.dds,2796360,new,low,DONE north extension,"USDA NAIP 2021 (public domain), colour-matched",Public domain (USDA/USGS),
+vf_ext.kn5,ext_ground_mask.dds,1398288,new,low,DONE north extension,"USDA NAIP 2021 (public domain), colour-matched",Public domain (USDA/USGS),
+vf_ext.kn5,rpm_grass1.dds,2785408,new,low,DONE north extension,procedural / project-made (north extension),CC0 1.0 https://creativecommons.org/publicdomain/zero/1.0/,
+vf_ext.kn5,Muld Detailne.dds,5592560,new,low,DONE north extension,procedural / project-made (north extension),CC0 1.0 https://creativecommons.org/publicdomain/zero/1.0/,
+vf_ext.kn5,concrete_seams.dds,699192,new,low,DONE north extension,procedural / project-made (north extension),CC0 1.0 https://creativecommons.org/publicdomain/zero/1.0/,
+vf_ext.kn5,mud2.dds,5592560,new,low,DONE north extension,procedural / project-made (north extension),CC0 1.0 https://creativecommons.org/publicdomain/zero/1.0/,
+vf_ext.kn5,waterbump2.dds,174904,new,low,DONE north extension,procedural / project-made (north extension),CC0 1.0 https://creativecommons.org/publicdomain/zero/1.0/,
+vf_ext.kn5,ext_asphalt.dds,699192,new,low,DONE north extension,ambientCG Asphalt012,CC0 1.0 https://docs.ambientcg.com/license/,
+vf_ext.kn5,ext_asphalt_nm.dds,699192,new,low,DONE north extension,ambientCG Asphalt012,CC0 1.0 https://docs.ambientcg.com/license/,
+vf_ext.kn5,ext_asphalt_maps.dds,43832,new,low,DONE north extension,ambientCG Asphalt012,CC0 1.0 https://docs.ambientcg.com/license/,
+vf_ext.kn5,ext_flat_nm.dds,824,new,low,DONE north extension,procedural / project-made (north extension),CC0 1.0 https://creativecommons.org/publicdomain/zero/1.0/,
+vf_ext.kn5,ext_concrete_nm.dds,699192,new,low,DONE north extension,procedural / project-made (north extension),CC0 1.0 https://creativecommons.org/publicdomain/zero/1.0/,
+vf_ext.kn5,concrete_maps.dds,174904,new,low,DONE north extension,procedural / project-made (north extension),CC0 1.0 https://creativecommons.org/publicdomain/zero/1.0/,
+vf_ext.kn5,own_gravel.dds,2796344,new,low,DONE north extension,reused from existing kn5 (see rows above),,
+vf_ext.kn5,own_gravel_nm.dds,2796344,new,low,DONE north extension,reused from existing kn5 (see rows above),,
+vf_ext.kn5,own_gravel_maps.dds,699192,new,low,DONE north extension,reused from existing kn5 (see rows above),,
+vf_ext.kn5,ext_white.dds,824,new,low,DONE north extension,procedural / project-made (north extension),CC0 1.0 https://creativecommons.org/publicdomain/zero/1.0/,
+vf_ext.kn5,ext_yellow.dds,824,new,low,DONE north extension,procedural / project-made (north extension),CC0 1.0 https://creativecommons.org/publicdomain/zero/1.0/,
+vf_ext.kn5,ext_wall_tan.dds,699192,new,low,DONE north extension,procedural / project-made (north extension),CC0 1.0 https://creativecommons.org/publicdomain/zero/1.0/,
+vf_ext.kn5,ext_wall_nm.dds,699192,new,low,DONE north extension,procedural / project-made (north extension),CC0 1.0 https://creativecommons.org/publicdomain/zero/1.0/,
+vf_ext.kn5,ext_paint_maps.dds,2872,new,low,DONE north extension,procedural / project-made (north extension),CC0 1.0 https://creativecommons.org/publicdomain/zero/1.0/,
+vf_ext.kn5,ext_wall_grey.dds,699192,new,low,DONE north extension,procedural / project-made (north extension),CC0 1.0 https://creativecommons.org/publicdomain/zero/1.0/,
+vf_ext.kn5,ext_corr_nm.dds,699192,new,low,DONE north extension,procedural / project-made (north extension),CC0 1.0 https://creativecommons.org/publicdomain/zero/1.0/,
+vf_ext.kn5,ext_metal_maps.dds,2872,new,low,DONE north extension,procedural / project-made (north extension),CC0 1.0 https://creativecommons.org/publicdomain/zero/1.0/,
+vf_ext.kn5,own_galv.dds,699192,new,low,DONE north extension,reused from existing kn5 (see rows above),,
+vf_ext.kn5,own_galv_nm.dds,699192,new,low,DONE north extension,reused from existing kn5 (see rows above),,
+vf_ext.kn5,own_galv_maps.dds,699192,new,low,DONE north extension,reused from existing kn5 (see rows above),,
+vf_ext.kn5,ext_canopy.dds,174904,new,low,DONE north extension,procedural / project-made (north extension),CC0 1.0 https://creativecommons.org/publicdomain/zero/1.0/,
+vf_ext.kn5,ext_canopy_nm.dds,174904,new,low,DONE north extension,procedural / project-made (north extension),CC0 1.0 https://creativecommons.org/publicdomain/zero/1.0/,
+vf_ext.kn5,own_tower_glass.dds,174904,new,low,DONE north extension,reused from existing kn5 (see rows above),,
+vf_ext.kn5,own_glass_maps.dds,2872,new,low,DONE north extension,reused from existing kn5 (see rows above),,
+vf_ext.kn5,ext_pump.dds,43832,new,low,DONE north extension,procedural / project-made (north extension),CC0 1.0 https://creativecommons.org/publicdomain/zero/1.0/,
+vf_ext.kn5,ext_wood.dds,174904,new,low,DONE north extension,procedural / project-made (north extension),CC0 1.0 https://creativecommons.org/publicdomain/zero/1.0/,
+vf_ext.kn5,ext_fence.dds,87568,new,low,DONE north extension,procedural / project-made (north extension),CC0 1.0 https://creativecommons.org/publicdomain/zero/1.0/,
+vf_ext.kn5,ext_stop.dds,349680,new,low,DONE north extension,"MUTCD R1-1 design (public domain), project-drawn",CC0 1.0 https://creativecommons.org/publicdomain/zero/1.0/,
+vf_ext.kn5,ext_stop_back.dds,349680,new,low,DONE north extension,"MUTCD R1-1 design (public domain), project-drawn",CC0 1.0 https://creativecommons.org/publicdomain/zero/1.0/,
+vf_ext.kn5,ext_sign_travelstop.dds,699192,new,low,DONE north extension,project-made generic signage,CC0 1.0 https://creativecommons.org/publicdomain/zero/1.0/,
+vf_ext.kn5,ext_sign_fuel.dds,349672,new,low,DONE north extension,project-made generic signage,CC0 1.0 https://creativecommons.org/publicdomain/zero/1.0/,
+vf_ext.kn5,ext_fascia_ts.dds,174920,new,low,DONE north extension,procedural / project-made (north extension),CC0 1.0 https://creativecommons.org/publicdomain/zero/1.0/,
+vf_ext.kn5,ext_fascia_fuel.dds,174920,new,low,DONE north extension,procedural / project-made (north extension),CC0 1.0 https://creativecommons.org/publicdomain/zero/1.0/,
+vf_ext.kn5,ext_street_188.dds,174920,new,low,DONE north extension,procedural / project-made (north extension),CC0 1.0 https://creativecommons.org/publicdomain/zero/1.0/,
+vf_ext.kn5,ext_street_190.dds,174920,new,low,DONE north extension,procedural / project-made (north extension),CC0 1.0 https://creativecommons.org/publicdomain/zero/1.0/,
+vf_ext.kn5,ext_allway.dds,87528,new,low,DONE north extension,procedural / project-made (north extension),CC0 1.0 https://creativecommons.org/publicdomain/zero/1.0/,
+vf_ext.kn5,(geometry),,new,low,DONE north extension,"OSM centrelines/footprints (ODbL, attributed in CREDITS.md); USGS 3DEP 1 m DEM (public domain)",https://www.openstreetmap.org/copyright,
+vf_dragexit.kn5,drag_exit_asphalt.dds,1398248,new,low,DONE drag exit,ambientCG Asphalt012 (lightened to NAIP grey) + procedural tyre marks,CC0 1.0 https://docs.ambientcg.com/license/,1024x2048 DXT1 mips12
 zw_rpm.kn5,tentcok.dds,1398256,new,brand (permission),DONE Vybes Forge tent,Vybes Forge logo (owner Dylan Cruse; used with permission) + Space Grotesk (OFL 1.1) + procedural fabric,Proprietary brand used with permission; font OFL 1.1 https://openfontlicense.org,1024x1024 DXT5 mips11 (alpha cut-out kept)
-zw_tents.kn5,tent_cm.dds,1398256,new,brand (permission),DONE VF-style paddock tent (cm),Vybes Forge logo / drivenbycrusemob.com text wordmark (owner Dylan Cruse; used with permission) + Space Grotesk (OFL 1.1) + procedural fabric,Proprietary brand used with permission; font OFL 1.1 https://openfontlicense.org,1024x1024 DXT5 mips11 (alpha cut-out from tentcok)
-zw_tents.kn5,tent_cm_wide.dds,1398256,new,brand (permission),DONE VF-style paddock tent (cm_wide),Vybes Forge logo / drivenbycrusemob.com text wordmark (owner Dylan Cruse; used with permission) + Space Grotesk (OFL 1.1) + procedural fabric,Proprietary brand used with permission; font OFL 1.1 https://openfontlicense.org,1024x1024 DXT5 mips11 (alpha cut-out from tentcok)
-zw_tents.kn5,tent_neutral.dds,1398256,new,brand (permission),DONE VF-style paddock tent (neutral),Vybes Forge logo / drivenbycrusemob.com text wordmark (owner Dylan Cruse; used with permission) + Space Grotesk (OFL 1.1) + procedural fabric,Proprietary brand used with permission; font OFL 1.1 https://openfontlicense.org,1024x1024 DXT5 mips11 (alpha cut-out from tentcok)
-zw_tents.kn5,tent_vfad.dds,1398256,new,brand (permission),DONE VF-style paddock tent (vfad),Vybes Forge logo / drivenbycrusemob.com text wordmark (owner Dylan Cruse; used with permission) + Space Grotesk (OFL 1.1) + procedural fabric,Proprietary brand used with permission; font OFL 1.1 https://openfontlicense.org,1024x1024 DXT5 mips11 (alpha cut-out from tentcok)
-zw_tents.kn5,fabric_nm.dds,,copy,low,Copy of zw_rpm.kn5 fabric_nm.dds (same source/license),,,
-zw_tents.kn5,fabric_maps.dds,,copy,low,Copy of zw_rpm.kn5 fabric_maps.dds (same source/license),,,
-zw_tents.kn5,NULL.dds,,copy,low,Copy of zw_rpm.kn5 NULL.dds (same source/license),,,
+vf_tents.kn5,tent_cm.dds,1398256,new,brand (permission),DONE VF-style paddock tent (cm),Vybes Forge logo / drivenbycrusemob.com text wordmark (owner Dylan Cruse; used with permission) + Space Grotesk (OFL 1.1) + procedural fabric,Proprietary brand used with permission; font OFL 1.1 https://openfontlicense.org,1024x1024 DXT5 mips11 (alpha cut-out from tentcok)
+vf_tents.kn5,tent_cm_wide.dds,1398256,new,brand (permission),DONE VF-style paddock tent (cm_wide),Vybes Forge logo / drivenbycrusemob.com text wordmark (owner Dylan Cruse; used with permission) + Space Grotesk (OFL 1.1) + procedural fabric,Proprietary brand used with permission; font OFL 1.1 https://openfontlicense.org,1024x1024 DXT5 mips11 (alpha cut-out from tentcok)
+vf_tents.kn5,tent_neutral.dds,1398256,new,brand (permission),DONE VF-style paddock tent (neutral),Vybes Forge logo / drivenbycrusemob.com text wordmark (owner Dylan Cruse; used with permission) + Space Grotesk (OFL 1.1) + procedural fabric,Proprietary brand used with permission; font OFL 1.1 https://openfontlicense.org,1024x1024 DXT5 mips11 (alpha cut-out from tentcok)
+vf_tents.kn5,tent_vfad.dds,1398256,new,brand (permission),DONE VF-style paddock tent (vfad),Vybes Forge logo / drivenbycrusemob.com text wordmark (owner Dylan Cruse; used with permission) + Space Grotesk (OFL 1.1) + procedural fabric,Proprietary brand used with permission; font OFL 1.1 https://openfontlicense.org,1024x1024 DXT5 mips11 (alpha cut-out from tentcok)
+vf_tents.kn5,fabric_nm.dds,,copy,low,Copy of zw_rpm.kn5 fabric_nm.dds (same source/license),,,
+vf_tents.kn5,fabric_maps.dds,,copy,low,Copy of zw_rpm.kn5 fabric_maps.dds (same source/license),,,
+vf_tents.kn5,NULL.dds,,copy,low,Copy of zw_rpm.kn5 NULL.dds (same source/license),,,

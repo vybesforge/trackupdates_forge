@@ -1,6 +1,6 @@
 """Paddock tents in Vybes Forge style (rerunnable; reads /workspace/rpotm/backup/pre_tents2/vf_i29_speedway.kn5).
 - vf_i29_speedway.kn5: hide the 2 remaining zwiss big pit tents (bigtents, degenerate tris); tentm_SUB3 (VF tent) unchanged.
-- new zw_tents.kn5 (MODEL_7, both layouts): copies of the VF tent model (tentm_SUB3 geometry, material based on tent_coke /
+- new vf_tents.kn5 (MODEL_7, both layouts): copies of the VF tent model (tentm_SUB3 geometry, material based on tent_coke /
   ksPerPixelMultiMap_AT, fabric normal/maps) with own textures:
     replacements at the old big-tent spots (scaled 1.5 x/z, 1.1 y): drivenbycrusemob.com, neutral (trim only)
     3 advertising tents behind them (z 116, standard size): vybesforge.com, drivenbycrusemob.com, vybesforge.com
@@ -8,8 +8,8 @@
 import sys,os,io,struct,numpy as np
 sys.path.insert(0,os.path.dirname(__file__));import kn5patch as K,kn5write as W,build_open_textures as B
 from PIL import Image,ImageDraw,ImageFont
-ROOT=os.path.abspath(os.path.join(os.path.dirname(__file__),'..'));Z=f'{ROOT}/vf_i29_speedway';SRC='/workspace/rpotm/backup/pre_tents2/vf_i29_speedway.kn5'
-FONT='/workspace/rpotm/brand/fonts/SpaceGrotesk%5Bwght%5D.ttf';LOGO=f'{ROOT}/assets_src/brand/vf_logo.jpg';OUT=f'{ROOT}/assets_src/brand'
+ROOT=os.path.abspath(os.path.join(os.path.dirname(__file__),'..'));Z=f'{ROOT}/vf_i29_speedway';SRC=os.environ.get('VF_BACKUP','/workspace/rpotm/backup')+'/pre_tents2/vf_i29_speedway.kn5'
+FONT=f'{ROOT}/assets_src/brand/fonts/SpaceGrotesk-wght.ttf';LOGO=f'{ROOT}/assets_src/brand/vf_logo.jpg';OUT=f'{ROOT}/assets_src/brand'
 BG=(2,6,15);CY=(41,213,233);MG=(191,51,138);AM=(255,176,0);TX=(232,236,245);N=1024;GROUND=-0.10
 def meshes(path):
     d=open(path,'rb').read();_,nodes=K.scan(path)
@@ -79,7 +79,7 @@ if __name__=='__main__':
         mi[k]=len(mats);mats.append(dict(name=f'vftent_{k}',shader=M['shader'],ab=M['ab'],at=M['at'],dm=M['dm'],props=M['props'],
             samplers=[(s,sl,f'tent_{k}.dds' if s=='txDiffuse' else t) for s,sl,t in M['samplers']]))
     ms=[dict(name=n,mat_index=mi[k],verts=place(x,z,s),idx=TI,lod_out=0) for n,x,z,s,k in TENTS]
-    W.write_kn5(f'{Z}/zw_tents.kn5',texs,mats,ms,rootname='zw_tents');print('zw_tents.kn5:',[m['name'] for m in ms])
+    W.write_kn5(f'{Z}/vf_tents.kn5',texs,mats,ms,rootname='vf_tents');print('vf_tents.kn5:',[m['name'] for m in ms])
     # hide remaining big tents in vf_i29_speedway.kn5 (byte splice of the index buffer only)
     d=bytearray(open(SRC,'rb').read());_,nodes=K.scan(SRC)
     for name,o,l,c in nodes:
@@ -89,4 +89,4 @@ if __name__=='__main__':
     open(f'{Z}/vf_i29_speedway.kn5','wb').write(bytes(d));print('bigtents hidden')
     for ini in('models_main.ini','models_short.ini'):
         p=f'{Z}/{ini}';s=open(p).read()
-        if 'zw_tents.kn5' not in s: open(p,'a').write('\n[MODEL_7]\nFILE=zw_tents.kn5\nPOSITION=0,0,0\nROTATION=0,0,0\n')
+        if 'vf_tents.kn5' not in s: open(p,'a').write('\n[MODEL_7]\nFILE=vf_tents.kn5\nPOSITION=0,0,0\nROTATION=0,0,0\n')

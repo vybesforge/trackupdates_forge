@@ -75,7 +75,7 @@ def trees():
             dil=cv2.dilate(rgb*(a[...,None]>0.05),np.ones((9,9)));rgb=np.where(a[...,None]>0.05,rgb,dil)
             rgb=np.clip(rgb*np.array([0.95,1.0,0.9])*1.05,0,255)
             x,y=(q%2)*2048,(q//2)*2048;A[y:y+2048,x:x+2048,:3]=rgb;A[y:y+2048,x:x+2048,3]=(np.clip((a-0.35)*3+0.5,0,1)*255)
-        hdr=K.get_tex(f'{BK}/zw_vegetation.kn5',f'{at}.dds')[:128]
+        hdr=K.get_tex(f'{BK}/vf_vegetation.kn5',f'{at}.dds')[:128]
         open(f'{OUT}/{at}.dds','wb').write(B.write_dds(A,'DXT5',13,hdr));Image.fromarray(A).resize((1024,1024)).save(f'{OUT}/{at}.png')
 if __name__=='__main__':
     for fn in sys.argv[1:] or ['ground_mask','concrete_seams','gravel','own_maps','trees']:

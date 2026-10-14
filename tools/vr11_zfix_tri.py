@@ -8,7 +8,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import kn5patch as K, physraster as PR
 from vr11_zfix import mesh, Z
 from vr11_flush import TriIndex
-PAIRS = [(('vf_i29_speedway.kn5', 'highway_SUB1'), [('vf_i29_speedway.kn5', '1GRASS_02'), ('vf_i29_speedway.kn5', '1GRASS_00_02'), ('zw_ext.kn5', '1GRASS_EXT_2')]),
+PAIRS = [(('vf_i29_speedway.kn5', 'highway_SUB1'), [('vf_i29_speedway.kn5', '1GRASS_02'), ('vf_i29_speedway.kn5', '1GRASS_00_02'), ('vf_ext.kn5', '1GRASS_EXT_2')]),
          (('vf_i29_speedway.kn5', 'Railway_bridge001'), [('vf_i29_speedway.kn5', 'highway_SUB1')])]
 GAP = 0.03
 def main():

@@ -198,12 +198,12 @@ class TestVanillaAppMockAC(unittest.TestCase):
         self.assertGreater(st['quads'], 1000)
 
 class PaintedLineTest(unittest.TestCase):
-    """VR10: the painted stage / pre-stage lines in zw_draglaunch.kn5 sit exactly on the beams used by the Lua script,
+    """VR10: the painted stage / pre-stage lines in vf_draglaunch.kn5 sit exactly on the beams used by the Lua script,
     the Python app and (via the same constants) the tests."""
     def test_painted_lines_match_beams(self):
         import re, struct
         sys.path.insert(0, os.path.join(ROOT, 'tools')); import kn5patch as K
-        f = os.path.join(ROOT, 'vf_i29_speedway', 'zw_draglaunch.kn5'); d = open(f, 'rb').read(); zc = {}
+        f = os.path.join(ROOT, 'vf_i29_speedway', 'vf_draglaunch.kn5'); d = open(f, 'rb').read(); zc = {}
         for n, o, l, c in K.scan(f)[1]:
             if n in ('drag_stageline', 'drag_prestageline') and c == 2:
                 q = o + l + 8; nv, = struct.unpack_from('<I', d, q)

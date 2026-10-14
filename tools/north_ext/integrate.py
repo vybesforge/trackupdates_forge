@@ -1,4 +1,4 @@
-"""Integrate zw_ext.kn5: trim zwiss Berm (highway_SUB1) where the new ground band takes over, add model + surfaces entries."""
+"""Integrate vf_ext.kn5: trim zwiss Berm (highway_SUB1) where the new ground band takes over, add model + surfaces entries."""
 import sys,os,struct,re,numpy as np
 sys.path.insert(0,os.path.join(os.path.dirname(__file__),'..'));import kn5patch as K
 ROOT=os.path.join(os.path.dirname(__file__),'..','..');Z=f'{ROOT}/vf_i29_speedway';SRC='/workspace/rpotm/backup/zw_rpm.kn5.pre_north'
@@ -11,9 +11,9 @@ for name,o,l,c in nodes:
 open(f'{Z}/vf_i29_speedway.kn5','wb').write(bytes(d));print('Berm tris hidden (north of z -2632 + US-34 berm in drivable band):',n)
 for lay in('main','short'):
     p=f'{Z}/models_{lay}.ini';s=open(p,'rb').read().decode()
-    if 'zw_ext.kn5' not in s:
+    if 'vf_ext.kn5' not in s:
         k=max(int(x) for x in re.findall(r'\[MODEL_(\d+)\]',s))+1
-        s=s.rstrip('\r\n')+f'\r\n\r\n[MODEL_{k}]\r\nFILE=zw_ext.kn5\r\nPOSITION=0,0,0\r\nROTATION=0,0,0\r\n'
+        s=s.rstrip('\r\n')+f'\r\n\r\n[MODEL_{k}]\r\nFILE=vf_ext.kn5\r\nPOSITION=0,0,0\r\nROTATION=0,0,0\r\n'
         open(p,'wb').write(s.encode())
     p=f'{Z}/{lay}/data/surfaces.ini';s=open(p,'rb').read().decode()
     if 'KEY=XROAD' not in s:

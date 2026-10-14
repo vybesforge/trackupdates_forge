@@ -1,4 +1,4 @@
--- I-29 Speedway: reactive drag-strip Christmas tree (CSP track script, model in zw_draglaunch.kn5).
+-- I-29 Speedway: reactive drag-strip Christmas tree (CSP track script, model in vf_draglaunch.kn5).
 -- Loaded by [SCRIPT_DRAG_TREE] in ext_config.ini. Visual + timing display only; does not affect physics or race.
 -- Logic is a 1:1 port of apps/python/i29_dragtree/dragtree_logic.py (unit-tested in tests/test_dragtree.py).
 --   * Each lane (west/left x -255.75, east/right x -246.75) has its own bulb column (drtree_<group>_W / _E).

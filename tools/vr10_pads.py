@@ -8,7 +8,7 @@ import os, sys, json, numpy as np
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import kn5tree as T, physraster as PR, vr9_lidar as L, vr7_common as C
 Z = C.Z; LIMIT = 0.015; LA, WA, MARG, BLEND = 2.6, 1.1, 1.0, 4.0
-FILES = ['vf_i29_speedway.kn5', 'vf_i29_speedway_physical.kn5', 'vf_i29_speedway_gp.kn5', 'vf_i29_speedway_own.kn5', 'zw_tents.kn5']
+FILES = ['vf_i29_speedway.kn5', 'vf_i29_speedway_physical.kn5', 'vf_i29_speedway_gp.kn5', 'vf_i29_speedway_own.kn5', 'vf_tents.kn5']
 def pits():
     return sorted([(int(n['name'][7:]), n['W']) for n in T.walk(Z + 'vf_i29_speedway.kn5') if n['cls'] == 1 and n['name'].startswith('AC_PIT_')])
 def measure():

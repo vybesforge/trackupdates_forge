@@ -524,3 +524,97 @@ Backup: `/workspace/rpotm/backup/pre_vr9b_holefix/zw_rpm.kn5` (004b983 state).
 - `server/add_track_params.py` audit: the v1.0.2 script opened the target only in append mode, so it never truncated an existing file, but when the target was missing or empty it created a new file containing only the `[vf_i29_speedway]` section — exactly 109 bytes (CRLF). v1.0.3 behaved the same for a missing/empty cfg file (107 bytes) but refused system/data. Hardened: append-only binary write with a post-check that existing bytes are unchanged, `.bak` copy, refuses missing/empty target unless `--create`, refuses `system/data`. Tests: `tests/test_add_track_params.py`.
 - README/INSTALL_AGENT: install from the zip; git installs need a fresh clone or `core.autocrlf false`; MD5 table of checksummed files.
 - Version 1.0.4 in both ui_track.json; checksummed files byte-identical to v1.0.3.
+
+## v1.1 (branch tents-v1.1, unreleased): sellable tent + billboard ad slots
+- **zw_tents.kn5 rebuilt** (tools/tents_v11.py): 12 new 6 x 6 m pop-up canopies (4 galvanised legs + foot plates, eave frame, scissor truss,
+  4-panel peaked roof eave 2.4 / apex 3.4 m, 0.35 m valance, fabric back wall on +z; double-sided fabric; 2640 tris). One material +
+  2048 DXT1 texture per tent: `vftent_slot01..12` / `tent_slotNN.dds`. Frame: `vftent_frame` (own_galv). Visual only, no collision.
+  Vendor row next to the spawns (z 98, directly behind the back spawn row z 83; 9.4 m gap tent<->car footprint): slots 01 (12), 11 (39), 02 (66), 12 (93), 03 (119).
+  Further back: 04 (39,185) 05 (60,210) 06 (90,190) 07 (14,170) 08 (14,200) 09 (140,165) 10 (140,200).
+  All 12 are open "YOUR AD HERE / TENT SLOT NN" (house ads vybesforge.com / drivenbycrusemob.com removed per Dylan). Art: assets_src/brand/tent_slotNN.png.
+  Each tent base = lowest ground point under its footprint (lidar grade, max 12 cm spread).
+- Verified (tents_v11.py --verify-only, physics raster 0.25 m): every footprint +1 m margin is 1GRAVEL_PADDOCK only, >=9.4 m gap to all
+  36 spawned-car footprints, >=42 m from the spawn exit route (tools/data/path_main.npy), >=26 m between tents. spawn_verify.py: 36/36 OK, route found (main+short).
+- **Drag-end billboards** (tools/boards_v11.py, zw_vr5.kn5): the shared `billboard_adhere` is split into `vfboard_slot01` (east, x -247..-242.5:
+  vr5_billboard_end_0/1) and `vfboard_slot02` (west, x -267..-262.3: end_2/3), 2048x1024 "PLACE YOUR AD HERE / BILLBOARD SLOT NN". Geometry unchanged.
+- **Checksum-safe ad rotation (CSP):** ext_config.ini `[SHADER_REPLACEMENT_TENT_SLOTNN]` / `[SHADER_REPLACEMENT_BOARD_SLOTNN]` override txDiffuse
+  with `extension/tent_slotNN.dds` / `board_slotNN.dds` (keep 2048x2048 / 2048x1024 DDS, same name). Swapping those files never changes a kn5.
+  Night: `[MATERIAL_ADJUSTMENT_TENT_NIGHT]` (ksEmissive 0.35) and `[MATERIAL_ADJUSTMENT_BOARD_NIGHT]` (0.6), NIGHT_SMOOTH.
+- Note: this branch itself changes zw_tents.kn5 and zw_vr5.kn5 -> server and all clients need the v1.1 files once. models_*.ini unchanged, files LF.
+- Paths: tent/verify scripts no longer need /workspace/rpotm/project; font copied to assets_src/brand/fonts (OFL); backups via $VF_BACKUP.
+- Previews (no Blender): tools/tents_v11_preview.py (matplotlib top-down + numpy rasterizer).
+- **Recheck in game:** text orientation (assumes AC right-handed world), emissive strength, CSP override loading, old VR5 contact-shadow decals
+  under slots 01-06 vs new canopy footprint, LOD/FPS, frame texture.
+- **v1.1 pass 2 (supersedes the tent layout/look above):** all 12 tents form one car-meet vendor cluster directly behind the
+  spawns: two facing columns of 6 (x 68 opens +x, x 82 opens -x), z 98..135.5 every 7.5 m (1.5 m gaps), 8 m aisle opening
+  toward the spawns. Neutral palette: charcoal roof, black frame, white print valance, light-grey back wall, grayscale
+  "YOUR AD HERE / VENDOR SLOT NN" type. New geometry: sagging roof panels, base plates + 2 sandbags per leg, 1.8 m table with
+  printed front skirt, feather flags on slots 01,03,05,07,09,11, contact-shadow decal per tent; procedural weave normal
+  `fabric_nm_v2.dds` (assets_src/vr2/fabric_nm_v2.png). zw_tents.kn5 = 9.0 MB (1024 fallback art embedded; CSP loads the 2048
+  `extension/tent_slotNN.dds`). Materials: vftent_slot01..12 + vftent_frame_black/sandbag/tabletop/shadow. 8256 tris.
+  Checks: 12/12 on 1GRAVEL_PADDOCK, >=9.4 m gap to spawned cars, >=43 m from the exit route.
+  zw_vr6.kn5: the 6 stale VR6 contact-shadow quads under the old tent spots (lot z>100) collapsed (pickup shadow kept).
+- **v1.1 pass 3 (supersedes the pass-2 cluster layout; tent design unchanged): paddock drift course + 18 tent slots.**
+  tools/drift_course.py: 309 m clockwise drift line in 1GRAVEL_PADDOCK (entry SW (38,106) from the spawn side, linked west
+  transitions, long north sweeper, east S, south return), min radius 8.9 m; open donut pad (78,166) r 9 (painted ring + tyre stack).
+  7 inner clipping points (3-high tyre stack + 3 cones + painted ring), painted outer clipping zone lines 5.5 m outside every turn,
+  282 m of low jersey barriers 7.5 m outside every turn = 6 physics meshes `1WALL_DRIFT_0..5` in zw_tents.kn5 (collide as WALL, like
+  the existing 1WALL_armco/TYRES; surfaces.ini unchanged). Cones/tyres/paint visual only (vfc_* materials).
+  18 tents (vftent_slot01..18, each with CSP override extension/tent_slotNN.dds + 1024 fallback in the kn5) placed automatically
+  outside the loop, opening towards the drift line: >=15.2 m from the line (tent edge >=10.9 m), >=7.9 m from barriers, >=9.2 m
+  gap to spawned cars, >=57 m from the exit route, >=12.8 m apart; footprints (r 5.25 m) on gravel only. ext_config tent block
+  regenerated for 18 slots (LF). zw_tents.kn5 = 13.7 MB, 17120 tris. spawn_verify.py with the new walls: 36/36, route found (main+short).
+- **v1.1 pass 3b: drift pad = cracked concrete.** New physics+visual meshes `1CONCRETE_DRIFT_0..2` in zw_tents.kn5: 1 m grid
+  (19,160 m2) over every 1GRAVEL_PADDOCK cell with z >= 93, following the lidar grade +2 cm (physics ray hits the pad first),
+  straight clean edge at z 93; spawn rows (z 72/83) stay gravel (36/36 spawns on 1GRAVEL_PADDOCK, spawn_verify OK).
+  Material `Concrete01_drift` = copy of the existing `Concrete01` (1CONCRETE_001: track_cracksa / rpm_cracks_02 / tarmac noise,
+  ksMultilayer_fresnel_nm, same world-UV scale). Surface key CONCRETE (FRICTION 0.95, existing surfaces.ini entry) -> surfaces.ini
+  unchanged. Paint and contact shadows lifted above the pad. Tent fallback art in the kn5 reduced to 512 (CSP 2048 overrides
+  unchanged) so zw_tents.kn5 stays 11.6 MB. Checksums: zw_tents.kn5 changes (already changing in v1.1); vf_i29_speedway.kn5,
+  models_*.ini and surfaces.ini unchanged.
+- **v1.1: replay camera set 4 "Paddock Drift"** (`main|short/data/cameras_3.ini`, tools/paddock_cams.py, previews tools/paddock_cams_preview.py).
+  AC picks replay cameras by the car's fast_lane spline position; a car in the paddock projects onto the pit straight 150-250 m away,
+  so the whole course maps into a narrow band (main 0.8481-0.8564, short 0.7718-0.7825). The set is a copy of "TV High" with that band
+  cut out and split among 7 placed paddock cameras (entry 6 m pole, west 6 m pole, NW + donut on tent roofs 4.2 m, north 8 m pole,
+  east 6 m pole, 26 m overview mast); each spline bin gets the camera closest to the drift-line samples projecting there.
+  Active windows: main 5 cameras (overview, east, west, donut, northwest), short 7. Existing sets 1-3 unchanged (they stay CRLF);
+  new files LF. Windows tile 0..1 with no gaps/overlaps. Cuts are approximate (north and south parts at the same x share a spline
+  position); on-track cars in that band (pit straight) see a paddock camera in this set only.
+- **v1.1: house ads "ADVERTISE HERE / vybesforge.com"** (tools/tents_v11.py HOUSE list, art assets_src/brand/house_advertise.png,
+  baked 1024x384 DXT1 `house_advertise.dds` in zw_tents.kn5, no CSP needed). Each sign is its own material (`vfhouse_spawn`,
+  `vfhouse_drag`, `vfhouse_pit`) + meshes `vfhouse_<name>_face/_feet` + black stand `1WALL_HOUSE_<name>` (collision); remove a sign by
+  deleting its entry in HOUSE and rebuilding.
+  (1) spawn: 8 x 3 m at (60,45) on the grass strip ahead of the spawn rows (cars face -z), facing them; 13 m off the exit route.
+  (3) drag: 6 x 2.2 m at (-278,-336) on grass west of the staging lanes, facing cars coming from the staging lot; separate from the
+  2 sellable end billboards. (4) pit straight: 7 x 2.4 m at (-20,-33) on grass, 17 m from the AI line, facing cars on the main straight.
+  (2) all 18 tent fallback arts (kn5 512 + extension 2048 default DDS) now read "YOUR AD HERE / Advertise: vybesforge.com / SLOT NN"
+  (valance + table skirt + flag: "YOUR BRAND HERE | ADVERTISE: VYBESFORGE.COM | SLOT NN"). spawn_verify 36/36, route found.
+- **v1.1: standalone house signs removed** (spawn board, drag staging panel, main-straight board: meshes vfhouse_*, materials
+  vfhouse_*, collision 1WALL_HOUSE_*, texture house_advertise.dds and its PNG). Tent fallback art keeps "Advertise: vybesforge.com".
+  Drag-end billboards (zw_vr5.kn5 + extension/board_slot01/02.dds) re-drawn in the v2 neutral style: "PLACE YOUR / AD HERE /
+  Advertise: vybesforge.com / BILLBOARD SLOT NN". spawn_verify 36/36, route found (main+short); tent/course checks 0 fails.
+- **v1.1: advertiser ad template** `tools/make_ad.py` (+ `assets_src/ads/brands.json`): brand name, domain, tagline, optional logo,
+  colours -> `tent_slotNN.dds` (2048, tent atlas: roof, valance/table skirt/flag, back wall) and `board_slotNN.dds` (2048x1024);
+  `--apply` writes only `vf_i29_speedway/extension/` (CSP overrides). Sample ads (colours from each site's CSS/theme, text-based except
+  the VF logo): tent slot01 + billboard slot01 = VYBES FORGE / vybesforge.com; tent slot05 = PUSSIE NIP / pussynip.com / PREMIUM CATNIP;
+  tent slot09 + billboard slot02 = CHICKENPERIOD / chickenperiod.com / EST 2026. Slot 13 reserved for the pending "randomly...com" brand
+  (brands.json entry marked pending; --apply refuses until filled in). tents_v11.py / boards_v11.py no longer overwrite sold slots.
+  No kn5, models ini, surfaces.ini or camera file changed; baked fallback art stays YOUR AD HERE.
+
+## v1.1 – ad overrides moved to skins/default, tyre-stack collision
+- Advertiser / 2048 fallback art moved from `extension/*_slotNN.dds` (CSP `[SHADER_REPLACEMENT] RESOURCE_FILE`, did not show in-game) to `vf_i29_speedway/skins/default/tent_slotNN.dds` and `board_slotNN.dds`. AC itself swaps any kn5 texture that has the same file name in the track's `skins/default` ("SKINNED TEXTURE ... FOUND, OVERRIDING" in log.txt), in vanilla AC and with CSP. The tent/board SHADER_REPLACEMENT sections are gone; the night MATERIAL_ADJUSTMENTs stay.
+- DDS writer fixes the header: correct linear size, RGBBitCount 0 (Pillow wrote pitch 8204 and 32 bpp on DXT1).
+- Drift tyre stacks are now the physics mesh `1WALL_DRIFT_TYRES` (they collide). zw_tents.kn5 checksum changes.
+- make_ad.py --apply writes to skins/default/.
+
+## v1.1 – v8: barrier paint, tyre-stack bands, entrance lane, file renames
+- Drift jersey barriers (`1WALL_DRIFT_n`): painted in 2 m red / 2 m white sections, weathered concrete with a normal map (ksPerPixelNM), rubber scuffs low on the wall, grimy base. A visual-only reflective strip (`vfc_reflectors`) runs along the upper slope and is self-lit at night (`[MATERIAL_ADJUSTMENT_DRIFT_REFLECTORS]`). Only the UVs changed; the collision shapes are identical.
+- Tyre stacks (`1WALL_DRIFT_TYRES`): black/yellow/black bands, white-painted top; geometry unchanged.
+- Entrance lane from behind spawn row 2 (z 83) to the drift entry: painted edge lines, chevrons, a `DRIFT ENTRY` decal (`vfc_entry_text`) and cones. Its centre line is 5.4 m from the spawned cars, 38 m from the exit route and 5.6 m from the barriers.
+- Renamed `zw_{ext,tents,vegetation,draglaunch,vr6,dragexit,vr5,vr7_longcut}.kn5` to `vf_*` and updated models_main/short.ini, ext_config.ini, drag_tree.lua, tools, tests, CREDITS, INSTALL_AGENT and assets.csv. The kn5 contents are unchanged, except vf_tents, which now has root node `vf_tents`. Old release notes, audits and build logs keep the old names as history. The surfaces.ini comments still say `zw_*` on purpose, so that checksummed file stays untouched. The `zw_rpm` / `*_zwiss_orig` names are left as credit history.
+
+## v1.1 – v9 sample ads
+- Two more sample advertisers placed with tools/make_ad.py, in skins/default only (no kn5 changes): Pepper Ahi (pepperahi.com) on tent slot 18 and RANDOMLY UNCONVENTIONAL / Chaos Energy Inc. (randomlyunconventional.com) on tent slot 13, which was reserved as pending. Both are text-only: neither site has a usable logo mark. brands.json updated. Preview script: tools/samples_v9_preview.py.
+
+## v1.1 – v10 paddock cameras
+- cameras_3.ini (Paddock Drift, both layouts): down from 7 drift cameras to 3 elevated wide ones (pd_west 12 m, pd_overview 26 m as the primary, pd_east 12 m), with FOV 34-56 and one long window each (25/50/25 % of the drift band). The rest of the TV High copy is unchanged; LF endings.

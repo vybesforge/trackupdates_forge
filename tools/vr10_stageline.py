@@ -3,11 +3,11 @@ painted transverse line anywhere near the launch area (sampled every 5 cm, z -33
 fade at z -337..-340 and the centre stripe), so the scripts' stage beam z -347.5 (pre-stage 0.178 m / 7 in earlier,
 z -347.322) had nothing to line up with. This paints the line where the beam is: a 10 cm white line (z -347.45..-347.55)
 across both lanes plus a thin 5 cm pre-stage tick per lane at z -347.322, draped on 1LAUNCHA_strip +1.2 cm.
-Visual only, added to zw_draglaunch.kn5 (rewritten via kn5write; existing meshes/materials untouched)."""
+Visual only, added to vf_draglaunch.kn5 (rewritten via kn5write; existing meshes/materials untouched)."""
 import os, sys, struct, numpy as np
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import kn5patch as K, kn5write as W, vr5_meshlib as L
-Z = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'vf_i29_speedway')); F = f'{Z}/zw_draglaunch.kn5'
+Z = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'vf_i29_speedway')); F = f'{Z}/vf_draglaunch.kn5'
 STAGE_Z, PRE_GAP = -347.5, 0.178
 def meshes(fn):
     d = open(fn, 'rb').read(); out = []
@@ -41,5 +41,5 @@ def build():
     V, I = strip(T, -259.6, -242.9, STAGE_Z + 0.05, STAGE_Z - 0.05); ME[-1].update(verts=V, idx=I.astype('<u2'))
     parts = [strip(T, cx - 1.2, cx + 1.2, STAGE_Z + PRE_GAP + 0.025, STAGE_Z + PRE_GAP - 0.025) for cx in (-255.75, -246.75)]
     V, I = L.merge(parts); ME.append(dict(name='drag_prestageline', mat_index=mi, verts=V.astype(np.float32), idx=I.astype('<u2')))
-    W.write_kn5(F, tex, mats, ME, rootname='zw_draglaunch'); K.scan(F); print('ok', [(m['name'], len(m['idx'])) for m in ME[-2:]])
+    W.write_kn5(F, tex, mats, ME, rootname='vf_draglaunch'); K.scan(F); print('ok', [(m['name'], len(m['idx'])) for m in ME[-2:]])
 if __name__ == '__main__': build()

@@ -1,8 +1,8 @@
-"""VR5b extras (rerunnable: reads /workspace/rpotm/backup/pre_vr5b/vf_i29_speedway.kn5 -> vf_i29_speedway/vf_i29_speedway.kn5, writes vf_i29_speedway/zw_vr5.kn5 = MODEL_9).
+"""VR5b extras (rerunnable: reads /workspace/rpotm/backup/pre_vr5b/vf_i29_speedway.kn5 -> vf_i29_speedway/vf_i29_speedway.kn5, writes vf_i29_speedway/vf_vr5.kn5 = MODEL_9).
 1. Drag-strip end gantry (z -606): the 4 ad panels of adds_drag_SUB0 (rpm_adds_01 atlas) are collapsed; new panels at the
    same corners show own 'PLACE YOUR AD HERE' art (VF tent placeholder style). Atlas untouched for the other boards.
 2. Exits B/C west extension: tools/drag_exit.py. Here: the north-extension power pole standing in the new B lane
-   (xpoles, at x -382, z -802.8, zw_ext.kn5 from /workspace/rpotm/backup/pre_vr5/) is moved 6 m south (z -808.8).
+   (xpoles, at x -382, z -802.8, vf_ext.kn5 from /workspace/rpotm/backup/pre_vr5/) is moved 6 m south (z -808.8).
 3. Track entrance (west gate -> drag staging lot): ambulance (x -283..-276, z -333..-330) and the food kiosk
    drag_kiosk_SUB0..3 (x -290..-287, z -346..-340; the 'taco truck') collapsed. New generic unbranded 4-door crew-cab
    pickup (Silverado-like proportions, 6.0 x 2.03 x 1.95 m) parked in the ambulance spot, nose -x (toward the gate).
@@ -11,8 +11,8 @@
 import sys,os,struct,numpy as np
 sys.path.insert(0,os.path.dirname(__file__));import kn5patch as K,kn5write as W,vr5_meshlib as L,build_open_textures as B
 from PIL import Image,ImageDraw,ImageFont
-ROOT=os.path.abspath(os.path.join(os.path.dirname(__file__),'..'));Z=f'{ROOT}/vf_i29_speedway';SRC='/workspace/rpotm/backup/pre_vr5b/vf_i29_speedway.kn5'
-FONT='/workspace/rpotm/brand/fonts/SpaceGrotesk%5Bwght%5D.ttf';G=-0.10
+ROOT=os.path.abspath(os.path.join(os.path.dirname(__file__),'..'));Z=f'{ROOT}/vf_i29_speedway';SRC=os.environ.get('VF_BACKUP','/workspace/rpotm/backup')+'/pre_vr5b/vf_i29_speedway.kn5'
+FONT=f'{ROOT}/assets_src/brand/fonts/SpaceGrotesk-wght.ttf';G=-0.10
 BG=(2,6,15);CY=(41,213,233);MG=(191,51,138);TX=(232,236,245)
 def font(sz,w=700):
     f=ImageFont.truetype(FONT,sz)
@@ -84,12 +84,12 @@ if __name__=='__main__':
         if name.startswith('ambulances_SUB'): print(name,'entrance ambulance verts',collapse(d,o,l,lambda V:(V[:,0]>-284)&(V[:,0]<-275)&(V[:,2]>-334)&(V[:,2]<-329.5))[1])
         if name.startswith('drag_kiosk_SUB'): print(name,'kiosk verts',collapse(d,o,l,lambda V:(V[:,0]>-292)&(V[:,0]<-286)&(V[:,2]>-347)&(V[:,2]<-339))[1])
     open(f'{Z}/vf_i29_speedway.kn5','wb').write(bytes(d))
-    ESRC='/workspace/rpotm/backup/pre_vr5/vf_i29_speedway/zw_ext.kn5';e=bytearray(open(ESRC,'rb').read())
+    ESRC=os.environ.get('VF_BACKUP','/workspace/rpotm/backup')+'/pre_vr5/vf_i29_speedway/vf_ext.kn5';e=bytearray(open(ESRC,'rb').read())
     for name,o,l,c in K.scan(ESRC)[1]:
         if c==2 and name=='xpoles':
             q=o+l+8;nv,=struct.unpack_from('<I',e,q);V=np.frombuffer(bytes(e[q+4:q+4+nv*44]),'<f4').reshape(nv,11).copy()
             k=np.hypot(V[:,0]+382,V[:,2]+802.8)<2.5;V[k,2]-=6.0;e[q+4:q+4+nv*44]=V.tobytes();print('pole verts moved',int(k.sum()))
-    open(f'{Z}/zw_ext.kn5','wb').write(bytes(e))
+    open(f'{Z}/vf_ext.kn5','wb').write(bytes(e))
     # --- textures / materials
     T=[('billboard_adhere.dds',ad_art())]
     cols={'paint':(28,38,58),'trim':(18,18,20),'glass':(25,32,38),'chrome':(175,178,182),'tire':(22,22,22),'rim':(150,152,155),
@@ -107,11 +107,11 @@ if __name__=='__main__':
         q=panels[gi*4:gi*4+4,:3].astype(float);x0,x1=q[:,0].min(),q[:,0].max();y0,y1=q[:,1].min(),q[:,1].max();zc=q[:,2].mean()+0.01
         V,I=L.quad((x0,y0,zc),(x1,y0,zc),(x1,y1,zc),(x0,y1,zc),uv=((0,1),(1,1),(1,0),(0,0)))
         ME.append(dict(name=f'vr5_billboard_end_{gi}',mat_index=mi['billboard_adhere'],verts=V.astype('<f4'),idx=I.astype('<u2')))
-    # VR6: the blocky pickup is replaced by the Blender-modelled one in zw_vr6.kn5 (tools/vr6_props.py)
-    # VR7: the 2 simple VR5b figures are replaced by recoloured corner-worker figures (tools/vr7_people.py -> zw_vr6.kn5)
+    # VR6: the blocky pickup is replaced by the Blender-modelled one in vf_vr6.kn5 (tools/vr6_props.py)
+    # VR7: the 2 simple VR5b figures are replaced by recoloured corner-worker figures (tools/vr7_people.py -> vf_vr6.kn5)
     for pi,(x,z,r,h,sh) in enumerate([]):
         for m,(V,I) in person(x,z,r,h,sh).items(): ME.append(dict(name=f'vr5_person{pi}_{m}',mat_index=mi[f'vr5_{m}'],verts=V,idx=I))
-    W.write_kn5(f'{Z}/zw_vr5.kn5',T,mats,ME,rootname='zw_vr5');print('zw_vr5.kn5',len(ME),'meshes')
+    W.write_kn5(f'{Z}/vf_vr5.kn5',T,mats,ME,rootname='vf_vr5');print('vf_vr5.kn5',len(ME),'meshes')
     for ini in('models_main.ini','models_short.ini'):
         p=f'{Z}/{ini}';s=open(p).read()
-        if 'zw_vr5.kn5' not in s: open(p,'a').write('\n[MODEL_9]\nFILE=zw_vr5.kn5\nPOSITION=0,0,0\nROTATION=0,0,0\n')
+        if 'vf_vr5.kn5' not in s: open(p,'a').write('\n[MODEL_9]\nFILE=vf_vr5.kn5\nPOSITION=0,0,0\nROTATION=0,0,0\n')

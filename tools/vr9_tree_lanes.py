@@ -1,6 +1,6 @@
 """VR9: split the drag-tree bulb meshes per lane so the reactive tree can light lanes independently.
 drtree_<grp> (both columns) -> drtree_<grp>_W (west/left lane, x < pole) and drtree_<grp>_E (east lane).
-Usage: python tools/vr9_tree_lanes.py <dir containing zw_draglaunch.kn5>   (idempotent)
+Usage: python tools/vr9_tree_lanes.py <dir containing vf_draglaunch.kn5>   (idempotent)
 Run on the flat stage (backup/pre_vr9/vf_i29_speedway) and then re-run vr9_lidar.py, or directly on vf_i29_speedway
 (the split is a pure re-partition of existing vertices, so it commutes with the lidar warp)."""
 import sys,struct,os,numpy as np
@@ -8,7 +8,7 @@ sys.path.insert(0,os.path.dirname(__file__));import kn5patch as K
 GROUPS=['prestage','stage','amber1','amber2','amber3','green','red']
 def ws(s): b=s.encode();return struct.pack('<I',len(b))+b
 def run(dirp):
-    f=os.path.join(dirp,'zw_draglaunch.kn5');d=open(f,'rb').read();tex,nodes=K.scan(f)
+    f=os.path.join(dirp,'vf_draglaunch.kn5');d=open(f,'rb').read();tex,nodes=K.scan(f)
     names=[n for n,o,l,c in nodes]
     if 'drtree_red_W' in names: print('already split');return
     root=nodes[0];head=d[:root[1]-4]

@@ -4,7 +4,7 @@
   front row (PIT 0-17) z 72, x 11..143.6 every 7.8 m; back row (PIT 18-35) z 83, x 7..139.6 (offset 4 m, drives out through the
   5.6 m gaps). All face north (-z) toward the concrete; exit route north onto the gravel/concrete strip (z 50..60) then
   west to the pit-exit gate (-30,38) -> 1PITS_OUT -> track. AC_PIT_0 = front row west end (nearest the exit).
-- zw_tents.kn5 rebuilt: 6 VF-style tents (scale 1.5 x/z, 1.1 y) inside the open gravel lot (red outline):
+- vf_tents.kn5 rebuilt: 6 VF-style tents (scale 1.5 x/z, 1.1 y) inside the open gravel lot (red outline):
   top row z 142 at x 12 / 66 / 119, lower cluster (39,185) (60,210) (90,190).
   Middle tents: top-middle (66,142) vybesforge.com, lower-middle (60,210) drivenbycrusemob.com; other 4: YOUR AD HERE.
 - vf_i29_speedway.kn5: hide the original VF tent tentm_SUB3 (40,67; on the new exit route; replaced by the top-middle copy),
@@ -14,7 +14,7 @@ Base y = gravel -0.10, dummy y = gravel + 0.40."""
 import sys,os,struct,numpy as np
 sys.path.insert(0,os.path.dirname(__file__));import kn5tree as T,kn5patch as K,kn5write as W,vf_tents_paddock as VT
 ROOT=os.path.abspath(os.path.join(os.path.dirname(__file__),'..'));Z=f'{ROOT}/vf_i29_speedway'
-SRC='/workspace/rpotm/backup/pre_vr4/vf_i29_speedway/vf_i29_speedway.kn5';DST=f'{Z}/vf_i29_speedway.kn5';GROUND=-0.10;LIFT=0.40
+SRC=os.environ.get('VF_BACKUP','/workspace/rpotm/backup')+'/pre_vr4/vf_i29_speedway/vf_i29_speedway.kn5';DST=f'{Z}/vf_i29_speedway.kn5';GROUND=-0.10;LIFT=0.40
 def spots(): return [(11+7.8*i,GROUND+LIFT,72.0) for i in range(18)]+[(7+7.8*i,GROUND+LIFT,83.0) for i in range(18)]
 FWD=np.array([0,0,-1.0]);UP=np.array([0,1.0,0]);RIGHT=np.cross(UP,FWD)
 BIG=(1.5,1.1,1.5)
@@ -35,7 +35,7 @@ if __name__=='__main__':
         mi[k]=len(mats);mats.append(dict(name=f'vftent_{k}',shader=M['shader'],ab=M['ab'],at=M['at'],dm=M['dm'],props=M['props'],
             samplers=[(s,sl,f'tent_{k}_wide.dds' if s=='txDiffuse' else t) for s,sl,t in M['samplers']]))
     ms=[dict(name=n,mat_index=mi[k],verts=VT.place(x,z,BIG),idx=VT.TI,lod_out=0) for n,x,z,k in TENTS]
-    W.write_kn5(f'{Z}/zw_tents.kn5',texs,mats,ms,rootname='zw_tents');print('zw_tents.kn5:',[m['name'] for m in ms])
+    W.write_kn5(f'{Z}/vf_tents.kn5',texs,mats,ms,rootname='vf_tents');print('vf_tents.kn5:',[m['name'] for m in ms])
     d=bytearray(open(SRC,'rb').read());S=spots();n=0
     for nd in T.walk(SRC):
         if nd['cls']==1 and nd['name'].startswith('AC_PIT_'):

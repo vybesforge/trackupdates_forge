@@ -1,4 +1,4 @@
-"""VR2: apply material/texture changes to vf_i29_speedway.kn5 (after vr2_split_paddock.py) and zw_vegetation.kn5."""
+"""VR2: apply material/texture changes to vf_i29_speedway.kn5 (after vr2_split_paddock.py) and vf_vegetation.kn5."""
 import sys,os,struct,copy
 sys.path.insert(0,os.path.dirname(__file__));import kn5mat as KM
 ROOT=os.path.join(os.path.dirname(__file__),'..');S=f'{ROOT}/assets_src/vr2';Z=f'{ROOT}/vf_i29_speedway'
@@ -30,7 +30,7 @@ for c in ('Beton_01','Concrete02'): to_multimap(c,None,'concrete_maps.dds',spec=
 to_multimap('bigtent','fabric_nm.dds','fabric_maps.dds',spec=0.08,exp=12)
 for tnt in ('tent_mars','tent_chipndip','tent_coke','tent_castle'): to_multimap(tnt,'fabric_nm.dds','fabric_maps.dds','ksPerPixelMultiMap_AT',spec=0.08,exp=12)
 KM.save(K,f'{Z}/vf_i29_speedway.kn5')
-V=KM.load(f'{Z}/zw_vegetation.kn5')
+V=KM.load(f'{Z}/vf_vegetation.kn5')
 for t in V['textures']:
     if t[0] in('tree2.dds','tree3.dds'): t[1]=rd(t[0])
-KM.save(V,f'{Z}/zw_vegetation.kn5');print('applied')
+KM.save(V,f'{Z}/vf_vegetation.kn5');print('applied')

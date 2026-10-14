@@ -1,7 +1,7 @@
 """Drag-strip exits (A z-628.5, B z-801, C z-952.4 west crossovers + N-S return road x-298; E z-733 east stub to the circuit). Original note: exit lane (1/8 mile strip, 1DRAGstrip, run = staging z-333 -> north/-z).
 Real site (NAIP 2021 0.6 m + Apple Maps): paved crossover on the LEFT (west) of the shutdown area at z≈-628.5 (~8 m wide)
 joins the N-S return road at x≈-297 that runs back south to the staging/pit lot (paved from z≈-555).
-Builds zw_dragexit.kn5 (1XROAD_dragexit = visual + physics, KEY XROAD: drivable, not valid track, no black flag),
+Builds vf_dragexit.kn5 (1XROAD_dragexit = visual + physics, KEY XROAD: drivable, not valid track, no black flag),
 cuts a 16 m gap in the west drag-strip armco (visual armco000*/physics 1WALL_armco) at the crossover,
 adds MODEL_6 to models_main/short.ini. Sources read from /workspace/rpotm/backup/*.pre_dragexit."""
 import sys,os,struct,re,math,numpy as np
@@ -108,8 +108,8 @@ for fn_,pref_ in((('vf_i29_speedway_physical.kn5',('1ROAD',)),) if SHORT_OVERLAY
     u_,inv=np.unique(sel,return_inverse=True);Vo=Vp[u_].copy();Vo[:,1]+=0.02;Vo[:,3:6]=[0,1,0];Vo[:,6]=Vo[:,0]/8.0;Vo[:,7]=Vo[:,2]/8.0;Vo[:,8:11]=[1,0,0]
     Io=inv.reshape(-1,3);g=np.cross(Vo[Io[:,1],:3]-Vo[Io[:,0],:3],Vo[Io[:,2],:3]-Vo[Io[:,0],:3]);bd=g[:,1]<0;Io[bd]=Io[bd][:,[0,2,1]]
     MESHES.append(dict(name=f'shortT_overlay_{nm_[6:] if nm_.startswith("1ROAD_0") else nm_}',mat_index=1,verts=Vo.astype(np.float32),idx=Io,lod_out=0));print('overlay',nm_,len(Io),'tris')
-W.write_kn5(f'{Z}/zw_dragexit.kn5',TEX,MAT,MESHES,rootname='zw_dragexit')
-print('zw_dragexit.kn5 tris',sum(len(m['idx']) for m in MESHES))
+W.write_kn5(f'{Z}/vf_dragexit.kn5',TEX,MAT,MESHES,rootname='vf_dragexit')
+print('vf_dragexit.kn5 tris',sum(len(m['idx']) for m in MESHES))
 np.save('/tmp/dragexit_P.npy',np.vstack(PW))
 # ---------------- armco gap: clip west-side armco triangles out of z in GAP (x < -258)
 def clip_tri(tv,keep):  # Sutherland-Hodgman against half-plane keep(v)->signed value >=0 keeps
@@ -154,7 +154,7 @@ if '--gaps' in sys.argv: gapcut(f'{BK}/vf_i29_speedway.kn5.pre_dragexit',f'{Z}/v
 if '--gaps' in sys.argv: gapcut(f'{BK}/vf_i29_speedway_physical.kn5.pre_dragexit',f'{Z}/vf_i29_speedway_physical.kn5',{'1WALL_armco'})
 for lay in('main','short'):
     p=f'{Z}/models_{lay}.ini';t=open(p,'rb').read().decode()
-    if 'zw_dragexit.kn5' not in t:
+    if 'vf_dragexit.kn5' not in t:
         k=max(int(x) for x in re.findall(r'\[MODEL_(\d+)\]',t))+1;nl='\r\n' if '\r\n' in t else '\n'
-        t=t.rstrip('\r\n')+f'{nl}{nl}[MODEL_{k}]{nl}FILE=zw_dragexit.kn5{nl}POSITION=0,0,0{nl}ROTATION=0,0,0{nl}';open(p,'wb').write(t.encode())
+        t=t.rstrip('\r\n')+f'{nl}{nl}[MODEL_{k}]{nl}FILE=vf_dragexit.kn5{nl}POSITION=0,0,0{nl}ROTATION=0,0,0{nl}';open(p,'wb').write(t.encode())
 print('models ini updated')

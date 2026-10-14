@@ -44,6 +44,10 @@ def write_dds(rgba,fmt,mips,orighdr):
         hdr=bytearray(lv[0][0])
         if mips>1:
             struct.pack_into('<I',hdr,8,struct.unpack_from('<I',hdr,8)[0]|0x20000);struct.pack_into('<I',hdr,28,mips);struct.pack_into('<I',hdr,108,struct.unpack_from('<I',hdr,108)[0]|0x400008)
+        # v1.1: standards-conformant header for block formats (Pillow writes pitch=w*4 with DDSD_LINEARSIZE and RGBBitCount=32,
+        # which strict loaders may reject): linear size = top-level byte size, RGBBitCount 0, flags CAPS|HEIGHT|WIDTH|PIXELFORMAT|LINEARSIZE(|MIPMAPCOUNT)
+        bs=8 if fmt=='DXT1' else 16;struct.pack_into('<I',hdr,20,max(1,(w+3)//4)*max(1,(h+3)//4)*bs);struct.pack_into('<I',hdr,88,0)
+        struct.pack_into('<I',hdr,8,0x1|0x2|0x4|0x1000|0x80000|(0x20000 if mips>1 else 0))
         return bytes(hdr)+b''.join(x[1] for x in lv)
     # uncompressed: reuse original pixel format masks, 32bpp assumed
     hdr=bytearray(orighdr);bits=struct.unpack_from('<I',hdr,88)[0];rm,gm,bm,am=struct.unpack_from('<4I',hdr,92)
@@ -195,3 +199,9 @@ if __name__=='__main__':
     done,meta=build_all(T)
     json.dump(meta,open(f'{OUT}/meta.json','w'),indent=1)
     import pickle;pickle.dump(done,open(f'{OUT}/blobs.pkl','wb'))
+
+def fix_dds_header(path):
+    """rewrite the header of an existing DXT1/DXT5 file in place (same rules as write_dds)"""
+    d=bytearray(open(path,'rb').read());h,w=struct.unpack_from('<II',d,12);fc=bytes(d[84:88]);bs=8 if fc==b'DXT1' else 16;mm=struct.unpack_from('<I',d,28)[0]
+    struct.pack_into('<I',d,20,max(1,(w+3)//4)*max(1,(h+3)//4)*bs);struct.pack_into('<I',d,88,0);struct.pack_into('<I',d,8,0x1|0x2|0x4|0x1000|0x80000|(0x20000 if mm>1 else 0))
+    open(path,'wb').write(bytes(d))

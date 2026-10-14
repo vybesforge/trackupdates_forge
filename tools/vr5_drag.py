@@ -1,5 +1,5 @@
-"""VR5 drag strip: high-grip launch area + rubbered-in lanes + self-made Christmas tree (zw_draglaunch.kn5, MODEL_8).
-Rerunnable: reads /workspace/rpotm/backup/pre_vr5/vf_i29_speedway/vf_i29_speedway.kn5, writes vf_i29_speedway/vf_i29_speedway.kn5 + vf_i29_speedway/zw_draglaunch.kn5.
+"""VR5 drag strip: high-grip launch area + rubbered-in lanes + self-made Christmas tree (vf_draglaunch.kn5, MODEL_8).
+Rerunnable: reads /workspace/rpotm/backup/pre_vr5/vf_i29_speedway/vf_i29_speedway.kn5, writes vf_i29_speedway/vf_i29_speedway.kn5 + vf_i29_speedway/vf_draglaunch.kn5.
 Geometry (1DRAGstrip, run toward -z, strip x -260..-242, flat y -0.10, start line / tree at z -347.5, centre x -251.25):
 - 1DRAGstrip flat triangles are clipped at z -339 / -363.3 / -375.5 / -391 (Sutherland-Hodgman, full vertex interpolation,
   so UVs and heights are continuous). The pieces between -339 and -391 move to new meshes with the same material:
@@ -111,7 +111,7 @@ if __name__=='__main__':
     ME.append(dict(name='drtree_pole',mat_index=mi['drtree_galv'],verts=parts['pole'][0],idx=parts['pole'][1]))
     ME.append(dict(name='drtree_housing',mat_index=mi['drtree_black'],verts=L.merge([parts['housing'],parts['visor']])[0],idx=L.merge([parts['housing'],parts['visor']])[1]))
     for k,(V,I) in bulbs.items(): ME.append(dict(name=f'drtree_{k}',mat_index=mi[f'drtree_{k}'],verts=V,idx=I))
-    W.write_kn5(f'{Z}/zw_draglaunch.kn5',texs,mats,ME,rootname='zw_draglaunch');print('zw_draglaunch.kn5',[x['name'] for x in ME])
+    W.write_kn5(f'{Z}/vf_draglaunch.kn5',texs,mats,ME,rootname='vf_draglaunch');print('vf_draglaunch.kn5',[x['name'] for x in ME])
     for ini in('models_main.ini','models_short.ini'):
         p=f'{Z}/{ini}';s=open(p).read()
-        if 'zw_draglaunch.kn5' not in s: open(p,'a').write('\n[MODEL_8]\nFILE=zw_draglaunch.kn5\nPOSITION=0,0,0\nROTATION=0,0,0\n')
+        if 'vf_draglaunch.kn5' not in s: open(p,'a').write('\n[MODEL_8]\nFILE=vf_draglaunch.kn5\nPOSITION=0,0,0\nROTATION=0,0,0\n')
