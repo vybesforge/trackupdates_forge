@@ -8,13 +8,37 @@ def top(box,res=0.5):
     M=PR.physmeshes(files,box);xs,zs,H,KEY,UP,names=PR.raster(M,box,res);return xs,zs,H,KEY,names
 # 1) drag strip + launch lanes: the top surface must still be the strip / launch pads (not concrete, not a wall)
 xs,zs,H,KEY,names=top((-261,-243,-955,-340));n=np.array(names)[KEY[KEY>=0]];c={str(k):int((n==k).sum()) for k in set(n)}
-bad={k:v for k,v in c.items() if k.startswith(('1WALL','1CONCRETE'))};print('drag lanes top surfaces:',c,'-> walls/concrete on lanes:',bad or 'none');fails+=bool(bad)
+bad={k:v for k,v in c.items() if k.startswith(('1WALL','1CONCRETE','1GRAVEL'))};print('drag lanes top surfaces:',c,'-> walls/concrete on lanes:',bad or 'none');fails+=bool(bad)
 # 2) south road + return road: concrete on top
 import roads_concrete as R
 q,P,t,nn=R.centreline();G=(P[:,None,:]+np.linspace(-3.5,3.5,8)[None,:,None]*nn[:,None,:]).reshape(-1,2)
 xs,zs,H,KEY,names=top((-402,210,232,260),0.25);i=np.round((G[:,0]-xs[0])/0.25).astype(int);j=np.round((G[:,1]-zs[0])/0.25).astype(int)
 share=np.mean([names[k].startswith('1CONCRETE') for k in KEY[j,i]]);print(f'south road (8 m wide, sampled +-3.5 m): {100*share:.1f} % concrete on top');fails+=share<0.98
 xs,zs,H,KEY,names=top((-302,-294,-950,-552));n=np.array(names)[KEY[KEY>=0]];share=np.mean([k.startswith('1CONCRETE') for k in n]);print(f'return road: {100*share:.1f} % concrete on top');fails+=share<0.9
+# west-lot access road (x~-345) concrete on top; 190th St (vf_ext asphalt) untouched
+import west_lot as WL
+q,P,t,nn=WL.cline(WL.WR);G=(P[:,None,:]+np.linspace(-2.5,2.5,6)[None,:,None]*nn[:,None,:]).reshape(-1,2)
+xs,zs,H,KEY,names=top((-360,-330,-875,-475),0.25)
+i=np.clip(np.round((G[:,0]-xs[0])/0.25).astype(int),0,len(xs)-1);j=np.clip(np.round((G[:,1]-zs[0])/0.25).astype(int),0,len(zs)-1)
+share=np.mean([names[k].startswith('1CONCRETE') for k in KEY[j,i]]);print(f'west-lot access road (sampled +-2.5 m): {100*share:.1f} % concrete on top');fails+=share<0.97
+q,P,t,nn=WL.cline(WL.ST190);xs,zs,H,KEY,names=top((-412,-380,-990,240),0.5)
+i=np.clip(np.round((P[:,0]-xs[0])/0.5).astype(int),0,len(xs)-1);j=np.clip(np.round((P[:,1]-zs[0])/0.5).astype(int),0,len(zs)-1)
+bad=sum(names[k].startswith(('1CONCRETE_LOTRD','1GRAVEL_WESTLOT')) for k in KEY[j,i] if k>=0);print(f'190th St centreline: {bad} points covered by new overlays (expect 0)');fails+=bad>0
+# west lot: gravel share on dirt-classified cells, grass elsewhere
+xs,zs,dirt,XX,ZZ=WL.dirt_mask();txs,tzs,H,KEY,names=top((-390,-308,-955,-325),1.0)
+ok=0;tot=0;grav=0;grass=0
+for j in range(0,dirt.shape[0],2):
+  for i in range(0,dirt.shape[1],2):
+    x,z=float(XX[j,i]),float(ZZ[j,i]);ii=int(round((x-txs[0])/1.0));jj=int(round((z-tzs[0])/1.0))
+    if not (0<=ii<len(txs) and 0<=jj<len(tzs)): continue
+    k=KEY[jj,ii]
+    if k<0: continue
+    nm=names[k];tot+=1
+    if dirt[j,i]:
+      grav+=nm.startswith('1GRAVEL');ok+=nm.startswith('1GRAVEL')
+    else:
+      grass+=nm.startswith('1GRASS');ok+=nm.startswith(('1GRASS','1CONCRETE'))  # concrete road edges OK
+print(f'west lot sample: gravel-on-dirt {grav}, grass-on-non-dirt {grass}, ok {ok}/{tot}');fails+=tot and ok/tot<0.7
 # 3) collision proxies vs AI lines (both layouts) and pit spawns
 M=[t for fn,nm,t in PR.physmeshes(['vf_dragcol.kn5'],(-5000,5000,-5000,5000))];W_=np.vstack([t.reshape(-1,3) for t in M])
 for lay in ('main','short'):
@@ -24,4 +48,16 @@ for lay in ('main','short'):
         P=C.read_ai(p)['P']['p'].astype(float);d=min(np.hypot(W_[:,0]-x,W_[:,2]-z).min() for x,_,z in P[::2]);print(f'{lay} {ln}: nearest collision proxy {d:.1f} m');fails+=d<4
 pits=[n['W'][3,:3] for n in T.walk(f'{Z}vf_i29_speedway.kn5') if n['cls']==1 and n['name'].startswith(('AC_PIT_','AC_START_','AC_HOTLAP'))]
 d=min(np.hypot(W_[:,0]-p[0],W_[:,2]-p[2]).min() for p in pits);print(f'spawns/start points: nearest proxy {d:.1f} m');fails+=d<6
+# AI lines: new overlays must not be the top surface under any AI point
+NEW=('1CONCRETE_LOTRD','1GRAVEL_WESTLOT')
+for lay in ('main','short'):
+    for ln in ('fast_lane','pit_lane'):
+        p=f'{Z}{lay}/ai/{ln}.ai'
+        if not os.path.exists(p): continue
+        P=C.read_ai(p)['P']['p'].astype(float);bx=(P[:,0].min()-2,P[:,0].max()+2,P[:,2].min()-2,P[:,2].max()+2)
+        near=P[(P[:,0]<-300)]
+        if not len(near): print(f'{lay} {ln}: no AI points west of x -300 -> new west overlays cannot affect it');continue
+        b2=(near[:,0].min()-2,near[:,0].max()+2,near[:,2].min()-2,near[:,2].max()+2);xs,zs,H,KEY,names=top(b2,0.5)
+        i=np.clip(np.round((near[:,0]-xs[0])/0.5).astype(int),0,len(xs)-1);j=np.clip(np.round((near[:,2]-zs[0])/0.5).astype(int),0,len(zs)-1)
+        hit=sum(names[k].startswith(NEW) for k in KEY[j,i] if k>=0);print(f'{lay} {ln}: {hit} AI points on new west overlays');fails+=hit>0
 print('roads_verify fails:',fails);sys.exit(1 if fails else 0)
