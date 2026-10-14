@@ -8,7 +8,7 @@ import tents_v11 as TV,kn5write as W,kn5patch as K,vr5_meshlib as ML,vismeshes a
 Z=TV.Z;MAIN=f'{Z}/vf_i29_speedway.kn5'
 # old tents (centres from tents001 clusters): A (-325.0,-340.5) = back (furthest from the lanes at x -262..-242) -> removed
 # B (-317.3,-340.6), C (-317.4,-347.8) = front -> replaced. opening faces +x (towards the lanes / staging road)
-DRAG=[(19,-317.3,-340.6,-np.pi/2),(20,-317.4,-347.9,-np.pi/2)]
+DRAG=[(19,-317.3,-340.6,-np.pi/2),(20,-325.0,-340.5,np.pi)]   # v1.1.2: slot20 moved from (-317.4,-347.9) to the old back-tent spot, opening south (+z) towards the apron
 def ground(x,z,r=3.6):
     files=[f for f in os.listdir(Z) if f.endswith('.kn5') and f not in('vf_dragcol.kn5','vf_westlot.kn5','vf_dragtents.kn5')]
     box=(x-r,x+r,z-r,z+r);xs,zs,H,KEY,UP,names=PR.raster(PR.physmeshes(files,box),box,0.25)
