@@ -171,6 +171,9 @@ def verify(report=print):
     wb=sum(1 for w in C['walls'] for x,z in w if not disc_ok(x,z,0.5)[0]);wg=min(cargap(x,z,0.3) for w in C['walls'] for x,z in w)
     wl=min(DC.dist_line((x,z)) for w in C['walls'] for x,z in w);ok=wb==0 and wg>=6;fails+=not ok
     report(f'barriers: {sum(len(w) for w in C["walls"])} m, off-gravel samples {wb}, min {wl:.1f} m from the drift line, gap to spawned cars {wg:.1f} m  {"OK" if ok else "FAIL"}')
+    A=open_path(APPROACH);WW=np.vstack(C['walls']);ga=min(cargap(x,z,0.0) for x,z in A);ea=min(np.hypot(path[:,0]-x,path[:,1]-z).min() for x,z in A);wa=min(np.hypot(*(WW-q).T).min() for q in A)
+    ok=ga>=4.5 and ea>=8 and wa>=4.5;fails+=not ok
+    report(f'entrance lane: {len(A)} m spawn area -> drift entry, centre {ga:.1f} m from spawned cars, {ea:.1f} m from the exit route, {wa:.1f} m from barriers  {"OK" if ok else "FAIL"}')
     W_all=np.vstack(C['walls'])
     for s,x,z,yaw in SLOTS:
         okf,gy=disc_ok(x,z,4.25+1);dp=cargap(x,z);dr=np.hypot(path[:,0]-x,path[:,1]-z).min();dl=DC.dist_line((x,z))
@@ -241,6 +244,24 @@ def house_sign(name,cx,cz,facing,w,h,bottom):
     X=lambda VI:ML.xform(VI,yaw,(cx,gy,cz))
     return X((Fv,Fi)),X(back),X(posts),dict(yaw=yaw,ground=gy,surfaces=surf)
 # ---------------- course meshes
+APPROACH=[(76,91),(65,96),(56,103),(47,105.5),(39,106.5)]   # behind spawn row 2 (z 83) -> merges onto the drift line at its start   # v8 entrance lane centre line (x,z)
+def open_path(P,step=1.0):
+    P=np.array(P,float);P=np.vstack([2*P[0]-P[1],P,2*P[-1]-P[-2]]);out=[]
+    for i in range(1,len(P)-2):
+        p0,p1,p2,p3=P[i-1:i+3]
+        for t in np.linspace(0,1,24,endpoint=False): out.append(0.5*((2*p1)+(-p0+p2)*t+(2*p0-5*p1+4*p2-p3)*t*t+(-p0+3*p1-3*p2+p3)*t**3))
+    out.append(P[-2]);L=np.array(out);d=np.r_[0,np.cumsum(np.linalg.norm(np.diff(L,axis=0),axis=1))];q=np.arange(0,d[-1],step)
+    return np.stack([np.interp(q,d,L[:,0]),np.interp(q,d,L[:,1])],1)
+def entry_text_mesh(hat,c,t,n):
+    """8 x 2.4 m painted 'DRIFT ENTRY' decal, readable for a driver approaching along t"""
+    Q=[]
+    for f,g in ((-1,-1),(1,-1),(1,1),(-1,1)):
+        xy=c+f*4.0*n*(-1)+g*1.2*t;Q.append((xy[0],hat(*xy)+CONC_LIFT+0.03,xy[1]))
+    return ML.merge([face(Q,[(0,1),(1,1),(1,0),(0,0)],(0,1,0))])
+def entry_text_tex():
+    im=Image.new('RGBA',(512,160),(0,0,0,0));d=ImageDraw.Draw(im);f=ImageFont.truetype(f'{ROOT}/assets_src/brand/fonts/SpaceGrotesk-wght.ttf',104);f.set_variation_by_axes([700])
+    d.text((256,80),'DRIFT ENTRY',font=f,fill=(240,240,232,255),anchor='mm');a=np.array(im);a[...,3]=np.where(a[...,3]>110,255,0)
+    return B.write_dds(a,'DXT1',8,None)
 def tyre_uv(VI,lvl):
     """v8: atlas columns 0 black, 1 yellow, 2 black, 3 white paint. Middle tyre yellow, top cap white."""
     V,I=VI;V=V.copy();col=1 if lvl==1 else 0;top=V[:,4]>0.9
@@ -318,6 +339,16 @@ def course_meshes(hat):
     dx,dz,dr_=C['donut'];a=np.linspace(0,2*np.pi,73);paint.append(ribbon(np.stack([dx+dr_*np.cos(a),dz+dr_*np.sin(a)],1),0.2))
     for lvl in range(3): tyres.append(tyre_uv(ML.cyl((dx,hat(dx,dz)+lvl*0.22,dz),0.33,0.21,n=14),lvl))
     e=C['line'][0];tt=t[0];nr=np.array([tt[1],-tt[0]]);paint.append(ribbon(np.stack([e+s_*nr for s_ in np.linspace(-5,5,11)]),0.35))   # entry line
+    # v8: entrance lane spawn area -> drift entry (paint edge lines + chevrons + DRIFT ENTRY text, cone-lined from z>62, clear of the exit route)
+    A=open_path(APPROACH);ta=np.gradient(A,axis=0);ta/=np.linalg.norm(ta,axis=1,keepdims=True);na=np.stack([ta[:,1],-ta[:,0]],1)
+    for sd in (-1,1): paint.append(ribbon(A+sd*3.5*na,0.18))
+    for i in range(6,len(A)-4,7):
+        for sd in (-1,1): paint.append(ribbon(np.stack([A[i]+sd*2.2*na[i]-1.6*ta[i],A[i]+0.4*ta[i]]),0.35))   # chevron pointing to the entry
+    for i in range(0,len(A),6):
+        for sd in (-1,1):
+            q=A[i]+sd*4.3*na[i]
+            if q[1]>89 and DC.dist_line(q)>6 and min(np.hypot(*(np.vstack(C['walls'])-q).T))>1.5: cones+=cone(*q)
+    out['entry_text']=(A[len(A)*3//4],ta[len(A)*3//4],na[len(A)*3//4])
     out['refl']=ML.merge(out['refl']);out['cone']=ML.merge(cones);out['tyre']=ML.merge(tyres);out['paint']=ML.merge(paint);return out
 def write_ext_config(n):
     e=f'{EXT}/ext_config.ini';c=open(e,'rb').read().decode();a=c.index('; >>> v1.1 tents');b=c.index('; <<< v1.1 tents')+len('; <<< v1.1 tents')
@@ -362,6 +393,8 @@ if __name__=='__main__':
     print('drift pad: %d m2 cracked concrete'%ncell)
     for wi,(V,I) in enumerate(CM['wall']): meshes.append(dict(name=f'1WALL_DRIFT_{wi}',mat_index=4,verts=V,idx=I,lod_out=0))   # physics: collides (WALL)
     mats.append(solid('vfc_reflector','vfc_reflector.dds',0.9,60));meshes.append(dict(name='vfc_reflectors',mat_index=len(mats)-1,verts=CM['refl'][0],idx=CM['refl'][1],lod_out=300,flags=(0,0,0)))   # visual only
+    texs.append(('vfc_entry_text.dds',entry_text_tex()));mats.append(dict(solid('vfc_entry_text','vfc_entry_text.dds',0.05,8),at=1))
+    EV,EI=entry_text_mesh(hat,*CM['entry_text']);meshes.append(dict(name='vfc_entry_text',mat_index=len(mats)-1,verts=EV,idx=EI,lod_out=300,flags=(1,0,0)))
     meshes.append(dict(name='vfc_cones',mat_index=5,verts=CM['cone'][0],idx=CM['cone'][1],lod_out=500))
     meshes.append(dict(name='1WALL_DRIFT_TYRES',mat_index=6,verts=CM['tyre'][0],idx=CM['tyre'][1],lod_out=500))
     meshes.append(dict(name='vfc_paint',mat_index=7,verts=CM['paint'][0],idx=CM['paint'][1],lod_out=400,flags=(1,0,0)))
