@@ -16,7 +16,7 @@ v1.0.2: added the track params snippet. v1.0.1: rebuilt replay cameras (3 sets p
 ## Install
 Download `I-29_Speedway_v1.0.3.zip` (current release **v1.0.3**) from the GitHub Releases page or from `release/`. Unzip it into your Assetto Corsa root folder, or drag it onto Content Manager. It installs `content/tracks/vf_i29_speedway/` and the optional `apps/python/i29_dragtree/` app. Custom Shaders Patch (0.2.x) is recommended, but the track also runs in vanilla AC.
 
-If you have an old `content/tracks/zw_rpm` install, delete it first. If you clone this repo instead, you need Git LFS (`git lfs pull`), because the large files are stored in LFS. See `INSTALL_AGENT.md` for a scripted install.
+If you have an old `content/tracks/zw_rpm` install, delete it first. If you clone this repo instead, you need Git LFS (`git lfs pull`), because the large files are stored in LFS. See [`INSTALL_AGENT.md`](INSTALL_AGENT.md) for scripted client and server installs (release zip + SHA-256 check, clean replace, server setup, repair of earlier system/data edits).
 
 ## Running a server
 - **Vanilla acServer** does not need any track params; nothing to do.
