@@ -4,6 +4,7 @@ the 4 vr5_billboard_end_* panels) with one material + texture per billboard, sam
   vfboard_slot02 = west billboard (x -267..-262.3: upper _end_3 + lower _end_2)
 Art 2048x1024 DXT1 'PLACE YOUR AD HERE' + slot label -> assets_src/brand/board_slotNN.png, embedded in the kn5 and copied to
 vf_i29_speedway/extension/board_slotNN.dds (CSP SHADER_REPLACEMENT override, rotate ads without touching the kn5)."""
+import json as _json
 import sys,os,struct,numpy as np
 sys.path.insert(0,os.path.dirname(os.path.abspath(__file__)))
 import kn5patch as K,kn5write as W,build_open_textures as B
@@ -26,6 +27,8 @@ def art(slot):
     ct(790,'Advertise: vybesforge.com',font(110,500),(40,40,44));ct(925,f'BILLBOARD SLOT {slot:02d}',font(56,600),(100,100,104))
     im.save(f'{ROOT}/assets_src/brand/board_slot{slot:02d}.png');a=np.array(im)
     return B.write_dds(np.dstack([a,np.full(a.shape[:2],255,np.uint8)]),'DXT1',11,None)
+_bj=os.path.join(ROOT,'assets_src','ads','brands.json')
+_SOLD={x for k,v in (_json.load(open(_bj)).items() if os.path.exists(_bj) else []) if not k.startswith('_') and not v.get('pending') for x in v.get('board_slots',[])}   # slots with advertiser art in extension/ (tools/make_ad.py): never overwritten
 if __name__=='__main__':
     d=open(KN5,'rb').read();_,nodes=K.scan(KN5);M=W.read_materials(KN5);base=M.get('billboard_adhere') or M['vfboard_slot01'];mesh={}
     for name,o,l,c in nodes:
@@ -35,7 +38,7 @@ if __name__=='__main__':
     assert sorted(mesh)==sorted(sum(SLOTS.values(),())),sorted(mesh)
     texs=[];mats=[];ME=[];os.makedirs(f'{Z}/extension',exist_ok=True)
     for s,names in SLOTS.items():
-        tn=f'board_slot{s:02d}.dds';b=art(s);texs.append((tn,b));open(f'{Z}/extension/{tn}','wb').write(b)
+        tn=f'board_slot{s:02d}.dds';b=art(s);texs.append((tn,b));(None if s in _SOLD else open(f'{Z}/extension/{tn}','wb').write(b))
         mats.append(dict(name=f'vfboard_slot{s:02d}',shader=base['shader'],ab=0,at=0,dm=base['dm'],props=base['props'],samplers=[('txDiffuse',0,tn)]))
         for n in names: ME.append(dict(name=n,mat_index=len(mats)-1,verts=mesh[n][0],idx=mesh[n][1]))
     W.write_kn5(KN5,texs,mats,ME,rootname='zw_vr5');print('zw_vr5.kn5:',[(m['name'],mats[m['mat_index']]['name']) for m in ME])

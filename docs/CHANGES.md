@@ -593,3 +593,10 @@ Backup: `/workspace/rpotm/backup/pre_vr9b_holefix/zw_rpm.kn5` (004b983 state).
   vfhouse_*, collision 1WALL_HOUSE_*, texture house_advertise.dds and its PNG). Tent fallback art keeps "Advertise: vybesforge.com".
   Drag-end billboards (zw_vr5.kn5 + extension/board_slot01/02.dds) re-drawn in the v2 neutral style: "PLACE YOUR / AD HERE /
   Advertise: vybesforge.com / BILLBOARD SLOT NN". spawn_verify 36/36, route found (main+short); tent/course checks 0 fails.
+- **v1.1: advertiser ad template** `tools/make_ad.py` (+ `assets_src/ads/brands.json`): brand name, domain, tagline, optional logo,
+  colours -> `tent_slotNN.dds` (2048, tent atlas: roof, valance/table skirt/flag, back wall) and `board_slotNN.dds` (2048x1024);
+  `--apply` writes only `vf_i29_speedway/extension/` (CSP overrides). Sample ads (colours from each site's CSS/theme, text-based except
+  the VF logo): tent slot01 + billboard slot01 = VYBES FORGE / vybesforge.com; tent slot05 = PUSSIE NIP / pussynip.com / PREMIUM CATNIP;
+  tent slot09 + billboard slot02 = CHICKENPERIOD / chickenperiod.com / EST 2026. Slot 13 reserved for the pending "randomly...com" brand
+  (brands.json entry marked pending; --apply refuses until filled in). tents_v11.py / boards_v11.py no longer overwrite sold slots.
+  No kn5, models ini, surfaces.ini or camera file changed; baked fallback art stays YOUR AD HERE.

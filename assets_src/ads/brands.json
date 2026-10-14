@@ -1,0 +1,12 @@
+{
+  "_doc": "Advertiser brands for tools/make_ad.py. Colors from each site's CSS/theme (fetched 2026-10-14). logo: optional PNG/JPG path (repo-relative). slots: tent/board slots that get this brand as a CSP override in vf_i29_speedway/extension/ (kn5 fallback stays YOUR AD HERE).",
+  "vybesforge":   {"name": "VYBES FORGE", "domain": "vybesforge.com", "tagline": "BUILT IN THE FORGE", "logo": "assets_src/brand/vf_logo.jpg",
+                   "bg": "#02060f", "fg": "#e8ecf5", "accent": "#29d5e9", "accent2": "#bf338a", "tent_slots": [1], "board_slots": [1]},
+  "pussynip":     {"name": "PUSSIE NIP", "domain": "pussynip.com", "tagline": "PREMIUM CATNIP", "logo": null,
+                   "bg": "#1a1218", "fg": "#f5e8f0", "accent": "#ff2e63", "accent2": "#a38a9b", "tent_slots": [5], "board_slots": []},
+  "chickenperiod":{"name": "CHICKENPERIOD", "domain": "chickenperiod.com", "tagline": "EST 2026", "logo": null,
+                   "bg": "#0a0a0a", "fg": "#f5f5f5", "accent": "#ff0033", "accent2": "#ffcc00", "tent_slots": [9], "board_slots": [2]},
+  "randomly":     {"name": "RANDOMLY", "domain": "randomly.com", "tagline": "", "logo": null, "pending": true,
+                   "bg": "#101010", "fg": "#f0f0f0", "accent": "#7ff0b8", "accent2": "#c6cddc", "tent_slots": [13], "board_slots": [],
+                   "_note": "domain pending (randomly...com). Reserved slot 13; fill in name/domain/colors and run tools/make_ad.py --brand randomly --apply"}
+}

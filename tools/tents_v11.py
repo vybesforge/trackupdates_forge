@@ -6,6 +6,7 @@ towards the spawns (-z). Tent: 6 x 6 m, black frame, charcoal sagging 4-panel ro
 print valance, light-grey back wall, black base plates + 2 sandbags per leg, 1.8 m table with printed front skirt,
 feather flag on every other tent, soft contact-shadow decal. UV atlas (2048): rows 0-1024 roof triangle, 1024-1280
 valance/print strip (also table skirt + flag), 1280-2032 back wall, 2032-2048 plain. Run: python3 tools/tents_v11.py [--verify-only]"""
+import json as _json
 import sys,os,numpy as np
 sys.path.insert(0,os.path.dirname(os.path.abspath(__file__)))
 import kn5write as W,vr5_meshlib as ML,build_open_textures as B
@@ -290,6 +291,8 @@ def write_ext_config(n):
     L+=['','[MATERIAL_ADJUSTMENT_BOARD_NIGHT]','DESCRIPTION = v1.1 drag-end billboards: backlit look at night','MATERIALS = vfboard_slot??',
         'KEY_0 = ksEmissive','VALUE_0 = 1.0, 1.0, 1.0, 0.6','VALUE_0_OFF = 0, 0, 0','CONDITION = NIGHT_SMOOTH','','; <<< v1.1 tents']
     c=c[:a]+'\n'.join(L)+c[b:];assert '\r' not in c;open(e,'wb').write(c.encode())
+_bj=os.path.join(ROOT,'assets_src','ads','brands.json')
+_SOLD={x for k,v in (_json.load(open(_bj)).items() if os.path.exists(_bj) else []) if not k.startswith('_') and not v.get('pending') for x in v.get('tent_slots',[])}   # slots with advertiser art in extension/ (tools/make_ad.py): never overwritten
 if __name__=='__main__':
     fails,GY,RD=verify();hat=RD[-2];RAST=RD[-1]
     if fails or '--verify-only' in sys.argv: sys.exit(1 if fails else 0)
@@ -322,7 +325,7 @@ if __name__=='__main__':
     for f in os.listdir(EXT):
         if f.startswith('tent_slot') and int(f[9:11])>NSLOTS: os.remove(f'{EXT}/{f}')
     for s,x,z,yaw in SLOTS:
-        big,small=art(s);tn=f'tent_slot{s:02d}.dds';texs.append((tn,small));open(f'{EXT}/{tn}','wb').write(big)
+        big,small=art(s);tn=f'tent_slot{s:02d}.dds';texs.append((tn,small));(None if s in _SOLD else open(f'{EXT}/{tn}','wb').write(big))
         mats.append(dict(name=f'vftent_slot{s:02d}',shader=base['shader'],ab=0,at=0,dm=base['dm'],props=base['props'],
                          samplers=[('txDiffuse',0,tn),('txNormal',1,'fabric_nm_v2.dds'),('txMaps',2,'fabric_maps.dds'),('txDetail',3,'NULL.dds')]))
         parts=canopy(x,z,GY[s],yaw,s,lift=HMAX[(round(x,2),round(z,2))]-GY[s]+CONC_LIFT+0.025)
