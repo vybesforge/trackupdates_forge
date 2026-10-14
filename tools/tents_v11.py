@@ -14,9 +14,11 @@ ROOT=os.path.abspath(os.path.join(os.path.dirname(__file__),'..'));Z=f'{ROOT}/vf
 FONT=f'{OUT}/fonts/SpaceGrotesk-wght.ttf';LOGO=f'{OUT}/vf_logo.jpg'
 BG=(2,6,15);CY=(41,213,233);MG=(191,51,138);AM=(255,176,0);TX=(232,236,245);N=2048
 W_,D_,EAVE,APEX,VAL,BACK_WALL=6.0,6.0,2.4,3.4,0.35,True
-# slot, x, z, kind   (01-06 = VR4 spots, 07-12 new in v1.1)
-SLOTS=[(1,12,142,'adhere'),(2,66,142,'adhere'),(3,119,142,'adhere'),(4,39,185,'adhere'),(5,60,210,'adhere'),(6,90,190,'adhere'),
-       (7,14,170,'adhere'),(8,14,200,'adhere'),(9,140,165,'adhere'),(10,140,200,'adhere'),(11,39,142,'adhere'),(12,93,142,'adhere')]
+# slot, x, z, kind. Vendor row (01,11,02,12,03) at z 98: directly behind the 36 spawns (rows z 72/83, cars face -z towards the
+# exit strip z 50-60), as close as the margin allows: >=8 m gap between tent footprint and any spawned car footprint (5.2 x 2.2 m).
+# 04-10 stay further back in the lot.
+SLOTS=[(1,12,98,'adhere'),(2,66,98,'adhere'),(3,119,98,'adhere'),(4,39,185,'adhere'),(5,60,210,'adhere'),(6,90,190,'adhere'),
+       (7,14,170,'adhere'),(8,14,200,'adhere'),(9,140,165,'adhere'),(10,140,200,'adhere'),(11,39,98,'adhere'),(12,93,98,'adhere')]
 def font(sz,w=700):
     f=ImageFont.truetype(FONT,sz)
     try: f.set_variation_by_axes([w])
@@ -116,12 +118,12 @@ def verify(report=print):
         for a in np.linspace(-W_/2-1,W_/2+1,15):
             for b in np.linspace(-D_/2-1,D_/2+1,15):
                 ii=int(round((x+a-xs[0])/res));jj=int(round((z+b-zs[0])/res));kk=KEY[jj,ii];ks.add(names[kk] if kk>=0 else None);hs.append(H[jj,ii])
-        hs=np.array(hs);dp=min(np.hypot(p[0]-x,p[2]-z) for p in pits);dr=np.hypot(path[:,0]-x,path[:,1]-z).min()
+        hs=np.array(hs);dp=min(np.hypot(max(0,abs(p[0]-x)-W_/2-1.1),max(0,abs(p[2]-z)-D_/2-2.6)) for p in pits);dr=np.hypot(path[:,0]-x,path[:,1]-z).min()   # dp: gap tent<->car footprint;dr=np.hypot(path[:,0]-x,path[:,1]-z).min()
         dt=min(np.hypot(x-x2,z-z2) for s2,x2,z2,_ in SLOTS if s2!=s)
-        ok=ks=={'1GRAVEL_PADDOCK'} and np.ptp(hs)<0.15 and dp>=25 and dr>=25 and dt>=15
+        ok=ks=={'1GRAVEL_PADDOCK'} and np.ptp(hs)<0.15 and dp>=8 and dr>=25 and dt>=15
         fails+=not ok;heights[s]=float(np.nanmin(hs))  # lowest point: nothing floats, high side sinks <=15 cm
-        report(f'slot{s:02d} ({x:4},{z:4}) {k:6} surf={sorted(map(str,ks))} dz={np.ptp(hs):.3f} m  ground={heights[s]:+.3f}  spawn {dp:5.1f} m  exit-route {dr:5.1f} m  next tent {dt:4.1f} m  {"OK" if ok else "FAIL"}')
-    report(f'{len(SLOTS)-fails}/{len(SLOTS)} slots OK (footprint +1 m margin on 1GRAVEL_PADDOCK, flat <15 cm, >=25 m from spawns and exit route, >=15 m apart)')
+        report(f'slot{s:02d} ({x:4},{z:4}) {k:6} surf={sorted(map(str,ks))} dz={np.ptp(hs):.3f} m  ground={heights[s]:+.3f}  car gap {dp:5.1f} m  exit-route {dr:5.1f} m  next tent {dt:4.1f} m  {"OK" if ok else "FAIL"}')
+    report(f'{len(SLOTS)-fails}/{len(SLOTS)} slots OK (footprint +1 m margin on 1GRAVEL_PADDOCK, flat <15 cm, >=8 m gap to spawned cars, >=25 m from exit route, >=15 m apart)')
     return fails,heights,(xs,zs,H,KEY,names,pits,path)
 if __name__=='__main__':
     fails,GY,_=verify()

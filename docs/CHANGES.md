@@ -529,11 +529,12 @@ Backup: `/workspace/rpotm/backup/pre_vr9b_holefix/zw_rpm.kn5` (004b983 state).
 - **zw_tents.kn5 rebuilt** (tools/tents_v11.py): 12 new 6 x 6 m pop-up canopies (4 galvanised legs + foot plates, eave frame, scissor truss,
   4-panel peaked roof eave 2.4 / apex 3.4 m, 0.35 m valance, fabric back wall on +z; double-sided fabric; 2640 tris). One material +
   2048 DXT1 texture per tent: `vftent_slot01..12` / `tent_slotNN.dds`. Frame: `vftent_frame` (own_galv). Visual only, no collision.
-  Slots 01-06 = VR4 spots (12,142) (66,142) (119,142) (39,185) (60,210) (90,190); new 07-12 = (14,170) (14,200) (140,165) (140,200) (39,142) (93,142).
+  Vendor row next to the spawns (z 98, directly behind the back spawn row z 83; 9.4 m gap tent<->car footprint): slots 01 (12), 11 (39), 02 (66), 12 (93), 03 (119).
+  Further back: 04 (39,185) 05 (60,210) 06 (90,190) 07 (14,170) 08 (14,200) 09 (140,165) 10 (140,200).
   All 12 are open "YOUR AD HERE / TENT SLOT NN" (house ads vybesforge.com / drivenbycrusemob.com removed per Dylan). Art: assets_src/brand/tent_slotNN.png.
   Each tent base = lowest ground point under its footprint (lidar grade, max 12 cm spread).
-- Verified (tents_v11.py --verify-only, physics raster 0.25 m): every footprint +1 m margin is 1GRAVEL_PADDOCK only, >=59 m from all
-  36 AC_PIT spawns, >=86 m from the spawn exit route (tools/data/path_main.npy), >=26 m between tents. spawn_verify.py: 36/36 OK, route found (main+short).
+- Verified (tents_v11.py --verify-only, physics raster 0.25 m): every footprint +1 m margin is 1GRAVEL_PADDOCK only, >=9.4 m gap to all
+  36 spawned-car footprints, >=42 m from the spawn exit route (tools/data/path_main.npy), >=26 m between tents. spawn_verify.py: 36/36 OK, route found (main+short).
 - **Drag-end billboards** (tools/boards_v11.py, zw_vr5.kn5): the shared `billboard_adhere` is split into `vfboard_slot01` (east, x -247..-242.5:
   vr5_billboard_end_0/1) and `vfboard_slot02` (west, x -267..-262.3: end_2/3), 2048x1024 "PLACE YOUR AD HERE / BILLBOARD SLOT NN". Geometry unchanged.
 - **Checksum-safe ad rotation (CSP):** ext_config.ini `[SHADER_REPLACEMENT_TENT_SLOTNN]` / `[SHADER_REPLACEMENT_BOARD_SLOTNN]` override txDiffuse
