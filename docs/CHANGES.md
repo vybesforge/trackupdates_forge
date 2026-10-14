@@ -508,3 +508,8 @@ Backup: `/workspace/rpotm/backup/pre_vr9b_holefix/zw_rpm.kn5` (004b983 state).
 - Rebuilt replay/TV cameras: 3 sets per layout (corner apex + straight cams), LOS-validated (VR12).
 - Restored dirt/gravel textures, vf_ruts, surfaces and ext_config (VR11).
 - Version 1.0.1 in `ui/{main,short}/ui_track.json`; release zip `I-29_Speedway_v1.0.1.zip`.
+
+## v1.0.2
+- Server fix: added `server/data_track_params_vf_i29_speedway.ini` (`[vf_i29_speedway]`, NAME=I-29 Speedway, LATITUDE=41.024167, LONGITUDE=-95.832778, TIMEZONE=America/Chicago; coordinates from the ui_track.json geotags 41°01′27″N 95°49′58″W, west = negative as in CSP's data_track_params.ini) and idempotent `server/add_track_params.py`. Fixes "No track params found for vf_i29_speedway" on AC dedicated / CM servers (entry was lost with the rename from `zw_rpm`). Shipped in the zip under `server/`, outside the track folder; the full data_track_params.ini is intentionally not shipped.
+- README: "Running a server" section.
+- Version 1.0.2 in `ui/{main,short}/ui_track.json`; release zip `I-29_Speedway_v1.0.2.zip`.

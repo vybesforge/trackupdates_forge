@@ -1,13 +1,14 @@
 """Build the I-29 Speedway release zip (local only; publishing is a separate, manual step).
-Usage: python tools/build_release.py [version] [outdir]      default: v1.0.1  /workspace/rpotm/release
+Usage: python tools/build_release.py [version] [outdir]      default: v1.0.2  /workspace/rpotm/release
 Zip layout (drop-in for the Assetto Corsa root folder or Content Manager drag & drop):
   content/tracks/vf_i29_speedway/...          track (all layouts, CSP extension incl. reactive drag tree)
   apps/python/i29_dragtree/...       vanilla-AC Python drag tree + timeslip app
+  server/                            data_track_params snippet + add_track_params.py (dedicated server / CM hosting)
   I-29_Speedway_docs/                LICENSE, NOTICE, CREDITS.md, README.md, RELEASE_NOTES.md
 Refuses to build if any LFS file is still a pointer, or if forbidden branding strings are found in text files."""
 import hashlib, os, re, sys, zipfile
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-VER = sys.argv[1] if len(sys.argv) > 1 else 'v1.0.1'
+VER = sys.argv[1] if len(sys.argv) > 1 else 'v1.0.2'
 OUT = sys.argv[2] if len(sys.argv) > 2 else '/workspace/rpotm/release'
 FORBID = re.compile(r'1320|smile\s*like\s*kyle|drivenbycruise', re.I)
 TEXT = ('.ini', '.json', '.lua', '.py', '.md', '.txt', '.csv')
@@ -27,6 +28,8 @@ def main():
         entries.append((p, 'content/tracks/vf_i29_speedway/' + os.path.relpath(p, os.path.join(ROOT, 'vf_i29_speedway'))))
     for p in files(os.path.join(ROOT, 'apps', 'python', 'i29_dragtree')):
         entries.append((p, 'apps/python/i29_dragtree/' + os.path.basename(p)))
+    for f in ('data_track_params_vf_i29_speedway.ini', 'add_track_params.py'):
+        entries.append((os.path.join(ROOT, 'server', f), 'server/' + f))
     for f in ('LICENSE', 'NOTICE', 'CREDITS.md', 'README.md'):
         entries.append((os.path.join(ROOT, f), 'I-29_Speedway_docs/' + f))
     entries.append((notes, 'I-29_Speedway_docs/RELEASE_NOTES.md'))
