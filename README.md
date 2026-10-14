@@ -8,6 +8,13 @@ An open-source Assetto Corsa track of **I-29 Speedway** (formerly Raceway Park o
 - 1/8-mile drag strip with a reactive two-lane tree. It runs on the pole with CSP; without CSP, the bundled Python app shows it on the monitor.
 - Paddock, north extension roads to the fuel stations and US-34, and night lights (CSP).
 
+## What's new in v1.1.1
+- **Cracked concrete roads** (CONCRETE grip): the drag return road, the south road (Jesup Ave, bumps smoothed ~50%), and the **west-lot loop** (lot access road, exit to 190th St, return-road extension and cross links), all connected.
+- **West parking lot** grass vs dirt from the satellite: dirt patches are gravel, grass stays grass, gravel kept off objects.
+- **Drag-area collision** on the existing objects, buildings and fences (invisible `1WALL_DRAG_*` boxes; lanes and staging stay clear).
+- **2 new drag-area ad tents** (`vftent_slot19/20`) replace the old staging tents: **20 tent slots** in total.
+- **Checksums changed** (`vf_i29_speedway.kn5`, `models_*.ini`, new `vf_roads.kn5`, `vf_dragcol.kn5`, `vf_westlot.kn5`, `vf_dragtents.kn5`): the server and every client need the v1.1.1 files.
+
 ## What's new in v1.1.0
 - **Paddock drift course** on cracked concrete (CONCRETE grip): a flowing 309 m line with transitions, a sweeper and a donut. Painted red/white jersey barriers and banded tyre stacks with collision, cones, painted clipping zones, and a marked entrance lane from the spawn rows.
 - **Ad slots:** 18 vendor tents plus the 2 drag-strip end billboards, each a sellable slot. Advertiser art is loaded from `skins/default/tent_slotNN.dds` / `board_slotNN.dds` (works in vanilla AC and with CSP, not checksummed). The fallback art reads "YOUR AD HERE / Advertise: vybesforge.com". `tools/make_ad.py` makes new ad textures.
@@ -18,12 +25,12 @@ An open-source Assetto Corsa track of **I-29 Speedway** (formerly Raceway Park o
 v1.0.4: `.gitattributes` EOL fix for git installs. v1.0.3: server docs corrected (AssettoServer `cfg/data_track_params.ini` only). v1.0.2: added the track params snippet. v1.0.1: rebuilt replay cameras (3 sets per layout) and restored dirt/gravel textures.
 
 ## Install
-Download `I-29_Speedway_v1.1.0.zip` (current release **v1.1.0**) from the GitHub Releases page or from `release/`. Unzip it into your Assetto Corsa root folder, or drag it onto Content Manager. It installs `content/tracks/vf_i29_speedway/` and the optional `apps/python/i29_dragtree/` app. Custom Shaders Patch (0.2.x) is recommended, but the track also runs in vanilla AC.
+Download `I-29_Speedway_v1.1.1.zip` (current release **v1.1.1**) from the GitHub Releases page or from `release/`. Unzip it into your Assetto Corsa root folder, or drag it onto Content Manager. It installs `content/tracks/vf_i29_speedway/` and the optional `apps/python/i29_dragtree/` app. Custom Shaders Patch (0.2.x) is recommended, but the track also runs in vanilla AC.
 
 If you have an old `content/tracks/zw_rpm` install, delete it first. If you clone this repo instead, you need Git LFS (`git lfs pull`), because the large files are stored in LFS. See [`INSTALL_AGENT.md`](INSTALL_AGENT.md) for scripted client and server installs (release zip + SHA-256 check, clean replace, server setup, repair of earlier system/data edits).
 
 ## Checksums / installing from git
-Install from the release zip. AC checksums `*.kn5`, `surfaces.ini` and `models*.ini` byte-for-byte; a Windows git checkout with `core.autocrlf=true` (before the v1.0.4 `.gitattributes` fix) converted `.ini` files to CRLF and caused "checksum failed" online. If you copy from git, use a fresh clone of main/v1.1.0 or set `core.autocrlf false`. MD5s of all checksummed files are listed in `INSTALL_AGENT.md`.
+Install from the release zip. AC checksums `*.kn5`, `surfaces.ini` and `models*.ini` byte-for-byte; a Windows git checkout with `core.autocrlf=true` (before the v1.0.4 `.gitattributes` fix) converted `.ini` files to CRLF and caused "checksum failed" online. If you copy from git, use a fresh clone of main/v1.1.1 or set `core.autocrlf false`. MD5s of all checksummed files are listed in `INSTALL_AGENT.md`.
 
 ## Running a server
 - **Vanilla acServer** does not need any track params; nothing to do.
