@@ -1,28 +1,33 @@
 # Announcement drafts: NOT POSTED (need Dylan's approval)
 
-Download link placeholders (`<LINK>`) to be filled once a release is published.
+Download link is live for the current release.
 
 ## 1. vybesforge.com (news / blog post)
 
-**Title:** I-29 Speedway for Assetto Corsa: v1.0.0 release candidate
+**Title:** I-29 Speedway for Assetto Corsa is out (v1.1.2)
 
-I-29 Speedway is coming to Assetto Corsa. The first release candidate is ready for testing.
+I-29 Speedway is on Assetto Corsa. Free and open source (Apache-2.0).
 
-It is built on zwiss's excellent Raceway Park of the Midlands, and it has been reworked to look, drive and feel like the real place in Pacific Junction, Iowa:
+Built on zwiss's Raceway Park of the Midlands, rebuilt to look and drive like the real place in Pacific Junction, Iowa:
 
-- **True-to-life elevation** from 1 m USGS lidar.
-- **A working 1/8-mile drag strip.** Launch grip, real exit turnoffs, and a live two-lane Christmas tree that reacts when you stage, gives you a red light if you jump it, and prints a timeslip (reaction, 60 ft, 330 ft, ET and trap speed). With CSP the tree on the pole lights up for real, including in VR. Without CSP, the included app shows the tree and timeslip in a window on your monitor.
-- **I-29 Speedway Long Course and Short Course layouts**, with fresh AI lines and proper cut detection.
-- **A rebuilt paddock and pits** with 36 boxes, plus night lighting with CSP.
-- **The roads north of the track**, out to the fuel stations.
+- True-to-life elevation from USGS lidar
+- Long Course and Short Course layouts, with AI lines and cut detection
+- 1/8-mile drag strip with a live two-lane Christmas tree (CSP lights the pole tree, including in VR; vanilla gets the bundled monitor app)
+- Paddock drift course, 20 sellable ad tent slots, concrete west-lot and return roads
+- Night lighting with CSP
 
-It's free and open source (Apache-2.0). This is a release candidate, so please drive it, especially in VR, and tell us what feels off.
+Download: https://github.com/vybesforge/trackupdates_forge/releases/tag/v1.1.2
+Source: https://github.com/vybesforge/trackupdates_forge
 
-Download: <LINK>. Source: https://github.com/vybesforge/trackupdates_forge
+See you at the line. - Vybes Forge / drivenbycrusemob.com
 
-See you at the line. — Vybes Forge / drivenbycrusemob.com
+## 2. X post for @Dylan_cruse (workshop roundup)
 
-## 2. X post for @Dylan_cruse (≤ 280 chars)
+Not a startup. Just a pile of random shit that somehow shipped.
+Premium catnip that makes your cat act completely unhinged. A henstrual cycle tracker nobody asked for. Functional BMW prints that actually fit. Public Assetto Corsa servers on Tail of the Dragon, plus a new open-source I-29 Speedway track.
+https://github.com/vybesforge/trackupdates_forge/releases/tag/v1.1.2
 
-I-29 Speedway is coming to Assetto Corsa 🏁 v1.0.0: lidar elevation, Long + Short Course, 1/8-mile drag strip w/ live 2-lane tree + timeslips (pole tree & VR need CSP; vanilla app on monitor). Free & open source. Test it & tell me what's off 👇
-<LINK>
+## 3. X post (track-only)
+
+I-29 Speedway is on Assetto Corsa. Lidar elevation, Long + Short Course, 1/8-mile drag strip with a live 2-lane tree, paddock drift course, ad tents. Free and open source.
+https://github.com/vybesforge/trackupdates_forge/releases/tag/v1.1.2
