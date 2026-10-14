@@ -5,7 +5,7 @@ sys.path.insert(0,os.path.dirname(os.path.abspath(__file__)))
 import kn5patch as K,kn5write as W,tents_v11 as TV
 from PIL import Image
 import matplotlib;matplotlib.use('Agg');import matplotlib.pyplot as plt
-OUT=sys.argv[1] if len(sys.argv)>1 else '/workspace/tent_previews/v2';os.makedirs(OUT,exist_ok=True);KN5=f'{TV.Z}/zw_tents.kn5'
+OUT=sys.argv[1] if len(sys.argv)>1 else '/workspace/tent_previews/v3';os.makedirs(OUT,exist_ok=True);KN5=f'{TV.Z}/zw_tents.kn5'
 def load(KN5=KN5):
     d=open(KN5,'rb').read();_,nodes=K.scan(KN5);mats=list(W.read_materials(KN5).items());tex={};ms=[]
     for name,o,l,c in nodes:
@@ -55,33 +55,45 @@ def render(ms,tex,eye,target,fov=50,size=(1600,900),night=False,ground=None):
         sub[m]=z[m];im=img[y0:y1+1,x0:x1+1];im[m]=c[m]
     return Image.fromarray((np.clip(img,0,1)*255).astype(np.uint8))
 if __name__=='__main__':
-    fails,GY,(xs,zs,H,KEY,names,pits,path)=TV.verify(lambda s:None)
-    # top-down
-    fig,ax=plt.subplots(figsize=(12,9),dpi=130);lut={n:i for i,n in enumerate(names)};cls=np.full(KEY.shape,0.0)
+    import drift_course as DC
+    from matplotlib.patches import Patch,Polygon
+    from matplotlib.lines import Line2D
+    fails,GY,(xs,zs,H,KEY,names,pits,path,hat)=TV.verify(lambda s:None);C=DC.course()
+    fig,ax=plt.subplots(figsize=(12,10),dpi=130);lut={n:i for i,n in enumerate(names)};cls=np.full(KEY.shape,0.0)
     for n,i in lut.items():
         v=1 if 'GRAVEL' in n else 2 if ('CONCRETE' in n or 'PITS' in n or 'ROAD' in n or 'ASPH' in n) else 3 if 'GRASS' in n else 4
         cls[KEY==i]=v
     from matplotlib.colors import ListedColormap
     ax.imshow(cls,origin='lower',extent=(xs[0],xs[-1],zs[0],zs[-1]),cmap=ListedColormap(['#222','#b8a88a','#888','#6a9a55','#556']),vmin=0,vmax=4,interpolation='nearest')
-    ax.plot(path[:,0],path[:,1],'-',c='orange',lw=2,label='spawn exit route (path_main)')
-    P=np.array(pits);ax.scatter(P[:,0],P[:,2],s=10,c='white',marker='s',label='AC_PIT spawns (36)')
-    for s,x,z,k in TV.SLOTS:
-        ax.add_patch(plt.Rectangle((x-3,z-3),6,6,fc='#3a3b3e',ec='k',lw=1));o=-np.sign(k)   # opening side (+x for yaw -pi/2)
-        ax.plot([x+o*3,x+o*3],[z-3,z+3],c='white',lw=2);ax.text(x-o*5,z,f'{s:02d}',ha='center',va='center',fontsize=7,color='k',weight='bold')
-    ax.set_xlim(-40,170);ax.set_ylim(30,160);ax.set_xlabel('x (m)');ax.set_ylabel('z (m)  (pits at low z)')
-    from matplotlib.patches import Patch;from matplotlib.lines import Line2D
-    h,lb=ax.get_legend_handles_labels();h+=[Patch(fc='#3a3b3e',ec='k',label='vendor tent 6x6 m (slot NN)'),Line2D([],[],c='white',lw=2,label='open side (aisle)')]
-    ax.legend(handles=h,loc='lower left',fontsize=8,facecolor='#999')
-    ax.set_title('I-29 Speedway tents v1.1 (v2): 12 open ad slots, car-meet vendor cluster behind the spawns');fig.tight_layout();fig.savefig(f'{OUT}/tents_topdown.png');print('topdown')
-    ms,tex=load();gy=float(np.median(list(GY.values())))
-    G=(20,130,60,160,gy-0.02)
-    render(ms,tex,(40,22,70),(75,0,118),55,ground=G).save(f'{OUT}/tents_aerial.png')
-    render(ms,tex,(40,22,70),(75,0,118),55,night=True,ground=G).save(f'{OUT}/tents_aerial_night.png')
-    render(ms,tex,(75,1.25,83),(75,1.8,110),70,ground=G).save(f'{OUT}/tents_view_from_spawn.png')       # driver eye, back-row spawn
-    render(ms,tex,(75,1.7,92),(75,1.8,125),65,ground=G).save(f'{OUT}/tents_aisle_entrance.png')
-    render(ms,tex,(77,1.7,101),(68,1.4,107),70,ground=G).save(f'{OUT}/tents_closeup_slot02.png')
-    render(ms,tex,(60,2.0,88),(68,1.4,98),60,ground=G).save(f'{OUT}/tents_closeup_slot01_side.png')
+    ax.plot(path[:,0],path[:,1],'-',c='orange',lw=2)
+    P=np.array(pits);ax.scatter(P[:,0],P[:,2],s=10,c='white',marker='s')
+    L=np.vstack([C['line'],C['line'][:1]]);ax.plot(L[:,0],L[:,1],'-',c='#d00000',lw=2.2)
+    t,_,_=DC.frames()
+    for i in range(0,len(C['line']),25): ax.annotate('',xy=C['line'][i]+t[i]*3,xytext=C['line'][i],arrowprops=dict(arrowstyle='->',color='#d00000',lw=1.5))
+    for z_ in C['zones']: ax.plot(z_[:,0],z_[:,1],'--',c='white',lw=1)
+    for w in C['walls']: ax.plot(w[:,0],w[:,1],'-',c='#2050ff',lw=3)
+    ax.scatter(C['clips'][:,0],C['clips'][:,1],s=40,c='#ff7a00',edgecolors='k',zorder=5)
+    dx,dz,dr=C['donut'];ax.add_patch(plt.Circle((dx,dz),dr,fill=False,ec='white',lw=1.5));ax.text(dx,dz,'DONUT',ha='center',va='center',fontsize=8,color='white')
+    e=C['line'][0];ax.text(e[0]-9,e[1]-4,'ENTRY',fontsize=8,color='#d00000',weight='bold')
+    for s_,x,z,yaw in TV.SLOTS:
+        R=np.array([[np.cos(yaw),np.sin(yaw)],[-np.sin(yaw),np.cos(yaw)]]);corn=np.array([[-3,-3],[3,-3],[3,3],[-3,3]])
+        q=np.array([[c[0]*np.cos(yaw)+c[1]*np.sin(yaw),-c[0]*np.sin(yaw)+c[1]*np.cos(yaw)] for c in corn])+[x,z]
+        ax.add_patch(Polygon(q,fc='#3a3b3e',ec='k'));ax.plot(q[:2,0],q[:2,1],c='white',lw=2);ax.text(x,z,f'{s_:02d}',ha='center',va='center',fontsize=6,color='white',weight='bold')
+    h=[Line2D([],[],c='#d00000',lw=2,label='drift line (direction ->)'),Line2D([],[],c='#2050ff',lw=3,label='jersey barrier, collision (1WALL_DRIFT_n)'),
+       Line2D([],[],c='white',ls='--',label='painted outer clipping zone (5.5 m)'),Line2D([],[],marker='o',ls='',mfc='#ff7a00',mec='k',label='inner clip: tyre stack + cones'),
+       Patch(fc='#3a3b3e',ec='k',label='vendor tent slot NN (white edge = open side)'),Line2D([],[],marker='s',ls='',mfc='white',mec='white',label='AC_PIT spawns (36)'),
+       Line2D([],[],c='orange',lw=2,label='spawn exit route')]
+    ax.legend(handles=h,loc='lower left',fontsize=7,facecolor='#999');ax.set_xlim(-10,165);ax.set_ylim(40,228);ax.set_xlabel('x (m)');ax.set_ylabel('z (m)')
+    ax.set_title(f'I-29 Speedway paddock drift course: {len(C["line"])} m line, {len(TV.SLOTS)} tent ad slots');fig.tight_layout();fig.savefig(f'{OUT}/course_topdown.png');print('topdown')
+    ms,tex=load();gy=float(np.median(list(GY.values())));G=(0,160,88,222,gy-0.03)
+    render(ms,tex,(78,55,40),(78,0,160),55,ground=G).save(f'{OUT}/course_aerial.png')
+    render(ms,tex,(78,55,40),(78,0,160),55,night=True,ground=G).save(f'{OUT}/course_aerial_night.png')
+    render(ms,tex,(150,30,90),(70,0,160),55,ground=G).save(f'{OUT}/course_aerial_se.png')
+    Ln=C['line']
+    for nm,i in (('driver_view_entry',5),('driver_view_west_transition',55),('driver_view_north_sweeper',125),('driver_view_east',200)):
+        p0=Ln[i];p1=Ln[(i+14)%len(Ln)];render(ms,tex,(p0[0],hat(*p0)+1.15,p0[1]),(p1[0],hat(*p0)+1.0,p1[1]),70,ground=(G[0],G[1],G[2],G[3],hat(*p0)-0.01))   # local ground level (lidar grade).save(f'{OUT}/{nm}.png')
+    render(ms,tex,(75,1.25,83),(75,1.8,120),70,ground=G).save(f'{OUT}/view_from_spawn.png')
+    s1=TV.SLOTS[7];render(ms,tex,(s1[1]-11*np.sin(s1[3]),1.7,s1[2]-11*np.cos(s1[3])),(s1[1],1.6,s1[2]),60,ground=G).save(f'{OUT}/tent_closeup_slot{s1[0]:02d}.png')
     bm,bt=load(f'{TV.Z}/zw_vr5.kn5')
     render(bm,bt,(-255,2.5,-575),(-255,3.6,-606),50,ground=(-290,-220,-625,-560,-0.1)).save(f'{OUT}/boards_drag_end.png')
-    render(bm,bt,(-255,2.5,-575),(-255,3.6,-606),50,night=True,ground=(-290,-220,-625,-560,-0.1)).save(f'{OUT}/boards_drag_end_night.png')
     print('renders done')

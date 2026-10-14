@@ -554,3 +554,13 @@ Backup: `/workspace/rpotm/backup/pre_vr9b_holefix/zw_rpm.kn5` (004b983 state).
   `extension/tent_slotNN.dds`). Materials: vftent_slot01..12 + vftent_frame_black/sandbag/tabletop/shadow. 8256 tris.
   Checks: 12/12 on 1GRAVEL_PADDOCK, >=9.4 m gap to spawned cars, >=43 m from the exit route.
   zw_vr6.kn5: the 6 stale VR6 contact-shadow quads under the old tent spots (lot z>100) collapsed (pickup shadow kept).
+- **v1.1 pass 3 (supersedes the pass-2 cluster layout; tent design unchanged): paddock drift course + 18 tent slots.**
+  tools/drift_course.py: 309 m clockwise drift line in 1GRAVEL_PADDOCK (entry SW (38,106) from the spawn side, linked west
+  transitions, long north sweeper, east S, south return), min radius 8.9 m; open donut pad (78,166) r 9 (painted ring + tyre stack).
+  7 inner clipping points (3-high tyre stack + 3 cones + painted ring), painted outer clipping zone lines 5.5 m outside every turn,
+  282 m of low jersey barriers 7.5 m outside every turn = 6 physics meshes `1WALL_DRIFT_0..5` in zw_tents.kn5 (collide as WALL, like
+  the existing 1WALL_armco/TYRES; surfaces.ini unchanged). Cones/tyres/paint visual only (vfc_* materials).
+  18 tents (vftent_slot01..18, each with CSP override extension/tent_slotNN.dds + 1024 fallback in the kn5) placed automatically
+  outside the loop, opening towards the drift line: >=15.2 m from the line (tent edge >=10.9 m), >=7.9 m from barriers, >=9.2 m
+  gap to spawned cars, >=57 m from the exit route, >=12.8 m apart; footprints (r 5.25 m) on gravel only. ext_config tent block
+  regenerated for 18 slots (LF). zw_tents.kn5 = 13.7 MB, 17120 tris. spawn_verify.py with the new walls: 36/36, route found (main+short).

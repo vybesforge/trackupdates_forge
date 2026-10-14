@@ -1,4 +1,4 @@
-"""Tents v1.1 (v2 pass): 12-tent car-meet vendor cluster right behind the spawns, one material + texture per slot.
+"""Tents v1.1 (pass 3: v2 tent design around the paddock drift course in tools/drift_course.py): 12-tent car-meet vendor cluster right behind the spawns, one material + texture per slot.
 Builds vf_i29_speedway/zw_tents.kn5, CSP override textures vf_i29_speedway/extension/tent_slotNN.dds (2048) and art PNGs
 assets_src/brand/tent_slotNN.png. kn5 embeds 1024 fallbacks (keeps the file < 20 MB); CSP loads the 2048 overrides.
 Layout: two facing columns of 6 (x 68 opens +x, x 82 opens -x), z 98..135.5 every 7.5 m (1.5 m gaps), 8 m aisle opening
@@ -15,8 +15,10 @@ FONT=f'{OUT}/fonts/SpaceGrotesk-wght.ttf';LOGO=f'{OUT}/vf_logo.jpg'
 CH=(42,43,46);WH=(244,244,244);LG=(214,214,214);MG_=(120,120,124);BK=(14,14,16);N=2048;NK=1024
 W_,D_,EAVE,APEX,VAL,SAG,BACK_WALL=6.0,6.0,2.4,3.3,0.30,0.07,True
 # slot, x, z, yaw (rad; 0 = opening faces -z). Left column opens +x (yaw -pi/2), right column opens -x (yaw +pi/2).
-SLOTS=[(i+1,68.0,98.0+7.5*i,-np.pi/2) for i in range(6)]+[(i+7,82.0,98.0+7.5*i,np.pi/2) for i in range(6)]
-FLAGS={1,3,5,7,9,11}
+import drift_course as DC
+NSLOTS=18
+SLOTS=[]   # filled by verify(): (slot, x, z, yaw) placed along the outside of the drift course, opening towards the drift line
+FLAGS=set(range(1,NSLOTS+1,2))
 def font(sz,w=600):
     f=ImageFont.truetype(FONT,sz)
     try: f.set_variation_by_axes([w])
@@ -131,27 +133,102 @@ def canopy(cx,cz,gy,yaw,slot):
     return {k:ML.xform(VI,yaw,(cx,gy,cz)) for k,VI in canopy_local(slot).items()}
 # ---------------- verification (spawns, exit route, footprints on gravel)
 def verify(report=print):
+    """course + tent placement checks on the physics raster; fills SLOTS. returns fails, ground heights, raster data"""
     from physraster import physmeshes,raster
     import kn5tree as T
-    box=(-40,170,30,240);res=0.25;fails=0;heights={}
+    global SLOTS
+    box=(-40,170,30,240);res=0.25;fails=0
     files=['vf_i29_speedway.kn5','vf_i29_speedway_physical.kn5','vf_i29_speedway_gp.kn5','vf_i29_speedway_own.kn5','zw_ext.kn5','zw_dragexit.kn5','zw_vegetation.kn5']
     M=physmeshes(files,box);xs,zs,H,KEY,UP,names=raster(M,box,res)
     pits=[n['W'][3,:3] for n in T.walk(f'{Z}/vf_i29_speedway.kn5') if n['cls']==1 and n['name'].startswith('AC_PIT_')]
-    path=np.load(f'{ROOT}/tools/data/path_main.npy')
+    path=np.load(f'{ROOT}/tools/data/path_main.npy');GRAV=names.index('1GRAVEL_PADDOCK')
+    def cell(x,z): return int(round((z-zs[0])/res)),int(round((x-xs[0])/res))
+    def disc_ok(x,z,r):
+        hs=[]
+        for a in np.linspace(0,2*np.pi,24,endpoint=False):
+            for rr in (0,r*0.5,r):
+                j,i=cell(x+rr*np.cos(a),z+rr*np.sin(a))
+                if KEY[j,i]!=GRAV: return False,None
+                hs.append(H[j,i])
+        return np.ptp(hs)<0.15,float(np.min(hs))
+    def cargap(x,z,half=4.25):
+        return min(np.hypot(max(0,abs(p[0]-x)-half-1.1),max(0,abs(p[2]-z)-half-2.6)) for p in pits)
+    onlot=lambda x,z:disc_ok(x,z,4.25+1)[0];carclear=lambda x,z:cargap(x,z)>=9;exitclear=lambda x,z:np.hypot(path[:,0]-x,path[:,1]-z).min()>=25
+    SLOTS=DC.tent_slots(onlot,carclear,exitclear,n=NSLOTS,spacing=9.0)
+    C=DC.course();L=C['line'];heights={}
+    # course: drift line +-4 m on gravel, clear of spawned cars (>= 8 m) and the exit route
+    bad=sum(1 for x,z in L[::2] if not disc_ok(x,z,4.0)[0]);cg=min(cargap(x,z,0.0) for x,z in L[::3])
+    ok=bad==0 and cg>=8;fails+=not ok
+    report(f'course: drift line {len(L)} m, {len(C["clips"])} clipping points, {len(C["walls"])} barrier runs; samples off-gravel/rough: {bad}; gap to spawned cars {cg:.1f} m  {"OK" if ok else "FAIL"}')
+    wb=sum(1 for w in C['walls'] for x,z in w if not disc_ok(x,z,0.5)[0]);wg=min(cargap(x,z,0.3) for w in C['walls'] for x,z in w)
+    wl=min(DC.dist_line((x,z)) for w in C['walls'] for x,z in w);ok=wb==0 and wg>=6;fails+=not ok
+    report(f'barriers: {sum(len(w) for w in C["walls"])} m, off-gravel samples {wb}, min {wl:.1f} m from the drift line, gap to spawned cars {wg:.1f} m  {"OK" if ok else "FAIL"}')
+    W_all=np.vstack(C['walls'])
     for s,x,z,yaw in SLOTS:
-        k='v2';ks=set();hs=[]
-        for a in np.linspace(-W_/2-1,W_/2+1,15):
-            for b in np.linspace(-D_/2-1,D_/2+1,15):
-                ii=int(round((x+a-xs[0])/res));jj=int(round((z+b-zs[0])/res));kk=KEY[jj,ii];ks.add(names[kk] if kk>=0 else None);hs.append(H[jj,ii])
-        hs=np.array(hs);dp=min(np.hypot(max(0,abs(p[0]-x)-W_/2-1.1),max(0,abs(p[2]-z)-D_/2-2.6)) for p in pits);dr=np.hypot(path[:,0]-x,path[:,1]-z).min()   # dp: gap tent<->car footprint;dr=np.hypot(path[:,0]-x,path[:,1]-z).min()
-        dt=min(np.hypot(x-x2,z-z2) for s2,x2,z2,_ in SLOTS if s2!=s)
-        ok=ks=={'1GRAVEL_PADDOCK'} and np.ptp(hs)<0.15 and dp>=8 and dr>=25 and dt>=7.4
-        fails+=not ok;heights[s]=float(np.nanmin(hs))  # lowest point: nothing floats, high side sinks <=15 cm
-        report(f'slot{s:02d} ({x:4},{z:4}) {k:6} surf={sorted(map(str,ks))} dz={np.ptp(hs):.3f} m  ground={heights[s]:+.3f}  car gap {dp:5.1f} m  exit-route {dr:5.1f} m  next tent {dt:4.1f} m  {"OK" if ok else "FAIL"}')
-    report(f'{len(SLOTS)-fails}/{len(SLOTS)} slots OK (footprint +1 m margin on 1GRAVEL_PADDOCK, flat <15 cm, >=8 m gap to spawned cars, >=25 m from exit route, >=7.4 m centre spacing (1.5 m gaps))')
-    return fails,heights,(xs,zs,H,KEY,names,pits,path)
+        okf,gy=disc_ok(x,z,4.25+1);dp=cargap(x,z);dr=np.hypot(path[:,0]-x,path[:,1]-z).min();dl=DC.dist_line((x,z))
+        dw=np.hypot(W_all[:,0]-x,W_all[:,1]-z).min();dt=min(np.hypot(x-x2,z-z2) for s2,x2,z2,_ in SLOTS if s2!=s)
+        ok=okf and dp>=9 and dr>=25 and dl>=15 and dw>=7.5 and dt>=9 and not DC.inside((x,z));fails+=not ok;heights[s]=gy if gy is not None else 0.0
+        report(f'slot{s:02d} ({x:5.1f},{z:5.1f}) yaw {np.degrees(yaw):6.1f}  drift line {dl:4.1f} m (edge >= {dl-4.25:4.1f})  barrier {dw:4.1f} m  car gap {dp:5.1f} m  exit {dr:5.1f} m  next tent {dt:4.1f} m  {"OK" if ok else "FAIL"}')
+    report(f'{len(SLOTS)}/{NSLOTS} slots placed, {len(SLOTS)-sum(1 for _ in [])} checked; fails total {fails} (tent footprint r 5.25 m on 1GRAVEL_PADDOCK, >=15 m from the drift line, outside the loop, >=7.5 m from barriers, >=9 m car gap, >=25 m exit route, >=9 m apart)')
+    if len(SLOTS)<NSLOTS: fails+=1
+    def hat(x,z):
+        j,i=cell(x,z);v=H[j,i];return float(v) if np.isfinite(v) else -0.25
+    return fails,heights,(xs,zs,H,KEY,names,pits,path,hat)
+# ---------------- course meshes
+def course_meshes(hat):
+    C=DC.course();out={'wall':[],'cone':[],'tyre':[],'paint':[]}
+    prof=[(0.30,0.0),(0.30,0.08),(0.12,0.33),(0.08,0.81)]   # jersey barrier half-width / height
+    for wi,w in enumerate(C['walls']):
+        w=w[::2] if len(w)>4 else w;t=np.gradient(w,axis=0);t/=np.linalg.norm(t,axis=1,keepdims=True);nr=np.stack([t[:,1],-t[:,0]],1)
+        parts=[]
+        for side in (-1,1):
+            for a in range(len(prof)-1):
+                for i in range(len(w)-1):
+                    P=[]
+                    for (hw,hy),ii in ((prof[a],i),(prof[a],i+1),(prof[a+1],i+1),(prof[a+1],i)):
+                        g=hat(*w[ii])-0.03;xy=w[ii]+side*hw*nr[ii];P.append((xy[0],g+hy+(0.03 if hy==0 else 0),xy[1]))
+                    mid=w[i]+side*nr[i];parts.append(face(P,[(0,0),(1,0),(1,1),(0,1)],(side*nr[i][0],0.3,side*nr[i][1])))
+        for i in (0,len(w)-1):   # end caps
+            g=hat(*w[i]);d=t[i]*(-1 if i==0 else 1);P=[(w[i][0]+s_*hw*nr[i][0],g+hy,w[i][1]+s_*hw*nr[i][1]) for s_,(hw,hy) in [(-1,prof[0]),(1,prof[0]),(1,prof[-1]),(-1,prof[-1])]]
+            parts.append(face(P,[(0,0),(1,0),(1,1),(0,1)],(d[0],0,d[1])))
+        out['wall'].append(ML.merge(parts))
+    cones=[];tyres=[];paint=[]
+    def cone(x,z):
+        g=hat(x,z);V,I=ML.cyl((x,g,z),0.15,0.7,n=10,cap=False);V=V.astype(float);top=V[:,1]>g+0.35;V[top,0]=x+(V[top,0]-x)*0.15;V[top,2]=z+(V[top,2]-z)*0.15
+        return [(V.astype('<f4'),I),ML.box((x,g+0.015,z),(0.38,0.03,0.38))]
+    t,n,k=DC.frames()
+    for (cx,cz),ci in zip(C['clips'],C['clip_idx']):
+        g=hat(cx,cz)
+        for lvl in range(3): tyres.append(ML.cyl((cx,g+lvl*0.22,cz),0.33,0.21,n=14))
+        for a in (0,2.1,4.2): cones+=cone(cx+1.3*np.cos(a),cz+1.3*np.sin(a))
+    for cx,cz in C['line'][::40]: pass
+    def ribbon(P,wd):
+        P=np.asarray(P);t_=np.gradient(P,axis=0);t_/=np.linalg.norm(t_,axis=1,keepdims=True);nr=np.stack([t_[:,1],-t_[:,0]],1);parts=[]
+        for i in range(len(P)-1):
+            Q=[]
+            for ii,sd in ((i,-1),(i+1,-1),(i+1,1),(i,1)): xy=P[ii]+sd*wd/2*nr[ii];Q.append((xy[0],hat(*xy)+0.02,xy[1]))
+            parts.append(face(Q,[(0,0),(1,0),(1,1),(0,1)],(0,1,0)))
+        return ML.merge(parts)
+    for zl in C['zones']: paint.append(ribbon(zl,0.15))
+    for (cx,cz) in C['clips']:
+        a=np.linspace(0,2*np.pi,25);paint.append(ribbon(np.stack([cx+2.0*np.cos(a),cz+2.0*np.sin(a)],1),0.12))
+    dx,dz,dr_=C['donut'];a=np.linspace(0,2*np.pi,73);paint.append(ribbon(np.stack([dx+dr_*np.cos(a),dz+dr_*np.sin(a)],1),0.2))
+    for lvl in range(3): tyres.append(ML.cyl((dx,hat(dx,dz)+lvl*0.22,dz),0.33,0.21,n=14))
+    e=C['line'][0];tt=t[0];nr=np.array([tt[1],-tt[0]]);paint.append(ribbon(np.stack([e+s_*nr for s_ in np.linspace(-5,5,11)]),0.35))   # entry line
+    out['cone']=ML.merge(cones);out['tyre']=ML.merge(tyres);out['paint']=ML.merge(paint);return out
+def write_ext_config(n):
+    e=f'{EXT}/ext_config.ini';c=open(e,'rb').read().decode();a=c.index('; >>> v1.1 tents');b=c.index('; <<< v1.1 tents')+len('; <<< v1.1 tents')
+    L=['; >>> v1.1 tents: per-slot ad artwork (rotate ads by replacing extension/tent_slotNN.dds / board_slotNN.dds; kn5 files stay unchanged)',
+       f'; {n} tent slots + 2 drag-end billboard slots, all open (YOUR AD HERE). Without CSP the art baked in the kn5 shows.']
+    for i in range(1,n+1): L+=['',f'[SHADER_REPLACEMENT_TENT_SLOT{i:02d}]','ACTIVE = 1',f'MATERIALS = vftent_slot{i:02d}','RESOURCE_0 = txDiffuse',f'RESOURCE_FILE_0 = tent_slot{i:02d}.dds']
+    L+=['','[MATERIAL_ADJUSTMENT_TENT_NIGHT]','DESCRIPTION = v1.1 tents: subtle self-lit fabric at night so ads stay readable','MATERIALS = vftent_slot??',
+        'KEY_0 = ksEmissive','VALUE_0 = 1.0, 1.0, 1.0, 0.35','VALUE_0_OFF = 0, 0, 0','CONDITION = NIGHT_SMOOTH']
+    for i in (1,2): L+=['',f'[SHADER_REPLACEMENT_BOARD_SLOT{i:02d}]','ACTIVE = 1',f'MATERIALS = vfboard_slot{i:02d}','RESOURCE_0 = txDiffuse',f'RESOURCE_FILE_0 = board_slot{i:02d}.dds']
+    L+=['','[MATERIAL_ADJUSTMENT_BOARD_NIGHT]','DESCRIPTION = v1.1 drag-end billboards: backlit look at night','MATERIALS = vfboard_slot??',
+        'KEY_0 = ksEmissive','VALUE_0 = 1.0, 1.0, 1.0, 0.6','VALUE_0_OFF = 0, 0, 0','CONDITION = NIGHT_SMOOTH','','; <<< v1.1 tents']
+    c=c[:a]+'\n'.join(L)+c[b:];assert '\r' not in c;open(e,'wb').write(c.encode())
 if __name__=='__main__':
-    fails,GY,_=verify()
+    fails,GY,RD=verify();hat=RD[-1]
     if fails or '--verify-only' in sys.argv: sys.exit(1 if fails else 0)
     _m=W.read_materials(f'{Z}/zw_tents.kn5');base=_m.get('vftent_adhere') or _m['vftent_slot01']
     blob=None
@@ -164,7 +241,16 @@ if __name__=='__main__':
         return dict(name=name,shader='ksPerPixel',ab=0,at=0,dm=0,props=ML.props(base['props'],ksAmbient=0.45,ksDiffuse=0.5,ksSpecular=spec,ksSpecularEXP=exp,ksEmissive=(0,0,0)),samplers=[('txDiffuse',0,tn)])
     mats=[solid('vftent_frame_black','vft_black.dds',0.5,40),solid('vftent_sandbag','vft_sandbag.dds',0.03,4),solid('vftent_tabletop','vft_tabletop.dds',0.15,20),
           dict(name='vftent_shadow',shader=shm['shader'],ab=shm['ab'],at=shm['at'],dm=shm['dm'],props=shm['props'],samplers=[('txDiffuse',0,'vr6_blob_rect.dds')])]
+    texs+=[('vfc_concrete.dds',ML.solid_dds((178,176,170))),('vfc_cone.dds',ML.solid_dds((235,90,20))),('vfc_tyre.dds',ML.solid_dds((20,20,22))),('vfc_paint.dds',ML.solid_dds((235,235,230)))]
+    mats+=[solid('vfc_concrete','vfc_concrete.dds',0.05,8),solid('vfc_cone','vfc_cone.dds',0.2,20),solid('vfc_tyre','vfc_tyre.dds',0.1,10),solid('vfc_paint','vfc_paint.dds',0.05,8)]
     MI={'frame':0,'bag':1,'top':2,'shadow':3};meshes=[];os.makedirs(EXT,exist_ok=True)
+    CM=course_meshes(hat)
+    for wi,(V,I) in enumerate(CM['wall']): meshes.append(dict(name=f'1WALL_DRIFT_{wi}',mat_index=4,verts=V,idx=I,lod_out=0))   # physics: collides (WALL)
+    meshes.append(dict(name='vfc_cones',mat_index=5,verts=CM['cone'][0],idx=CM['cone'][1],lod_out=500))
+    meshes.append(dict(name='vfc_tyre_stacks',mat_index=6,verts=CM['tyre'][0],idx=CM['tyre'][1],lod_out=500))
+    meshes.append(dict(name='vfc_paint',mat_index=7,verts=CM['paint'][0],idx=CM['paint'][1],lod_out=400,flags=(1,0,0)))
+    for f in os.listdir(EXT):
+        if f.startswith('tent_slot') and int(f[9:11])>NSLOTS: os.remove(f'{EXT}/{f}')
     for s,x,z,yaw in SLOTS:
         big,small=art(s);tn=f'tent_slot{s:02d}.dds';texs.append((tn,small));open(f'{EXT}/{tn}','wb').write(big)
         mats.append(dict(name=f'vftent_slot{s:02d}',shader=base['shader'],ab=0,at=0,dm=base['dm'],props=base['props'],
@@ -173,7 +259,7 @@ if __name__=='__main__':
         meshes.append(dict(name=f'vftent_slot{s:02d}',mat_index=len(mats)-1,verts=parts['fab'][0],idx=parts['fab'][1],lod_out=0))
         for k in ('frame','bag','top'): meshes.append(dict(name=f'vftent_slot{s:02d}_{k}',mat_index=MI[k],verts=parts[k][0],idx=parts[k][1],lod_out=400))
         meshes.append(dict(name=f'vftent_slot{s:02d}_shadow',mat_index=3,verts=parts['shadow'][0],idx=parts['shadow'][1],lod_out=300,flags=(1,0,0)))
-    W.write_kn5(f'{Z}/zw_tents.kn5',texs,mats,meshes,rootname='zw_tents')
+    W.write_kn5(f'{Z}/zw_tents.kn5',texs,mats,meshes,rootname='zw_tents');write_ext_config(NSLOTS)
     print('zw_tents.kn5:',len(meshes),'meshes',sum(len(m['idx']) for m in meshes),'tris',len(mats),'materials',os.path.getsize(f'{Z}/zw_tents.kn5')//1024,'KB')
     # stale VR6 contact-shadow quads under the old paddock tents (lot x>0, z>100) -> collapsed (zw_vr6.kn5, byte splice)
     import struct
