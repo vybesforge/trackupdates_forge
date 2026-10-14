@@ -108,6 +108,13 @@ If an earlier agent (or older instructions, v1.0.2) edited shared system files:
 1. `<AC or server>/system/data/data_track_params.ini`: if a `.bak` from that edit exists, restore it (`data_track_params.ini.bak` → `data_track_params.ini`). Otherwise remove **only** the `[vf_i29_speedway]` section (its header and the following `NAME/LATITUDE/LONGITUDE/TIMEZONE` lines) and change nothing else.
 2. Game installs: if other `system/` files may have been touched, suggest the user run Steam → Assetto Corsa → Properties → Installed Files → **Verify integrity of game files** (do not do it unasked).
 3. Then do a clean client/server install as above.
+4. Git checkouts made before v1.0.4 (or with `core.autocrlf=true`, the Windows default) can have CRLF-converted files that fail AC/server checksums. One-time fix inside the existing checkout:
+   ```
+   git config core.autocrlf false
+   git rm --cached -r -q .
+   git reset --hard
+   ```
+   Then verify the files against the release zip. Prefer installing from the release zip; do not copy a git worktree/checkout (with `.git`, `assets_src/`, `tools/`, etc.) into the AC folder.
 
 ## Update / uninstall
 - Update: repeat the install with the new release tag and its published SHA-256.

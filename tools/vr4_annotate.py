@@ -24,8 +24,8 @@ if mode=='paddock':
         D.polygon([P(q[0],q[2]) for q in c],fill=(40,230,60,230),outline=(0,0,0))
         if k in(0,17,18,35): lab(P(p[0]-2,p[2]+(3.5 if k<18 else 3.5)),str(k),f=FS)
     lab(P(8,62),'36 AC_PIT spawns: 2 staggered rows, facing north (PIT 0 = west end)',(120,255,120))
-    if os.path.exists('path_main.npy'):
-        pa=np.load('path_main.npy');D.line([P(x,z) for x,z in pa],fill=(40,220,255,255),width=4);lab(P(-80,52),'exit -> pit-exit gate',(40,220,255))
+    if os.path.exists(os.path.join(os.path.dirname(os.path.abspath(__file__)),'data','path_main.npy')):
+        pa=np.load(os.path.join(os.path.dirname(os.path.abspath(__file__)),'data','path_main.npy'));D.line([P(x,z) for x,z in pa],fill=(40,220,255,255),width=4);lab(P(-80,52),'exit -> pit-exit gate',(40,220,255))
     names_={'vfad':'vybesforge.com','cm':'drivenbycrusemob.com','adhere':'Your Ad Here'}
     for n,x,z,k in VP.TENTS: lab(P(x-12,z+6),names_[k],(255,230,120) if k!='adhere' else (220,220,220),FS)
 else:
