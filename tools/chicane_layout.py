@@ -16,12 +16,12 @@ Driver's left is the AC left normal (tz, -tx). Main entrance is to the right
 to the right (west). Soft cut is an invisible 1SCUT_* ribbon (KEY=SCUT) over
 the shortcut; cones are visual only.
 
-The main weave stays as tightened after the first retest: exit gate at
-s = +8, entrance at s = −14 (22 m between gates). The return chicane uses
-that same 22 m gate spacing. Its centre — the midpoint of the entrance and
-exit gates — sits on the return straight halfway from the corner that feeds
-onto the straight to the short-course rejoin, plus a few metres toward the
-rejoin. Entrance stays driver's left, exit driver's right.
+The main weave is the tightened one (gates at −14 m and +8 m, offsets
+−6.20 m then +0.55 m) shifted 20 m upstream, north along the southbound
+straight. The return chicane keeps its halfway station and 22 m spacing.
+Its entrance is on the left edge of the asphalt — the racing line there
+hugs the right edge, so a small positive offset sits in the middle of the
+road — and the exit stays driver's right.
 
 Run from the repo root: python3 tools/chicane_layout.py
 """
@@ -59,10 +59,15 @@ RETURN_MARK = np.array([-112.92, -602.81])
 RETURN_SPAN = 8.0 - (-GATE)          # 22 m, same as the main gates
 RETURN_HALF = RETURN_SPAN / 2.0
 RETURN_BIAS = 8.0                    # metres from halfway toward the short-course rejoin
+# Southbound travel is −Z, so 20 m upstream (back toward the corner that
+# feeds the straight, north, more positive z) is a negative along-track shift.
+MAIN_BACK = -20.0
+# Return entrance asks for the left edge. clamp_off holds the line EDGE
+# metres inside the asphalt. +3.6 m was the middle of this road.
 PLAN = {
     'main': dict(mark=MAIN_MARK, enter=-6.2, exit=0.55, mesh='1SCUT_chicane_main',
-                 s_enter=-GATE, s_exit=8.0),
-    'return': dict(mark=RETURN_MARK, enter=3.6, exit=-4.0, mesh='1SCUT_chicane_return',
+                 s_enter=-GATE, s_exit=8.0, along=MAIN_BACK),
+    'return': dict(mark=RETURN_MARK, enter=12.0, exit=-4.0, mesh='1SCUT_chicane_return',
                    s_enter=-RETURN_HALF, s_exit=RETURN_HALF),
 }
 
@@ -705,10 +710,16 @@ def validate(zones, xz_old, xz_new, meshes, XZ, Y, mn, mx):
         print(f'    clamped gate offsets {ent:+.2f} -> {ex:+.2f}')
         if zone['name'] == 'main' and not (ent < -4 and ex > 0.2):
             fails.append(f'main weave is not right-then-left ({ent:+.2f} -> {ex:+.2f})')
-        # On the upper return straight the racing line sits near the right edge,
-        # so a -4 m exit clamps to about -1 m and still points driver's right.
-        if zone['name'] == 'return' and not (ent > 2.0 and ex < -0.7):
-            fails.append(f'return weave is not left-then-right ({ent:+.2f} -> {ex:+.2f})')
+        # The racing line hugs the right edge, so the road centre is several
+        # metres to the driver's left. The entrance has to clear that centre,
+        # not merely sit left of the line. The exit clamps near the right edge.
+        if zone['name'] == 'return':
+            erow = min(zone['rows'], key=lambda r: abs(r['s'] - se))
+            centre = 0.5 * (erow['le'] + erow['re'])
+            print(f'    road centre at entrance {centre:+.2f}  left edge {erow["le"]:.2f}')
+            if not (ent > centre + 2.0 and ent > 6.0 and ex < -0.7):
+                fails.append(f'return weave is not left-then-right ({ent:+.2f} -> {ex:+.2f}, '
+                             f'road centre {centre:+.2f})')
         tris = len(I)
         print(f'    {zone["spec"]["mesh"]} tris {tris}')
         if tris > 30000:
@@ -1037,6 +1048,12 @@ def main():
         f'from_rejoin {placed["from_rejoin"]:.2f}\n'
         f'onset_z {placed["onset_z"]:.2f}\n'
         f'rejoin_z {placed["rejoin_z"]:.2f}\n'
+        f'main_z0 {zones[0]["shift"]["z0"]:.2f}\n'
+        f'main_z1 {zones[0]["shift"]["z1"]:.2f}\n'
+        f'main_along {zones[0]["shift"]["arc"]:+.2f}\n'
+        f'main_dz {zones[0]["shift"]["dz"]:+.2f}\n'
+        f'return_enter {min(zones[1]["rows"], key=lambda r: abs(r["s"] - zones[1]["spec"]["s_enter"]))["off"]:+.2f}\n'
+        f'return_exit {min(zones[1]["rows"], key=lambda r: abs(r["s"] - zones[1]["spec"]["s_exit"]))["off"]:+.2f}\n'
         + '\n'.join(f'tris_{z["name"]} {len(m[1])}' for z, m in zip(zones, mesh_list))
         + f'\ncone_tris {len(coneI)}\n'
     )
