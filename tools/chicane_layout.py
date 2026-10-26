@@ -11,17 +11,17 @@ Mark registration (screenshot 347x194, outline.png 365x192):
 The two orange-red ticks (RGB 255,85,0) sit on the white straights at shot x≈139:
   main/drag straight (southbound)  world (-230.07, -601.75)
   return straight (northbound)     world (-112.92, -602.81)
-Driver's left is the AC left normal (tz, -tx). Main entrance is to the right
-(east), exit to the left (west). Return entrance is to the left (east), exit
-to the right (west). Soft cut is an invisible 1SCUT_* ribbon (KEY=SCUT) over
-the shortcut; cones are visual only.
+Driver's left is the AC left normal (tz, -tx). The main chicane enters to the
+driver's right and exits to the left. The return enters to the driver's left
+and exits to the right. Soft cut is an invisible 1SCUT_* ribbon (KEY=SCUT)
+over the shortcut; cones are visual only.
 
-The main weave is the tightened one (gates at −14 m and +8 m, offsets
-−6.20 m then +0.55 m) shifted 20 m upstream, north along the southbound
-straight. The return chicane keeps its halfway station and 22 m spacing.
-Its entrance is on the left edge of the asphalt — the racing line there
-hugs the right edge, so a small positive offset sits in the middle of the
-road — and the exit stays driver's right.
+The main weave keeps the tightened 22 m gates (−14 m and +8 m) and the
+station 20 m upstream of the original mark. The entrance is pushed to the
+right edge of the asphalt (about 1.25 m inside it) and the exit to the left
+edge, the same edge-margin placement the return uses on its wide side. The
+return weave, station, and offsets stay as they are. Each exit gate drops
+its outermost cone so both exits carry the same cone count.
 
 Run from the repo root: python3 tools/chicane_layout.py
 """
@@ -50,22 +50,21 @@ EDGE = 1.25        # keep the AI line at least this far from the asphalt edge
 MU, G, VMAX, BRK = 1.55, 9.81, 72.0, 11.0
 MAIN_MARK = np.array([-230.07, -601.75])
 RETURN_MARK = np.array([-112.92, -602.81])
-# Designed lateral offsets (metres, driver's left positive) at the two gates.
-# Main road is ~2 m to the left of the AI line and ~10 m to the right, so the
-# right-then-left weave uses the wide side first and returns to the left edge.
+# Designed lateral offsets (metres, driver's left positive).
+# clamp_off holds the line EDGE metres inside the asphalt, so a large design
+# value lands 1.25 m off that edge. Main enters on the wide right side
+# (design −12 → about −8.8) and exits on the narrow left side (design +12 →
+# about +0.7). Return enters on its wide left side and exits on the right.
 # s_exit on main is 6 m closer to the entrance than the original +GATE.
-# Return matches that entrance-to-exit distance. Gates are symmetric about
-# the station, which place_return() sets on the spline.
+# Return gates are symmetric about the station place_return() sets.
 RETURN_SPAN = 8.0 - (-GATE)          # 22 m, same as the main gates
 RETURN_HALF = RETURN_SPAN / 2.0
 RETURN_BIAS = 8.0                    # metres from halfway toward the short-course rejoin
 # Southbound travel is −Z, so 20 m upstream (back toward the corner that
 # feeds the straight, north, more positive z) is a negative along-track shift.
 MAIN_BACK = -20.0
-# Return entrance asks for the left edge. clamp_off holds the line EDGE
-# metres inside the asphalt. +3.6 m was the middle of this road.
 PLAN = {
-    'main': dict(mark=MAIN_MARK, enter=-6.2, exit=0.55, mesh='1SCUT_chicane_main',
+    'main': dict(mark=MAIN_MARK, enter=-12.0, exit=12.0, mesh='1SCUT_chicane_main',
                  s_enter=-GATE, s_exit=8.0, along=MAIN_BACK),
     'return': dict(mark=RETURN_MARK, enter=12.0, exit=-4.0, mesh='1SCUT_chicane_return',
                    s_enter=-RETURN_HALF, s_exit=RETURN_HALF),
@@ -463,9 +462,24 @@ def zone_meshes(zone, XZ, Y, mn, mx):
         left_rib.append(line(L))
         right_rib.append(line(R))
         # cones: gate rows and corridor edges
+        # role/dist let the caller drop the outermost exit-gate cone
         s = row['s']
         se, sx = zone['spec']['s_enter'], zone['spec']['s_exit']
-        near_gate = min(abs(s - se), abs(s - sx)) < 0.51
+        if abs(s - sx) < 0.51:
+            role = 'exit'
+        elif abs(s - se) < 0.51:
+            role = 'enter'
+        else:
+            role = 'mid'
+        near_gate = role in ('exit', 'enter')
+
+        def add_cone(lat):
+            q = row['o'] + lat * row['n']
+            h = height_at(q[0], q[1], XZ, Y, mn, mx)
+            if h is None:
+                return
+            cones.append((q[0], h, q[1], role, abs(lat - row['off'])))
+
         if near_gate or (se <= s <= sx and abs(s) % 4.0 < 0.51):
             for side, span in (('L', L), ('R', R)):
                 if span is None:
@@ -474,18 +488,12 @@ def zone_meshes(zone, XZ, Y, mn, mx):
                 # corridor-edge cone, just inside the block
                 edge_lat = b - 0.75 if side == 'L' else a + 0.75
                 if a + 0.4 < edge_lat < b - 0.2 or side == 'R' and a + 0.2 < edge_lat < b - 0.4:
-                    q = row['o'] + edge_lat * row['n']
-                    h = height_at(q[0], q[1], XZ, Y, mn, mx)
-                    if h is not None:
-                        cones.append((q[0], h, q[1]))
+                    add_cone(edge_lat)
         if near_gate:
             for a, b in scut_intervals(row):
                 lat = a + 0.9
                 while lat < b - 0.9:
-                    q = row['o'] + lat * row['n']
-                    h = height_at(q[0], q[1], XZ, Y, mn, mx)
-                    if h is not None:
-                        cones.append((q[0], h, q[1]))
+                    add_cone(lat)
                     lat += 1.75
     def pack(seq):
         # seq items are None or ((outer_xz, inner_xz) wait line() returns (xs[2], ys[2])
@@ -708,8 +716,18 @@ def validate(zones, xz_old, xz_new, meshes, XZ, Y, mn, mx):
         ent = min(zone['rows'], key=lambda r: abs(r['s'] - se))['off']
         ex = min(zone['rows'], key=lambda r: abs(r['s'] - sx))['off']
         print(f'    clamped gate offsets {ent:+.2f} -> {ex:+.2f}')
-        if zone['name'] == 'main' and not (ent < -4 and ex > 0.2):
-            fails.append(f'main weave is not right-then-left ({ent:+.2f} -> {ex:+.2f})')
+        # Main: racing line is near the left edge and the road runs ~10 m to
+        # the right. Entrance must sit on that right edge, exit on the left edge.
+        if zone['name'] == 'main':
+            erow = min(zone['rows'], key=lambda r: abs(r['s'] - se))
+            xrow = min(zone['rows'], key=lambda r: abs(r['s'] - sx))
+            centre = 0.5 * (erow['le'] + erow['re'])
+            print(f'    road centre at entrance {centre:+.2f}  right edge {erow["re"]:.2f}  '
+                  f'left edge at exit {xrow["le"]:.2f}')
+            if not (ent < centre - 3.0 and ent < erow['re'] + EDGE + 0.35
+                    and ex > xrow['le'] - EDGE - 0.1):
+                fails.append(f'main weave is not right-then-left ({ent:+.2f} -> {ex:+.2f}, '
+                             f'road centre {centre:+.2f})')
         # The racing line hugs the right edge, so the road centre is several
         # metres to the driver's left. The entrance has to clear that centre,
         # not merely sit left of the line. The exit clamps near the right edge.
@@ -955,16 +973,46 @@ def main():
     # y for unmoved points stays the original AI height
     pos_new[~moved, 1] = pos[~moved, 1]
 
-    scuts, cones = [], []
+    def exit_count(cs):
+        return sum(1 for c in cs if c[3] == 'exit')
+
+    def drop_outer_exit(cs, n):
+        """Drop the n exit-gate cones farthest from the racing line."""
+        cs = list(cs)
+        for _ in range(n):
+            exits = [i for i, c in enumerate(cs) if c[3] == 'exit']
+            if not exits:
+                raise SystemExit('no exit-gate cone left to drop')
+            cs.pop(max(exits, key=lambda i: cs[i][4]))
+        return cs
+
+    scuts = []
     mesh_list = []
+    zone_cones = {}
     for zone in zones:
         scut, cs = zone_meshes(zone, XZ, Y, mn, mx)
         if scut is None:
             raise SystemExit(f'no SCUT for {zone["name"]}')
         scuts.append(scut)
-        cones.extend(cs)
+        zone_cones[zone['name']] = cs
         mesh_list.append(scut)
-        print(f'{zone["name"]}: {len(cs)} cones, scut tris {len(scut[1])}')
+        print(f'{zone["name"]}: {len(cs)} cones ({exit_count(cs)} at the exit gate), '
+              f'scut tris {len(scut[1])}')
+    # One fewer cone on the return exit, then the same exit count on the main.
+    before = {n: exit_count(cs) for n, cs in zone_cones.items()}
+    zone_cones['return'] = drop_outer_exit(zone_cones['return'], 1)
+    target = exit_count(zone_cones['return'])
+    main_ex = exit_count(zone_cones['main'])
+    if main_ex < target:
+        raise SystemExit(
+            f'main exit has {main_ex} cones, fewer than the return target {target}')
+    zone_cones['main'] = drop_outer_exit(zone_cones['main'], main_ex - target)
+    after = {n: exit_count(cs) for n, cs in zone_cones.items()}
+    print(f'exit cones  main {before["main"]} -> {after["main"]}   '
+          f'return {before["return"]} -> {after["return"]}')
+    if after['main'] != after['return'] or after['return'] != before['return'] - 1:
+        raise SystemExit('exit cone counts did not match after the trim')
+    cones = [(c[0], c[1], c[2]) for n in ('main', 'return') for c in zone_cones[n]]
     fails = validate(zones, xz, xz_new, mesh_list, XZ, Y, mn, mx)
     if fails:
         print('VALIDATION FAILED')
@@ -1052,8 +1100,16 @@ def main():
         f'main_z1 {zones[0]["shift"]["z1"]:.2f}\n'
         f'main_along {zones[0]["shift"]["arc"]:+.2f}\n'
         f'main_dz {zones[0]["shift"]["dz"]:+.2f}\n'
+        f'main_enter {min(zones[0]["rows"], key=lambda r: abs(r["s"] - zones[0]["spec"]["s_enter"]))["off"]:+.2f}\n'
+        f'main_exit {min(zones[0]["rows"], key=lambda r: abs(r["s"] - zones[0]["spec"]["s_exit"]))["off"]:+.2f}\n'
         f'return_enter {min(zones[1]["rows"], key=lambda r: abs(r["s"] - zones[1]["spec"]["s_enter"]))["off"]:+.2f}\n'
         f'return_exit {min(zones[1]["rows"], key=lambda r: abs(r["s"] - zones[1]["spec"]["s_exit"]))["off"]:+.2f}\n'
+        f'exit_cones_main {after["main"]}\n'
+        f'exit_cones_return {after["return"]}\n'
+        f'exit_cones_main_before {before["main"]}\n'
+        f'exit_cones_return_before {before["return"]}\n'
+        f'cones_main {len(zone_cones["main"])}\n'
+        f'cones_return {len(zone_cones["return"])}\n'
         + '\n'.join(f'tris_{z["name"]} {len(m[1])}' for z, m in zip(zones, mesh_list))
         + f'\ncone_tris {len(coneI)}\n'
     )
