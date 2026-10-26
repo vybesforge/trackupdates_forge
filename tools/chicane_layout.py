@@ -25,6 +25,8 @@ station moves. The return station moves south to the same z.
 
 Each exit gate keeps the outer cone (the one PR #5 removed, farthest from
 the racing line) and instead drops the cone closest to the exit opening.
+The exit SCUT edge is then pulled out to the innermost cone that remains,
+so the cut is flush with that cone instead of stopping at off ± 1.90 m.
 
 Run from the repo root: python3 tools/chicane_layout.py
 """
@@ -468,11 +470,20 @@ def on_road_lat(row, lat):
     return row['re'] + 0.05 <= lat <= row['le'] - 0.05
 
 
-def scut_intervals(row):
-    """Lateral intervals (left-positive) covered by SCUT. Channel is the gap."""
+def scut_intervals(row, edge_lat=None):
+    """Lateral intervals (left-positive) covered by SCUT. Channel is the gap.
+
+    `edge_lat` pulls the cut boundary outward to a cone. It never moves the
+    boundary toward the opening.
+    """
     if row['le'] is None or row['re'] is None:
         return []
     lo, hi = row['off'] - row['hw'], row['off'] + row['hw']
+    if edge_lat is not None:
+        if edge_lat >= row['off']:
+            hi = max(hi, float(edge_lat))
+        else:
+            lo = min(lo, float(edge_lat))
     spans = []
     if row['re'] < lo:
         spans.append((row['re'], min(lo, row['le'])))
@@ -500,8 +511,12 @@ def ribbon(a_xz, b_xz, ya, yb, lift=0.012):
     return V, ML.fix_winding(V, I)
 
 
-def zone_meshes(zone, XZ, Y, mn, mx):
-    """SCUT ribbons + cone positions for one chicane."""
+def zone_meshes(zone, XZ, Y, mn, mx, exit_edge_lat=None):
+    """SCUT ribbons + cone positions for one chicane.
+
+    Cones always use the design channel. `exit_edge_lat` rebuilds only the
+    exit-gate SCUT edge so the cut sits on the innermost kept exit cone.
+    """
     rows = zone['rows']
     # lateral samples of each SCUT span, matched station-to-station by side
     left_rib = []   # (xz Nx2, y N) outer=road edge, inner=channel
@@ -509,13 +524,21 @@ def zone_meshes(zone, XZ, Y, mn, mx):
     cones = []
     for row in rows:
         spans = scut_intervals(row)
-        # classify: a span whose centre is left of the path is the left block
-        L = R = None
-        for a, b in spans:
-            if (a + b) / 2 >= row['off']:
-                L = (a, b)  # higher lat = driver's left
-            else:
-                R = (a, b)
+        at_exit = abs(row['s'] - zone['spec']['s_exit']) < 0.51
+        ribbon_spans = scut_intervals(row, exit_edge_lat if at_exit else None)
+
+        def split_spans(pairs):
+            left = right = None
+            for a, b in pairs:
+                if (a + b) / 2 >= row['off']:
+                    left = (a, b)  # higher lat = driver's left
+                else:
+                    right = (a, b)
+            return left, right
+
+        # cones stay on the design channel; the ribbon may be pulled out at the exit
+        cL, cR = split_spans(spans)
+        L, R = split_spans(ribbon_spans)
         def line(span, inset=0.0):
             if span is None:
                 return None
@@ -563,7 +586,7 @@ def zone_meshes(zone, XZ, Y, mn, mx):
             cones.append((q[0], h, q[1], role, abs(float(lat) - row['off']), float(lat)))
 
         if near_gate or (se <= s <= sx and abs(s) % 4.0 < 0.51):
-            for side, span in (('L', L), ('R', R)):
+            for side, span in (('L', cL), ('R', cR)):
                 if span is None:
                     continue
                 a, b = span
@@ -911,7 +934,7 @@ def clone_layout(cum_old, cum_new, length_km):
         'geotags': ['41° 01′ 27″ N', '95° 49′ 58″ W'],
         'country': 'USA', 'city': 'Pacific Junction',
         'length': f'{length_km:.3f} km', 'width': '12 m', 'pitboxes': '36',
-        'run': 'clockwise', 'author': 'Vybes Forge', 'version': '1.1.3',
+        'run': 'clockwise', 'author': 'Vybes Forge', 'version': '1.1.4',
         'url': 'https://vybesforge.com', 'year': 2026,
     }
     import json
@@ -1120,6 +1143,32 @@ def main():
           f'return {before["return"]} -> {after["return"]}')
     if after['main'] != 4 or after['return'] != 4 or before['main'] != 5 or before['return'] != 5:
         raise SystemExit('expected 5 exit cones trimmed to 4 on both gates')
+    # Pull the exit cut out to the innermost cone that is still there.
+    # The removed cone was the one beside the opening, so the design channel
+    # (off ± hw) still ends inside that gap.
+    exit_edge = {}
+    mesh_list = []
+    for zone in zones:
+        labeled, outer, close = exit_report[zone['name']]
+        kept_recs = [r for r in labeled if r['id'] != close['id']]
+        inner = min(kept_recs, key=lambda r: (r['dist'], abs(r['lat'])))
+        sx = zone['spec']['s_exit']
+        row = min(zone['rows'], key=lambda r: abs(r['s'] - sx))
+        lo, hi = row['off'] - row['hw'], row['off'] + row['hw']
+        before_edge = lo if inner['lat'] < row['off'] else hi
+        if abs(inner['lat'] - row['off']) + 1e-6 < abs(before_edge - row['off']):
+            raise SystemExit(f'{zone["name"]} exit cone is inside the channel')
+        scut, _ = zone_meshes(zone, XZ, Y, mn, mx, exit_edge_lat=inner['lat'])
+        if scut is None:
+            raise SystemExit(f'no SCUT for {zone["name"]} after the exit pull')
+        mesh_list.append(scut)
+        exit_edge[zone['name']] = dict(
+            before=before_edge, after=inner['lat'], cone=inner['id'],
+            dist=inner['dist'], off=row['off'], hw=row['hw'])
+        side = 'right' if inner['lat'] < row['off'] else 'left'
+        print(f'{zone["name"]} exit SCUT {side} edge  {before_edge:+.2f} -> {inner["lat"]:+.2f}  '
+              f'flush with {zone["name"]}-exit-{inner["id"]}  '
+              f'(line {row["off"]:+.2f}, hw {row["hw"]:.2f})')
     cones = [(c[0], c[1], c[2]) for n in ('main', 'return') for c in zone_cones[n]]
     fails = validate(zones, xz, xz_new, mesh_list, XZ, Y, mn, mx)
     if fails:
@@ -1218,6 +1267,12 @@ def main():
         f'main_exit {min(zones[0]["rows"], key=lambda r: abs(r["s"] - zones[0]["spec"]["s_exit"]))["off"]:+.2f}\n'
         f'return_enter {min(zones[1]["rows"], key=lambda r: abs(r["s"] - zones[1]["spec"]["s_enter"]))["off"]:+.2f}\n'
         f'return_exit {min(zones[1]["rows"], key=lambda r: abs(r["s"] - zones[1]["spec"]["s_exit"]))["off"]:+.2f}\n'
+        f'exit_edge_main_before {exit_edge["main"]["before"]:+.2f}\n'
+        f'exit_edge_main_after {exit_edge["main"]["after"]:+.2f}\n'
+        f'exit_edge_main_cone {exit_edge["main"]["cone"]}\n'
+        f'exit_edge_return_before {exit_edge["return"]["before"]:+.2f}\n'
+        f'exit_edge_return_after {exit_edge["return"]["after"]:+.2f}\n'
+        f'exit_edge_return_cone {exit_edge["return"]["cone"]}\n'
         f'exit_cones_main {after["main"]}\n'
         f'exit_cones_return {after["return"]}\n'
         f'exit_cones_main_before {before["main"]}\n'
