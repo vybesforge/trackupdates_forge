@@ -16,10 +16,12 @@ Driver's left is the AC left normal (tz, -tx). Main entrance is to the right
 to the right (west). Soft cut is an invisible 1SCUT_* ribbon (KEY=SCUT) over
 the shortcut; cones are visual only.
 
-After the first test the main weave was shortened by pulling the exit gate
-back toward the entrance (s = +14 → +8, spacing 28 → 22 m). The return
-chicane — cones, SCUT, and the AI weave — was moved 20 m south along the
-spline, toward the main straight. Entrance sides are unchanged.
+The main weave stays as tightened after the first retest: exit gate at
+s = +8, entrance at s = −14 (22 m between gates). The return chicane uses
+that same 22 m gate spacing. Its centre — the midpoint of the entrance and
+exit gates — sits on the return straight halfway from the corner that feeds
+onto the straight to the short-course rejoin, plus a few metres toward the
+rejoin. Entrance stays driver's left, exit driver's right.
 
 Run from the repo root: python3 tools/chicane_layout.py
 """
@@ -52,12 +54,16 @@ RETURN_MARK = np.array([-112.92, -602.81])
 # Main road is ~2 m to the left of the AI line and ~10 m to the right, so the
 # right-then-left weave uses the wide side first and returns to the left edge.
 # s_exit on main is 6 m closer to the entrance than the original +GATE.
-# `south` walks the whole feature that many metres of arc toward decreasing Z.
+# Return matches that entrance-to-exit distance. Gates are symmetric about
+# the station, which place_return() sets on the spline.
+RETURN_SPAN = 8.0 - (-GATE)          # 22 m, same as the main gates
+RETURN_HALF = RETURN_SPAN / 2.0
+RETURN_BIAS = 8.0                    # metres from halfway toward the short-course rejoin
 PLAN = {
     'main': dict(mark=MAIN_MARK, enter=-6.2, exit=0.55, mesh='1SCUT_chicane_main',
                  s_enter=-GATE, s_exit=8.0),
     'return': dict(mark=RETURN_MARK, enter=3.6, exit=-4.0, mesh='1SCUT_chicane_return',
-                   s_enter=-GATE, s_exit=GATE, south=20.0),
+                   s_enter=-RETURN_HALF, s_exit=RETURN_HALF),
 }
 
 
@@ -219,28 +225,123 @@ def sample_at(xz, idxs, s, left, query):
     return o, nrm
 
 
-def shift_south(xz, idxs, s, left, metres):
-    """Move the station `metres` of arc toward decreasing world Z. Returns new s and the shift."""
-    z0 = float(sample_at(xz, idxs, s, left, 0.0)[0][1])
-    z_dn = float(sample_at(xz, idxs, s, left, -5.0)[0][1])
-    # Negative spline s is south when that direction drops Z. Otherwise walk +s.
-    sign = -1.0 if z_dn < z0 else 1.0
-    origin = sign * float(metres)
-    o_new = sample_at(xz, idxs, s, left, origin)[0]
-    s_new = s - origin
-    dz = float(o_new[1] - z0)
-    return s_new, dict(arc=float(metres), sign=sign, dz=dz, z0=z0, z1=float(o_new[1]), origin_s=origin)
+def place_return(xz):
+    """Put the return-chicane centre between the feeding corner and the short rejoin.
+
+    The corner landmark is where that sweeper has finished and the northbound
+    return straight has begun (heading nearly +Z, curvature gone). The short
+    landmark is where `short/ai/fast_lane.ai` rejoins this line and stays on it.
+    `along` is signed arc from the screenshot mark, positive downstream.
+    """
+    from scipy.spatial import cKDTree
+    short = C.read_ai(Z + 'short/ai/fast_lane.ai')['P']['p'].astype(np.float64)[:, [0, 2]]
+    dshort, _ = cKDTree(short).query(xz)
+    hd_t = np.roll(xz, -4, 0) - np.roll(xz, 4, 0)
+    hd = hd_t / np.maximum(np.linalg.norm(hd_t, axis=1), 1e-9)[:, None]
+    kap = _curvature(xz, k=6)
+    seg = np.linalg.norm(np.diff(np.vstack([xz, xz[:1]]), axis=0), axis=1)
+    arc = np.r_[0.0, np.cumsum(seg)]
+    n = len(xz)
+
+    def step(i, direction):
+        j = (i + direction) % n
+        return j, float(np.linalg.norm(xz[j] - xz[i]))
+
+    onset = None
+    for i in range(n):
+        if xz[i, 0] > -90 or not (-780 < xz[i, 1] < -250):
+            continue
+        if hd[i, 1] < 0.98 or abs(kap[i]) > 0.003:
+            continue
+        acc, j, ok = 0.0, i, True
+        while acc < 20.0:
+            j, ds = step(j, +1)
+            acc += ds
+            if hd[j, 1] < 0.97:
+                ok = False
+                break
+        if ok:
+            onset = i
+            break
+    if onset is None:
+        raise SystemExit('return straight onset not found')
+
+    rejoin = None
+    i, acc = onset, 0.0
+    while acc < 700.0:
+        i, ds = step(i, +1)
+        acc += ds
+        if dshort[i] >= 2.0:
+            continue
+        acc2, j, ok = 0.0, i, True
+        while acc2 < 30.0:
+            j, ds2 = step(j, +1)
+            acc2 += ds2
+            if dshort[j] > 3.0:
+                ok = False
+                break
+        if ok:
+            rejoin = i
+            break
+    if rejoin is None:
+        raise SystemExit('short-course rejoin not found on the return straight')
+
+    a0, a1 = float(arc[onset]), float(arc[rejoin])
+    if a1 <= a0:
+        raise SystemExit('short-course rejoin is not downstream of the return straight')
+    halfway = 0.5 * (a0 + a1)
+    target = float(np.clip(halfway + RETURN_BIAS, a0 + 40.0, a1 - 40.0))
+    mark_i = int(np.argmin(np.hypot(xz[:, 0] - RETURN_MARK[0], xz[:, 1] - RETURN_MARK[1])))
+    along = target - float(arc[mark_i])
+
+    def at_arc(a):
+        i = int(np.clip(np.searchsorted(arc[:-1], a, side='right') - 1, 0, n - 2))
+        span = arc[i + 1] - arc[i]
+        f = 0.0 if span < 1e-9 else (a - arc[i]) / span
+        return (1 - f) * xz[i] + f * xz[i + 1]
+
+    old_along = -20.0  # previous layout: 20 m south of the screenshot mark
+    info = dict(
+        along=along, old_along=old_along,
+        onset_i=int(onset), onset_z=float(xz[onset, 1]), onset_xz=xz[onset].copy(),
+        rejoin_i=int(rejoin), rejoin_z=float(xz[rejoin, 1]), rejoin_xz=xz[rejoin].copy(),
+        onset_arc=a0, rejoin_arc=a1, halfway_arc=halfway, target_arc=target,
+        from_onset=target - a0, from_rejoin=a1 - target,
+        mark_i=mark_i, mark_z=float(xz[mark_i, 1]),
+        new_z=float(at_arc(target)[1]), old_z=float(at_arc(float(arc[mark_i]) + old_along)[1]),
+        moved_from_old=along - old_along,
+    )
+    print('return placement:')
+    print(f'  straight onset idx {onset} z {info["onset_z"]:.2f}  '
+          f'(corner has fed onto the return straight)')
+    print(f'  short rejoin   idx {rejoin} z {info["rejoin_z"]:.2f}  '
+          f'(short fast_lane within 2 m)')
+    print(f'  halfway arc {halfway - a0:.1f} m from onset, '
+          f'biased {RETURN_BIAS:.0f} m toward the rejoin')
+    print(f'  centre is {info["from_onset"]:.1f} m downstream of the onset, '
+          f'{info["from_rejoin"]:.1f} m upstream of the rejoin')
+    print(f'  z {info["old_z"]:.2f} (previous, 20 m south of the mark) -> {info["new_z"]:.2f}  '
+          f'spline {info["moved_from_old"]:+.1f} m')
+    return info
 
 
 def build_zone(name, spec, xz, XZ, Y, mn, mx):
     anchor0 = int(np.argmin(np.hypot(xz[:, 0] - spec['mark'][0], xz[:, 1] - spec['mark'][1])))
     dist = np.hypot(*(xz[anchor0] - spec['mark']))
-    south = float(spec.get('south', 0.0))
-    idxs, s = local_polyline(xz, anchor0, FAR + 25 + south)
+    along = float(spec.get('along', 0.0))
+    idxs, s = local_polyline(xz, anchor0, FAR + 30 + abs(along))
     left = tangent_left(xz, idxs)
-    shift = dict(arc=0.0, dz=0.0, z0=float(xz[anchor0][1]), z1=float(xz[anchor0][1]), origin_s=0.0)
-    if south:
-        s, shift = shift_south(xz, idxs, s, left, south)
+    shift = dict(arc=0.0, dz=0.0, z0=float(xz[anchor0][1]), z1=float(xz[anchor0][1]), origin_s=0.0,
+                 info=spec.get('place_info'))
+    if abs(along) > 0.01:
+        if along < s.min() + 1 or along > s.max() - 1:
+            raise SystemExit(f'{name}: polyline does not reach the new station (along {along:+.1f}, '
+                             f's {s.min():.1f}..{s.max():.1f})')
+        o_new = sample_at(xz, idxs, s, left, along)[0]
+        z0 = float(sample_at(xz, idxs, s, left, 0.0)[0][1])
+        s = s - along
+        shift = dict(arc=along, dz=float(o_new[1] - z0), z0=z0, z1=float(o_new[1]),
+                     origin_s=along, info=spec.get('place_info'))
         if s.min() > -FAR - 1 or s.max() < FAR + 1:
             raise SystemExit(f'{name}: polyline does not cover the shifted station '
                              f'({s.min():.1f}..{s.max():.1f})')
@@ -263,8 +364,8 @@ def build_zone(name, spec, xz, XZ, Y, mn, mx):
     span = spec['s_exit'] - spec['s_enter']
     print(f'{name}: mark idx {anchor0} at {xz[anchor0]}  mark miss {dist:.2f} m  '
           f'station idx {anchor} at {xz[anchor]}')
-    if south:
-        print(f'  moved {shift["arc"]:.2f} m south along the spline  '
+    if abs(along) > 0.01:
+        print(f'  station {shift["arc"]:+.2f} m along the spline from the mark  '
               f'Δz {shift["dz"]:+.2f} m  z {shift["z0"]:.2f} -> {shift["z1"]:.2f}')
     le0 = min(rows, key=lambda r: abs(r['s']))
     print(f'  edges at station  left {le0["le"]:.2f}  right {le0["re"]:.2f}  road y {le0["y"]:.3f}')
@@ -604,10 +705,9 @@ def validate(zones, xz_old, xz_new, meshes, XZ, Y, mn, mx):
         print(f'    clamped gate offsets {ent:+.2f} -> {ex:+.2f}')
         if zone['name'] == 'main' and not (ent < -4 and ex > 0.2):
             fails.append(f'main weave is not right-then-left ({ent:+.2f} -> {ex:+.2f})')
-        # 20 m further south the return road's left edge is only ~2.8 m, so the
-        # entrance cannot reach the old +3.6 m and still keep a wheel on asphalt.
-        # Anything clearly left of the racing line (>1.2 m) with a right exit is the weave.
-        if zone['name'] == 'return' and not (ent > 1.2 and ex < -2):
+        # On the upper return straight the racing line sits near the right edge,
+        # so a -4 m exit clamps to about -1 m and still points driver's right.
+        if zone['name'] == 'return' and not (ent > 2.0 and ex < -0.7):
             fails.append(f'return weave is not left-then-right ({ent:+.2f} -> {ex:+.2f})')
         tris = len(I)
         print(f'    {zone["spec"]["mesh"]} tris {tris}')
@@ -817,6 +917,9 @@ def main():
     print('loading road collision...')
     XZ, Y, mn, mx = load_roads()
     print(f'  {len(XZ)} road tris')
+    info = place_return(xz)
+    PLAN['return']['along'] = info['along']
+    PLAN['return']['place_info'] = info
     zones = [build_zone(n, PLAN[n], xz, XZ, Y, mn, mx) for n in ('main', 'return')]
     xz_new, y_new, moved, s_of, info = apply_weave(xz, pos[:, 1], zones, XZ, Y, mn, mx)
     v, kap, seg = speeds(xz_new, E[:, 0].copy())
@@ -915,6 +1018,7 @@ def main():
     if os.path.isdir(art):
         shutil.copy(prev, os.path.join(art, 'chicane_layout.png'))
     # stash numbers for the changelog
+    placed = zones[1]['shift']['info']
     open('/tmp/chicane_stats.txt', 'w').write(
         f'length_m {cum_new[-1]:.2f}\nmain_m {cum_old[-1]:.2f}\n'
         f'delta_m {cum_new[-1]-cum_old[-1]:+.2f}\ncones {len(cones)}\n'
@@ -922,10 +1026,17 @@ def main():
         f'apex_return {E2[zones[1]["anchor"],0]*3.6:.1f}\n'
         f'main_spacing {zones[0]["spacing"]:.2f}\n'
         f'main_shortened {2 * GATE - zones[0]["spacing"]:.2f}\n'
-        f'return_arc {zones[1]["shift"]["arc"]:.2f}\n'
+        f'return_along {zones[1]["shift"]["arc"]:+.2f}\n'
         f'return_dz {zones[1]["shift"]["dz"]:+.2f}\n'
         f'return_z0 {zones[1]["shift"]["z0"]:.2f}\n'
         f'return_z1 {zones[1]["shift"]["z1"]:.2f}\n'
+        f'return_old_z {placed["old_z"]:.2f}\n'
+        f'return_new_z {placed["new_z"]:.2f}\n'
+        f'return_moved {placed["moved_from_old"]:+.2f}\n'
+        f'from_onset {placed["from_onset"]:.2f}\n'
+        f'from_rejoin {placed["from_rejoin"]:.2f}\n'
+        f'onset_z {placed["onset_z"]:.2f}\n'
+        f'rejoin_z {placed["rejoin_z"]:.2f}\n'
         + '\n'.join(f'tris_{z["name"]} {len(m[1])}' for z, m in zip(zones, mesh_list))
         + f'\ncone_tris {len(coneI)}\n'
     )
