@@ -16,6 +16,11 @@ Driver's left is the AC left normal (tz, -tx). Main entrance is to the right
 to the right (west). Soft cut is an invisible 1SCUT_* ribbon (KEY=SCUT) over
 the shortcut; cones are visual only.
 
+After the first test the main weave was shortened by pulling the exit gate
+back toward the entrance (s = +14 → +8, spacing 28 → 22 m). The return
+chicane — cones, SCUT, and the AI weave — was moved 20 m south along the
+spline, toward the main straight. Entrance sides are unchanged.
+
 Run from the repo root: python3 tools/chicane_layout.py
 """
 import io, os, re, shutil, struct, sys
@@ -31,9 +36,12 @@ import vr7_common as C
 
 Z = os.path.join(ROOT, 'vf_i29_speedway') + os.sep
 LAY = 'chicane'
-# Gate centres, metres along the spline from the mark. Positive = downstream.
+# Original symmetric gates, metres along the spline from the station.
+# Positive = downstream. BLEND is how far the line eases back to centre
+# outside each gate (the old FAR − GATE).
 GATE = 14.0
-FAR = 36.0
+BLEND = 22.0
+FAR = GATE + BLEND
 HW = 1.90          # valid-channel half-width in the core (m)
 WHEEL = 0.90       # half the width that must stay on ROAD / on SCUT
 EDGE = 1.25        # keep the AI line at least this far from the asphalt edge
@@ -43,9 +51,13 @@ RETURN_MARK = np.array([-112.92, -602.81])
 # Designed lateral offsets (metres, driver's left positive) at the two gates.
 # Main road is ~2 m to the left of the AI line and ~10 m to the right, so the
 # right-then-left weave uses the wide side first and returns to the left edge.
+# s_exit on main is 6 m closer to the entrance than the original +GATE.
+# `south` walks the whole feature that many metres of arc toward decreasing Z.
 PLAN = {
-    'main': dict(mark=MAIN_MARK, enter=-6.2, exit=0.55, mesh='1SCUT_chicane_main'),
-    'return': dict(mark=RETURN_MARK, enter=3.6, exit=-4.0, mesh='1SCUT_chicane_return'),
+    'main': dict(mark=MAIN_MARK, enter=-6.2, exit=0.55, mesh='1SCUT_chicane_main',
+                 s_enter=-GATE, s_exit=8.0),
+    'return': dict(mark=RETURN_MARK, enter=3.6, exit=-4.0, mesh='1SCUT_chicane_return',
+                   s_enter=-GATE, s_exit=GATE, south=20.0),
 }
 
 
@@ -54,15 +66,19 @@ def smoother(t):
     return t * t * t * (t * (t * 6.0 - 15.0) + 10.0)
 
 
-def path_offset(s, enter, exit):
+def path_offset(s, spec):
+    """Lateral offset. The core runs from s_enter to s_exit; each side blends over BLEND."""
+    se, sx = spec['s_enter'], spec['s_exit']
+    enter, exit = spec['enter'], spec['exit']
     s = float(s)
-    if s <= -FAR or s >= FAR:
+    if s <= se - BLEND or s >= sx + BLEND:
         return 0.0
-    if s < -GATE:
-        return enter * smoother((s - (-FAR)) / (-GATE - (-FAR)))
-    if s < GATE:
-        return enter + (exit - enter) * smoother((s - (-GATE)) / (GATE - (-GATE)))
-    return exit + (0.0 - exit) * smoother((s - GATE) / (FAR - GATE))
+    if s < se:
+        return enter * smoother((s - (se - BLEND)) / BLEND)
+    if s < sx:
+        span = sx - se
+        return enter + (exit - enter) * smoother((s - se) / span)
+    return exit + (0.0 - exit) * smoother((s - sx) / BLEND)
 
 
 def clamp_off(off, le, re):
@@ -72,14 +88,21 @@ def clamp_off(off, le, re):
     return float(np.clip(off, re + EDGE, le - EDGE))
 
 
-def channel_half(s):
-    """Core width inside the gates, flaring out to 'full road' by ±FAR."""
-    a = abs(float(s))
-    if a <= GATE + 4.0:
+def channel_half(s, spec):
+    """Core width through the gates, flaring out to full road by the end of each blend."""
+    se, sx = spec['s_enter'], spec['s_exit']
+    s = float(s)
+    if s < se:
+        a = se - s
+    elif s > sx:
+        a = s - sx
+    else:
+        a = 0.0
+    if a <= 4.0:
         return HW
-    if a >= FAR:
+    if a >= BLEND:
         return 80.0
-    return HW + (40.0 - HW) * smoother((a - (GATE + 4.0)) / (FAR - (GATE + 4.0)))
+    return HW + (40.0 - HW) * smoother((a - 4.0) / (BLEND - 4.0))
 
 
 def load_roads():
@@ -196,11 +219,32 @@ def sample_at(xz, idxs, s, left, query):
     return o, nrm
 
 
+def shift_south(xz, idxs, s, left, metres):
+    """Move the station `metres` of arc toward decreasing world Z. Returns new s and the shift."""
+    z0 = float(sample_at(xz, idxs, s, left, 0.0)[0][1])
+    z_dn = float(sample_at(xz, idxs, s, left, -5.0)[0][1])
+    # Negative spline s is south when that direction drops Z. Otherwise walk +s.
+    sign = -1.0 if z_dn < z0 else 1.0
+    origin = sign * float(metres)
+    o_new = sample_at(xz, idxs, s, left, origin)[0]
+    s_new = s - origin
+    dz = float(o_new[1] - z0)
+    return s_new, dict(arc=float(metres), sign=sign, dz=dz, z0=z0, z1=float(o_new[1]), origin_s=origin)
+
+
 def build_zone(name, spec, xz, XZ, Y, mn, mx):
-    anchor = int(np.argmin(np.hypot(xz[:, 0] - spec['mark'][0], xz[:, 1] - spec['mark'][1])))
-    dist = np.hypot(*(xz[anchor] - spec['mark']))
-    idxs, s = local_polyline(xz, anchor, FAR + 25)
+    anchor0 = int(np.argmin(np.hypot(xz[:, 0] - spec['mark'][0], xz[:, 1] - spec['mark'][1])))
+    dist = np.hypot(*(xz[anchor0] - spec['mark']))
+    south = float(spec.get('south', 0.0))
+    idxs, s = local_polyline(xz, anchor0, FAR + 25 + south)
     left = tangent_left(xz, idxs)
+    shift = dict(arc=0.0, dz=0.0, z0=float(xz[anchor0][1]), z1=float(xz[anchor0][1]), origin_s=0.0)
+    if south:
+        s, shift = shift_south(xz, idxs, s, left, south)
+        if s.min() > -FAR - 1 or s.max() < FAR + 1:
+            raise SystemExit(f'{name}: polyline does not cover the shifted station '
+                             f'({s.min():.1f}..{s.max():.1f})')
+    anchor = int(idxs[int(np.argmin(np.abs(s)))])
     # edges at the AI samples (cached)
     edge = {}
     for i, k in enumerate(idxs):
@@ -214,15 +258,23 @@ def build_zone(name, spec, xz, XZ, Y, mn, mx):
         # edges from the nearest cached sample, walked from the interpolated origin
         le, re = edges_at(o, nrm, XZ, Y, mn, mx)
         hy = height_at(o[0], o[1], XZ, Y, mn, mx)
-        off = clamp_off(path_offset(q, spec['enter'], spec['exit']), le, re)
-        rows.append(dict(s=q, o=o, n=nrm, le=le, re=re, y=hy, off=off, hw=channel_half(q)))
-    print(f'{name}: anchor idx {anchor} at {xz[anchor]}  mark miss {dist:.2f} m')
-    le0 = rows[len(rows) // 2]
-    print(f'  edges at mark  left {le0["le"]:.2f}  right {le0["re"]:.2f}  road y {le0["y"]:.3f}')
-    print(f'  offset enter {path_offset(-GATE, spec["enter"], spec["exit"]):+.2f}  '
-          f'mid {path_offset(0, spec["enter"], spec["exit"]):+.2f}  '
-          f'exit {path_offset(GATE, spec["enter"], spec["exit"]):+.2f}')
-    return dict(name=name, spec=spec, anchor=anchor, idxs=idxs, s=s, left=left, edge=edge, rows=rows)
+        off = clamp_off(path_offset(q, spec), le, re)
+        rows.append(dict(s=q, o=o, n=nrm, le=le, re=re, y=hy, off=off, hw=channel_half(q, spec)))
+    span = spec['s_exit'] - spec['s_enter']
+    print(f'{name}: mark idx {anchor0} at {xz[anchor0]}  mark miss {dist:.2f} m  '
+          f'station idx {anchor} at {xz[anchor]}')
+    if south:
+        print(f'  moved {shift["arc"]:.2f} m south along the spline  '
+              f'Δz {shift["dz"]:+.2f} m  z {shift["z0"]:.2f} -> {shift["z1"]:.2f}')
+    le0 = min(rows, key=lambda r: abs(r['s']))
+    print(f'  edges at station  left {le0["le"]:.2f}  right {le0["re"]:.2f}  road y {le0["y"]:.3f}')
+    print(f'  gates {spec["s_enter"]:+.1f} .. {spec["s_exit"]:+.1f}  spacing {span:.1f} m  '
+          f'shortened {2 * GATE - span:.1f} m')
+    print(f'  offset enter {path_offset(spec["s_enter"], spec):+.2f}  '
+          f'mid {path_offset(0.5 * (spec["s_enter"] + spec["s_exit"]), spec):+.2f}  '
+          f'exit {path_offset(spec["s_exit"], spec):+.2f}')
+    return dict(name=name, spec=spec, anchor=anchor, anchor0=anchor0, idxs=idxs, s=s,
+                left=left, edge=edge, rows=rows, shift=shift, spacing=span)
 
 
 def on_road_lat(row, lat):
@@ -306,7 +358,9 @@ def zone_meshes(zone, XZ, Y, mn, mx):
         right_rib.append(line(R))
         # cones: gate rows and corridor edges
         s = row['s']
-        if abs(abs(s) - GATE) < 0.51 or (abs(s) <= GATE and abs(s) % 4.0 < 0.51):
+        se, sx = zone['spec']['s_enter'], zone['spec']['s_exit']
+        near_gate = min(abs(s - se), abs(s - sx)) < 0.51
+        if near_gate or (se <= s <= sx and abs(s) % 4.0 < 0.51):
             for side, span in (('L', L), ('R', R)):
                 if span is None:
                     continue
@@ -318,7 +372,7 @@ def zone_meshes(zone, XZ, Y, mn, mx):
                     h = height_at(q[0], q[1], XZ, Y, mn, mx)
                     if h is not None:
                         cones.append((q[0], h, q[1]))
-        if abs(abs(s) - GATE) < 0.51:
+        if near_gate:
             for a, b in scut_intervals(row):
                 lat = a + 0.9
                 while lat < b - 0.9:
@@ -393,7 +447,7 @@ def apply_weave(xz, y_ai, zones, XZ, Y, mn, mx):
             s_of[k] = zone['s'][i]
             spec = zone['spec']
             le, re = zone['edge'].get(int(k), (None, None))
-            off = clamp_off(path_offset(zone['s'][i], spec['enter'], spec['exit']), le, re)
+            off = clamp_off(path_offset(zone['s'][i], spec), le, re)
             nrm = zone['left'][i]
             p = xz[k] + off * nrm
             h = height_at(p[0], p[1], XZ, Y, mn, mx)
@@ -462,8 +516,9 @@ def validate(zones, xz_old, xz_new, meshes, XZ, Y, mn, mx):
         weave_n = 0
         straight_hit = 0
         straight_n = 0
+        se, sx = zone['spec']['s_enter'], zone['spec']['s_exit']
         for row in zone['rows']:
-            if abs(row['s']) > GATE + 8:
+            if row['s'] < se - 8 or row['s'] > sx + 8:
                 continue
             for lat, kind in ((0.0, 'c'), (-WHEEL, 'w'), (WHEEL, 'w')):
                 q = row['o'] + lat * row['n']
@@ -544,12 +599,15 @@ def validate(zones, xz_old, xz_new, meshes, XZ, Y, mn, mx):
         if ai_bad:
             fails.append(f'{zone["name"]}: {ai_bad} AI-line samples hit SCUT or left the road')
         # direction check uses the clamped line the car actually drives
-        ent = min(zone['rows'], key=lambda r: abs(r['s'] + GATE))['off']
-        ex = min(zone['rows'], key=lambda r: abs(r['s'] - GATE))['off']
+        ent = min(zone['rows'], key=lambda r: abs(r['s'] - se))['off']
+        ex = min(zone['rows'], key=lambda r: abs(r['s'] - sx))['off']
         print(f'    clamped gate offsets {ent:+.2f} -> {ex:+.2f}')
         if zone['name'] == 'main' and not (ent < -4 and ex > 0.2):
             fails.append(f'main weave is not right-then-left ({ent:+.2f} -> {ex:+.2f})')
-        if zone['name'] == 'return' and not (ent > 2 and ex < -2):
+        # 20 m further south the return road's left edge is only ~2.8 m, so the
+        # entrance cannot reach the old +3.6 m and still keep a wheel on asphalt.
+        # Anything clearly left of the racing line (>1.2 m) with a right exit is the weave.
+        if zone['name'] == 'return' and not (ent > 1.2 and ex < -2):
             fails.append(f'return weave is not left-then-right ({ent:+.2f} -> {ex:+.2f})')
         tris = len(I)
         print(f'    {zone["spec"]["mesh"]} tris {tris}')
@@ -862,6 +920,12 @@ def main():
         f'delta_m {cum_new[-1]-cum_old[-1]:+.2f}\ncones {len(cones)}\n'
         f'apex_main {E2[zones[0]["anchor"],0]*3.6:.1f}\n'
         f'apex_return {E2[zones[1]["anchor"],0]*3.6:.1f}\n'
+        f'main_spacing {zones[0]["spacing"]:.2f}\n'
+        f'main_shortened {2 * GATE - zones[0]["spacing"]:.2f}\n'
+        f'return_arc {zones[1]["shift"]["arc"]:.2f}\n'
+        f'return_dz {zones[1]["shift"]["dz"]:+.2f}\n'
+        f'return_z0 {zones[1]["shift"]["z0"]:.2f}\n'
+        f'return_z1 {zones[1]["shift"]["z1"]:.2f}\n'
         + '\n'.join(f'tris_{z["name"]} {len(m[1])}' for z, m in zip(zones, mesh_list))
         + f'\ncone_tris {len(coneI)}\n'
     )
