@@ -1,6 +1,6 @@
 # I-29 Speedway (`vf_i29_speedway`) — install guide for automation agents
 
-Current release: **v1.1.3** (Long Course Chicane layout; new checksummed files) · Repo: https://github.com/vybesforge/trackupdates_forge · Track folder id: `vf_i29_speedway` (was `zw_rpm` before the rename).
+Current release: **v1.1.4** (exit soft-cut flush with the remaining exit cone; checksum changed: `vf_chicane.kn5`) · Repo: https://github.com/vybesforge/trackupdates_forge · Track folder id: `vf_i29_speedway` (was `zw_rpm` before the rename).
 
 ## HARD RULES (read first)
 1. **Never modify, create or delete anything under the game's or the server's `system/` folder** — this includes `system/data/*`, `system/data/data_track_params.ini` and the global `system/data/surfaces.ini`. These files are shared by all tracks.
@@ -12,19 +12,19 @@ Current release: **v1.1.3** (Long Course Chicane layout; new checksummed files) 
 4. If anything seems to require a change outside the list above (system files, other tracks, CM/CSP settings files), **stop and report to the user** instead of doing it.
 
 ## Source (prefer the release zip)
-- **Preferred:** GitHub Release v1.1.3 — https://github.com/vybesforge/trackupdates_forge/releases/tag/v1.1.3
-  - Asset: `I-29_Speedway_v1.1.3.zip` (~214 MB)
-  - SHA-256: `967ae33a41a6e6db39f0c978220f09e3a6a46af20544b6eeb92ca8bb90f3fe27` — **verify before installing; abort on mismatch.** Do not reuse the v1.1.2 hash `b57716140e1c2a11798a69889655723f166868c32b2534b272480750e4c8d59c`.
+- **Preferred:** GitHub Release v1.1.4 — https://github.com/vybesforge/trackupdates_forge/releases/tag/v1.1.4
+  - Asset: `I-29_Speedway_v1.1.4.zip` (~214 MB)
+  - SHA-256: published with that tag as `I-29_Speedway_v1.1.4.zip.sha256`. Paste it into `$Sha` below before installing. Do not reuse the v1.1.3 hash `967ae33a41a6e6db39f0c978220f09e3a6a46af20544b6eeb92ca8bb90f3fe27` or the v1.1.2 hash `b57716140e1c2a11798a69889655723f166868c32b2534b272480750e4c8d59c`. **Verify before installing; abort on mismatch.**
   - Zip layout: `content/tracks/vf_i29_speedway/`, `apps/python/i29_dragtree/`, `server/` (track-params snippet + `add_track_params.py`), `I-29_Speedway_docs/`.
-- **Alternative:** git + Git LFS from `main` or tag `v1.1.3` (not old feature branches). GitHub's "Download ZIP" of the repo contains LFS pointer files, not real data — do not use it.
+- **Alternative:** git + Git LFS from `main` or tag `v1.1.4` (not old feature branches). GitHub's "Download ZIP" of the repo contains LFS pointer files, not real data — do not use it.
   ```
   git lfs install
-  git clone --branch v1.1.3 https://github.com/vybesforge/trackupdates_forge.git && cd trackupdates_forge && git lfs pull
+  git clone --branch v1.1.4 https://github.com/vybesforge/trackupdates_forge.git && cd trackupdates_forge && git lfs pull
   ```
   Then use `vf_i29_speedway/`, `apps/python/i29_dragtree/` and `server/` from the clone in place of the zip folders below. Sanity check: `vf_i29_speedway/vf_i29_speedway.kn5` must be > 10 MB (not a ~130-byte pointer).
 
-## Byte-exact files and checksums (v1.1.3)
-AC compares `*.kn5`, `surfaces.ini` and `models*.ini` byte-for-byte between server and client. **Install only from the release zip.** If you must copy from a git worktree, it must be a fresh clone made after the `.gitattributes` fix (main ≥ v1.0.4, all shipped files `-text`) or a clone with `git config core.autocrlf false`; older Windows checkouts with `core.autocrlf=true` turned `.ini` files into CRLF and caused "checksum failed". v1.1.3 files (the old `zw_*.kn5` were renamed `vf_*.kn5`; delete any `zw_*.kn5` left in an install):
+## Byte-exact files and checksums (v1.1.4)
+AC compares `*.kn5`, `surfaces.ini` and `models*.ini` byte-for-byte between server and client. **Install only from the release zip.** If you must copy from a git worktree, it must be a fresh clone made after the `.gitattributes` fix (main ≥ v1.0.4, all shipped files `-text`) or a clone with `git config core.autocrlf false`; older Windows checkouts with `core.autocrlf=true` turned `.ini` files into CRLF and caused "checksum failed". v1.1.4 files (the old `zw_*.kn5` were renamed `vf_*.kn5`; delete any `zw_*.kn5` left in an install):
 
 | File (in `content/tracks/vf_i29_speedway/`) | Bytes | MD5 |
 |---|---|---|
@@ -34,7 +34,7 @@ AC compares `*.kn5`, `surfaces.ini` and `models*.ini` byte-for-byte between serv
 | `models_main.ini` | 1097 | `887cb7057faa89dc90e1a2612e0ee8ad` |
 | `models_short.ini` | 1031 | `488a75318f91e797a72952bd983cc309` |
 | `short/data/surfaces.ini` | 3437 | `4cf76a43508412ec49498cca1404c0dd` |
-| `vf_chicane.kn5` | 109772 | `2691c72625818f318ca41607c6613c16` |
+| `vf_chicane.kn5` | 109772 | `aa17ec5a2c2445c2af679c2ebed9d1f1` |
 | `vf_dragcol.kn5` | 244144 | `7094d086db4c3c9632931b1077098645` |
 | `vf_dragexit.kn5` | 14370948 | `532c29b2a07b0cf431c02ef3118330f9` |
 | `vf_draglaunch.kn5` | 14070895 | `40e0dbe54c1982fa6638f214e978327b` |
@@ -61,8 +61,9 @@ Find AC: default `C:\Program Files (x86)\Steam\steamapps\common\assettocorsa`; o
 ```powershell
 $ErrorActionPreference = "Stop"
 $AC   = "C:\Program Files (x86)\Steam\steamapps\common\assettocorsa"   # adjust
-$Ver  = "v1.1.3"
-$Sha  = "967ae33a41a6e6db39f0c978220f09e3a6a46af20544b6eeb92ca8bb90f3fe27"
+$Ver  = "v1.1.4"
+$Sha  = ""   # paste the published v1.1.4 SHA-256 (64 hex chars) before running
+if ($Sha.Length -ne 64) { throw "Paste the published v1.1.4 SHA-256 into `$Sha before installing" }
 $Work = Join-Path $env:TEMP "i29_$Ver"; New-Item -ItemType Directory -Force $Work | Out-Null
 $Zip  = Join-Path $Work "I-29_Speedway_$Ver.zip"
 Invoke-WebRequest "https://github.com/vybesforge/trackupdates_forge/releases/download/$Ver/I-29_Speedway_$Ver.zip" -OutFile $Zip
@@ -84,13 +85,13 @@ Copy-Item "$Work\x\apps\python\i29_dragtree" $App -Recurse
 Note: AC/CM list every folder in `content/tracks`, so a `*.bak_*` folder may appear as an extra track. After the user confirms the new install works, the backups can be deleted (ask first).
 
 Verify:
-- `$Tracks\vf_i29_speedway\vf_i29_speedway.kn5` > 10 MB; `models_main.ini`, `models_short.ini`, `models_chicane.ini`, `ui\main\ui_track.json`, `ui\short\ui_track.json`, `ui\chicane\ui_track.json` exist; each `ui_track.json` `"version"` = `1.1.3`.
+- `$Tracks\vf_i29_speedway\vf_i29_speedway.kn5` > 10 MB; `models_main.ini`, `models_short.ini`, `models_chicane.ini`, `ui\main\ui_track.json`, `ui\short\ui_track.json`, `ui\chicane\ui_track.json` exist; each `ui_track.json` `"version"` = `1.1.4`.
 - Content Manager shows three layouts: "I-29 Speedway Long Course" (`main`), "I-29 Speedway Short Course" (`short`), and "I-29 Speedway Long Course Chicane" (`chicane`).
 - Recommended: Content Manager + CSP 0.2.x (lights, grass, reactive drag tree on the pole). Without CSP, enable the "I-29 Drag Tree" app.
 
 ## Server install (Linux and Windows)
 The server needs the **same** track folder as the clients (it checksums `*.kn5`, `surfaces.ini`, `models*.ini`).
-1. Download and verify the v1.1.3 zip exactly as above (Linux: `curl -LO <url> && sha256sum I-29_Speedway_v1.1.3.zip`; compare with the hash above).
+1. Download and verify the v1.1.4 zip exactly as above (Linux: `curl -LO <url> && sha256sum I-29_Speedway_v1.1.4.zip`; compare with the hash above).
 2. Stop the server.
 3. Clean replace the track:
    - Linux: `TS=$(date +%Y%m%d_%H%M%S); cd <server>/content/tracks && { [ -d vf_i29_speedway ] && mv vf_i29_speedway vf_i29_speedway.bak_$TS; true; } && cp -r <unzipped>/content/tracks/vf_i29_speedway .`
@@ -108,7 +109,7 @@ The server needs the **same** track folder as the clients (it checksums `*.kn5`,
 6. Ensure server and clients have identical files — compare MD5 on both machines:
    - Linux: `cd <server>/content/tracks/vf_i29_speedway && md5sum *.kn5 main/data/surfaces.ini short/data/surfaces.ini models_*.ini`
    - Windows: `Get-ChildItem "$Tracks\vf_i29_speedway\*.kn5","$Tracks\vf_i29_speedway\models_*.ini","$Tracks\vf_i29_speedway\*\data\surfaces.ini" | Get-FileHash -Algorithm MD5`
-   Any difference → clean-reinstall v1.1.3 on the side that differs, restart the server.
+   Any difference → clean-reinstall v1.1.4 on the side that differs, restart the server.
 
 ## Repair a previously modified install
 If an earlier agent (or older instructions, v1.0.2) edited shared system files:
@@ -137,7 +138,7 @@ If an earlier agent (or older instructions, v1.0.2) edited shared system files:
 7. North extension: 190th/188th St, fuel stations, US-34 stop drivable without flags or steps.
 8. Night (CSP): pit, paddock and drag-strip lights.
 9. Online: server starts without track-params errors and clients join without checksum failure.
-10. Long Course Chicane: both cone chicanes are across from each other on the west double-straight; driving the shortcut is off-track and the cone line is valid.
+10. Long Course Chicane: both cone chicanes are across from each other on the west double-straight; driving the shortcut is off-track and the cone line is valid. On each exit the soft-cut edge sits on the innermost remaining cone.
 Report issues back to the user.
 
 ## License

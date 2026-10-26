@@ -1,5 +1,5 @@
 """Build the I-29 Speedway release zip (local only; publishing is a separate, manual step).
-Usage: python tools/build_release.py [version] [outdir]      default: v1.1.3  /workspace/rpotm/release
+Usage: python tools/build_release.py [version] [outdir]      default: v1.1.4  /workspace/rpotm/release
 Zip layout (drop-in for the Assetto Corsa root folder or Content Manager drag & drop):
   content/tracks/vf_i29_speedway/...          track (all layouts, CSP extension incl. reactive drag tree)
   apps/python/i29_dragtree/...       vanilla-AC Python drag tree + timeslip app
@@ -8,7 +8,7 @@ Zip layout (drop-in for the Assetto Corsa root folder or Content Manager drag & 
 Refuses to build if any LFS file is still a pointer, or if forbidden branding strings are found in text files."""
 import hashlib, os, re, sys, zipfile
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-VER = sys.argv[1] if len(sys.argv) > 1 else 'v1.1.3'
+VER = sys.argv[1] if len(sys.argv) > 1 else 'v1.1.4'
 OUT = sys.argv[2] if len(sys.argv) > 2 else '/workspace/rpotm/release'
 FORBID = re.compile(r'1320|smile\s*like\s*kyle|drivenbycruise', re.I)
 TEXT = ('.ini', '.json', '.lua', '.py', '.md', '.txt', '.csv')
