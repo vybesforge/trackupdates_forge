@@ -16,12 +16,15 @@ driver's right and exits to the left. The return enters to the driver's left
 and exits to the right. Soft cut is an invisible 1SCUT_* ribbon (KEY=SCUT)
 over the shortcut; cones are visual only.
 
-The main weave keeps the tightened 22 m gates (−14 m and +8 m) and the
-station 20 m upstream of the original mark. The entrance is pushed to the
-right edge of the asphalt (about 1.25 m inside it) and the exit to the left
-edge, the same edge-margin placement the return uses on its wide side. The
-return weave, station, and offsets stay as they are. Each exit gate drops
-its outermost cone so both exits carry the same cone count.
+Both chicanes keep their tightened 22 m gates and the same edge-margin weave
+(main right-then-left, return left-then-right). Their stations meet at the
+midpoint of the previous pair (main z −582.17 and return z −510.86), so the
+two features sit across the double straight. On this southbound straight,
+"back" is upstream, which is north (+Z); that is the direction the main
+station moves. The return station moves south to the same z.
+
+Each exit gate keeps the outer cone (the one PR #5 removed, farthest from
+the racing line) and instead drops the cone closest to the exit opening.
 
 Run from the repo root: python3 tools/chicane_layout.py
 """
@@ -60,12 +63,14 @@ RETURN_MARK = np.array([-112.92, -602.81])
 RETURN_SPAN = 8.0 - (-GATE)          # 22 m, same as the main gates
 RETURN_HALF = RETURN_SPAN / 2.0
 RETURN_BIAS = 8.0                    # metres from halfway toward the short-course rejoin
-# Southbound travel is −Z, so 20 m upstream (back toward the corner that
-# feeds the straight, north, more positive z) is a negative along-track shift.
-MAIN_BACK = -20.0
+# Southbound travel is −Z, so upstream (back toward the corner that feeds
+# the straight, north, more positive z) is a negative along-track shift.
+# MAIN_PREV_ALONG is the PR #5 station (20 m upstream of the screenshot mark).
+# main() replaces both `along` values with the shared midpoint station.
+MAIN_PREV_ALONG = -20.0
 PLAN = {
     'main': dict(mark=MAIN_MARK, enter=-12.0, exit=12.0, mesh='1SCUT_chicane_main',
-                 s_enter=-GATE, s_exit=8.0, along=MAIN_BACK),
+                 s_enter=-GATE, s_exit=8.0, along=MAIN_PREV_ALONG),
     'return': dict(mark=RETURN_MARK, enter=12.0, exit=-4.0, mesh='1SCUT_chicane_return',
                    s_enter=-RETURN_HALF, s_exit=RETURN_HALF),
 }
@@ -311,7 +316,7 @@ def place_return(xz):
         rejoin_i=int(rejoin), rejoin_z=float(xz[rejoin, 1]), rejoin_xz=xz[rejoin].copy(),
         onset_arc=a0, rejoin_arc=a1, halfway_arc=halfway, target_arc=target,
         from_onset=target - a0, from_rejoin=a1 - target,
-        mark_i=mark_i, mark_z=float(xz[mark_i, 1]),
+        mark_i=mark_i, mark_z=float(xz[mark_i, 1]), mark_arc=float(arc[mark_i]),
         new_z=float(at_arc(target)[1]), old_z=float(at_arc(float(arc[mark_i]) + old_along)[1]),
         moved_from_old=along - old_along,
     )
@@ -326,6 +331,81 @@ def place_return(xz):
           f'{info["from_rejoin"]:.1f} m upstream of the rejoin')
     print(f'  z {info["old_z"]:.2f} (previous, 20 m south of the mark) -> {info["new_z"]:.2f}  '
           f'spline {info["moved_from_old"]:+.1f} m')
+    return info
+
+
+def station_origin(xz, mark, along):
+    """World XZ of the s=0 station `along` metres from `mark`."""
+    anchor0 = int(np.argmin(np.hypot(xz[:, 0] - mark[0], xz[:, 1] - mark[1])))
+    idxs, s = local_polyline(xz, anchor0, FAR + 80 + abs(along))
+    left = tangent_left(xz, idxs)
+    return sample_at(xz, idxs, s, left, along)[0]
+
+
+def along_for_z(xz, mark, target_z, hint):
+    """Signed arc from `mark` whose station z equals `target_z`, nearest `hint`."""
+    anchor0 = int(np.argmin(np.hypot(xz[:, 0] - mark[0], xz[:, 1] - mark[1])))
+    idxs, s = local_polyline(xz, anchor0, 250.0)
+    pts = xz[idxs]
+    best = None
+    for i in range(1, len(s)):
+        z0, z1 = float(pts[i - 1, 1]), float(pts[i, 1])
+        if (z0 - target_z) * (z1 - target_z) > 0:
+            continue
+        dz = z1 - z0
+        if abs(dz) < 1e-6:
+            continue
+        f = (target_z - z0) / dz
+        if not (0.0 <= f <= 1.0):
+            continue
+        along = float(s[i - 1] + f * (s[i] - s[i - 1]))
+        err = abs(along - hint)
+        if best is None or err < best[0]:
+            best = (err, along)
+    if best is None:
+        raise SystemExit(f'no spline point at z {target_z:.2f} near {mark}')
+    return best[1]
+
+
+def align_stations(xz, info):
+    """Park both chicane stations on the midpoint of the PR #5 stations.
+
+    Prior "back" on the southbound main straight is upstream, which is north
+    (+Z, a more negative `along`). The return straight travels north, so the
+    matching move toward the main is south (a smaller positive `along`).
+    """
+    prev_main_z = float(station_origin(xz, MAIN_MARK, MAIN_PREV_ALONG)[1])
+    prev_ret_z = float(info['new_z'])
+    shared_z = 0.5 * (prev_main_z + prev_ret_z)
+    main_along = along_for_z(xz, MAIN_MARK, shared_z, MAIN_PREV_ALONG)
+    ret_along = along_for_z(xz, RETURN_MARK, shared_z, info['along'])
+    main_z = float(station_origin(xz, MAIN_MARK, main_along)[1])
+    ret_z = float(station_origin(xz, RETURN_MARK, ret_along)[1])
+    if abs(main_z - shared_z) > 0.05 or abs(ret_z - shared_z) > 0.05:
+        raise SystemExit(f'stations missed the shared z {shared_z:.2f} '
+                         f'(main {main_z:.2f}, return {ret_z:.2f})')
+    info['prev_along'] = info['along']
+    info['prev_z'] = prev_ret_z
+    info['along'] = ret_along
+    info['new_z'] = ret_z
+    info['shared_z'] = shared_z
+    info['main_prev_z'] = prev_main_z
+    info['main_prev_along'] = MAIN_PREV_ALONG
+    info['main_along'] = main_along
+    info['main_z'] = main_z
+    target = info['mark_arc'] + ret_along
+    info['from_onset'] = target - info['onset_arc']
+    info['from_rejoin'] = info['rejoin_arc'] - target
+    info['moved_from_prev'] = ret_along - info['prev_along']
+    print('shared station:')
+    print(f'  midpoint of z {prev_main_z:.2f} and z {prev_ret_z:.2f}  ->  z {shared_z:.2f}')
+    print(f'  main   along {MAIN_PREV_ALONG:+.2f} -> {main_along:+.2f}  '
+          f'Δz {main_z - prev_main_z:+.2f} m  (upstream / north, prior "back")')
+    print(f'  return along {info["prev_along"]:+.2f} -> {ret_along:+.2f}  '
+          f'Δz {ret_z - prev_ret_z:+.2f} m  (south, toward the main)')
+    PLAN['main']['along'] = main_along
+    PLAN['return']['along'] = ret_along
+    PLAN['return']['place_info'] = info
     return info
 
 
@@ -462,7 +542,9 @@ def zone_meshes(zone, XZ, Y, mn, mx):
         left_rib.append(line(L))
         right_rib.append(line(R))
         # cones: gate rows and corridor edges
-        # role/dist let the caller drop the outermost exit-gate cone
+        # role, dist and lat let the caller identify the exit-gate cones.
+        # The outer cone (max dist) stays. The cone closest to the exit
+        # opening (min dist to the racing line) is the one that is removed.
         s = row['s']
         se, sx = zone['spec']['s_enter'], zone['spec']['s_exit']
         if abs(s - sx) < 0.51:
@@ -478,7 +560,7 @@ def zone_meshes(zone, XZ, Y, mn, mx):
             h = height_at(q[0], q[1], XZ, Y, mn, mx)
             if h is None:
                 return
-            cones.append((q[0], h, q[1], role, abs(lat - row['off'])))
+            cones.append((q[0], h, q[1], role, abs(float(lat) - row['off']), float(lat)))
 
         if near_gate or (se <= s <= sx and abs(s) % 4.0 < 0.51):
             for side, span in (('L', L), ('R', R)):
@@ -724,20 +806,26 @@ def validate(zones, xz_old, xz_new, meshes, XZ, Y, mn, mx):
             centre = 0.5 * (erow['le'] + erow['re'])
             print(f'    road centre at entrance {centre:+.2f}  right edge {erow["re"]:.2f}  '
                   f'left edge at exit {xrow["le"]:.2f}')
-            if not (ent < centre - 3.0 and ent < erow['re'] + EDGE + 0.35
-                    and ex > xrow['le'] - EDGE - 0.1):
-                fails.append(f'main weave is not right-then-left ({ent:+.2f} -> {ex:+.2f}, '
-                             f'road centre {centre:+.2f})')
+            if not (ent < centre - 3.0
+                    and abs(ent - (erow['re'] + EDGE)) <= 0.05
+                    and abs(ex - (xrow['le'] - EDGE)) <= 0.05):
+                fails.append(f'main weave is not right-then-left on the edges '
+                             f'({ent:+.2f} -> {ex:+.2f}, road centre {centre:+.2f})')
         # The racing line hugs the right edge, so the road centre is several
-        # metres to the driver's left. The entrance has to clear that centre,
-        # not merely sit left of the line. The exit clamps near the right edge.
+        # metres to the driver's left. Both gates stay 1.25 m inside the
+        # asphalt. Further south the line sits closer to the left edge, so
+        # the racing-line number is not the old +8.20; the edge margin is.
         if zone['name'] == 'return':
             erow = min(zone['rows'], key=lambda r: abs(r['s'] - se))
+            xrow = min(zone['rows'], key=lambda r: abs(r['s'] - sx))
             centre = 0.5 * (erow['le'] + erow['re'])
-            print(f'    road centre at entrance {centre:+.2f}  left edge {erow["le"]:.2f}')
-            if not (ent > centre + 2.0 and ent > 6.0 and ex < -0.7):
-                fails.append(f'return weave is not left-then-right ({ent:+.2f} -> {ex:+.2f}, '
-                             f'road centre {centre:+.2f})')
+            print(f'    road centre at entrance {centre:+.2f}  left edge {erow["le"]:.2f}  '
+                  f'right edge at exit {xrow["re"]:.2f}')
+            if not (ent > centre + 2.0 and ent > 6.0
+                    and abs(ent - (erow['le'] - EDGE)) <= 0.05
+                    and abs(ex - (xrow['re'] + EDGE)) <= 0.05):
+                fails.append(f'return weave is not left-then-right on the edges '
+                             f'({ent:+.2f} -> {ex:+.2f}, road centre {centre:+.2f})')
         tris = len(I)
         print(f'    {zone["spec"]["mesh"]} tris {tris}')
         if tris > 30000:
@@ -947,9 +1035,12 @@ def main():
     XZ, Y, mn, mx = load_roads()
     print(f'  {len(XZ)} road tris')
     info = place_return(xz)
-    PLAN['return']['along'] = info['along']
-    PLAN['return']['place_info'] = info
+    align_stations(xz, info)
     zones = [build_zone(n, PLAN[n], xz, XZ, Y, mn, mx) for n in ('main', 'return')]
+    if abs(zones[0]['shift']['z1'] - zones[1]['shift']['z1']) > 0.05:
+        raise SystemExit(
+            f'stations are not across from each other '
+            f'(main z {zones[0]["shift"]["z1"]:.2f}, return z {zones[1]["shift"]["z1"]:.2f})')
     xz_new, y_new, moved, s_of, info = apply_weave(xz, pos[:, 1], zones, XZ, Y, mn, mx)
     v, kap, seg = speeds(xz_new, E[:, 0].copy())
     changed = np.abs(v - E[:, 0]) > 0.35
@@ -976,15 +1067,23 @@ def main():
     def exit_count(cs):
         return sum(1 for c in cs if c[3] == 'exit')
 
-    def drop_outer_exit(cs, n):
-        """Drop the n exit-gate cones farthest from the racing line."""
-        cs = list(cs)
-        for _ in range(n):
-            exits = [i for i, c in enumerate(cs) if c[3] == 'exit']
-            if not exits:
-                raise SystemExit('no exit-gate cone left to drop')
-            cs.pop(max(exits, key=lambda i: cs[i][4]))
-        return cs
+    def label_exit(cs):
+        """E0 is the driver's-right cone (most negative lateral)."""
+        exits = sorted((c for c in cs if c[3] == 'exit'), key=lambda c: c[5])
+        return [dict(id=f'E{n}', cone=c, lat=c[5], dist=c[4], x=c[0], z=c[2])
+                for n, c in enumerate(exits)]
+
+    def trim_exit_gate(cs):
+        """Keep the outer cone. Remove the cone closest to the exit opening."""
+        labeled = label_exit(cs)
+        if len(labeled) < 2:
+            raise SystemExit('exit gate needs at least two cones')
+        outer = max(labeled, key=lambda r: (r['dist'], abs(r['lat'])))
+        close = min(labeled, key=lambda r: (r['dist'], abs(r['lat'])))
+        if outer['id'] == close['id']:
+            raise SystemExit('outer exit cone and closest exit cone are the same')
+        kept = [c for c in cs if c is not close['cone']]
+        return kept, labeled, outer, close
 
     scuts = []
     mesh_list = []
@@ -998,20 +1097,29 @@ def main():
         mesh_list.append(scut)
         print(f'{zone["name"]}: {len(cs)} cones ({exit_count(cs)} at the exit gate), '
               f'scut tris {len(scut[1])}')
-    # One fewer cone on the return exit, then the same exit count on the main.
+    # PR #5 dropped the farthest-from-line cone. Put that one back and drop
+    # the cone closest to the exit opening instead. One cone per gate.
     before = {n: exit_count(cs) for n, cs in zone_cones.items()}
-    zone_cones['return'] = drop_outer_exit(zone_cones['return'], 1)
-    target = exit_count(zone_cones['return'])
-    main_ex = exit_count(zone_cones['main'])
-    if main_ex < target:
-        raise SystemExit(
-            f'main exit has {main_ex} cones, fewer than the return target {target}')
-    zone_cones['main'] = drop_outer_exit(zone_cones['main'], main_ex - target)
+    exit_report = {}
+    for name in ('main', 'return'):
+        kept, labeled, outer, close = trim_exit_gate(zone_cones[name])
+        zone_cones[name] = kept
+        exit_report[name] = (labeled, outer, close)
+        print(f'{name} exit gate  (E0 = driver\'s right, increasing lateral):')
+        for rec in labeled:
+            if rec['id'] == outer['id']:
+                tag = 'RESTORED outer (PR #5 had removed this)'
+            elif rec['id'] == close['id']:
+                tag = 'REMOVED closest to the exit'
+            else:
+                tag = 'kept'
+            print(f'  {name}-exit-{rec["id"]}  lat {rec["lat"]:+.2f}  '
+                  f'dist {rec["dist"]:.2f}  world ({rec["x"]:.2f}, {rec["z"]:.2f})  {tag}')
     after = {n: exit_count(cs) for n, cs in zone_cones.items()}
     print(f'exit cones  main {before["main"]} -> {after["main"]}   '
           f'return {before["return"]} -> {after["return"]}')
-    if after['main'] != after['return'] or after['return'] != before['return'] - 1:
-        raise SystemExit('exit cone counts did not match after the trim')
+    if after['main'] != 4 or after['return'] != 4 or before['main'] != 5 or before['return'] != 5:
+        raise SystemExit('expected 5 exit cones trimmed to 4 on both gates')
     cones = [(c[0], c[1], c[2]) for n in ('main', 'return') for c in zone_cones[n]]
     fails = validate(zones, xz, xz_new, mesh_list, XZ, Y, mn, mx)
     if fails:
@@ -1091,6 +1199,12 @@ def main():
         f'return_z1 {zones[1]["shift"]["z1"]:.2f}\n'
         f'return_old_z {placed["old_z"]:.2f}\n'
         f'return_new_z {placed["new_z"]:.2f}\n'
+        f'return_prev_z {placed["prev_z"]:.2f}\n'
+        f'return_prev_along {placed["prev_along"]:+.2f}\n'
+        f'return_moved_from_prev {placed["moved_from_prev"]:+.2f}\n'
+        f'shared_z {placed["shared_z"]:.2f}\n'
+        f'main_prev_z {placed["main_prev_z"]:.2f}\n'
+        f'main_prev_along {placed["main_prev_along"]:+.2f}\n'
         f'return_moved {placed["moved_from_old"]:+.2f}\n'
         f'from_onset {placed["from_onset"]:.2f}\n'
         f'from_rejoin {placed["from_rejoin"]:.2f}\n'
@@ -1110,6 +1224,18 @@ def main():
         f'exit_cones_return_before {before["return"]}\n'
         f'cones_main {len(zone_cones["main"])}\n'
         f'cones_return {len(zone_cones["return"])}\n'
+        + ''.join(
+            f'exit_{name}_{kind} {rec["id"]} lat {rec["lat"]:+.2f} dist {rec["dist"]:.2f} '
+            f'x {rec["x"]:.2f} z {rec["z"]:.2f}\n'
+            for name, (labeled, outer, close) in exit_report.items()
+            for kind, rec in (('restored', outer), ('removed', close))
+        )
+        + ''.join(
+            f'exit_{name}_all {rec["id"]} lat {rec["lat"]:+.2f} dist {rec["dist"]:.2f} '
+            f'x {rec["x"]:.2f} z {rec["z"]:.2f}\n'
+            for name, (labeled, outer, close) in exit_report.items()
+            for rec in labeled
+        )
         + '\n'.join(f'tris_{z["name"]} {len(m[1])}' for z, m in zip(zones, mesh_list))
         + f'\ncone_tris {len(coneI)}\n'
     )
