@@ -14,7 +14,7 @@ Current release: **v1.1.3** (Long Course Chicane layout; new checksummed files) 
 ## Source (prefer the release zip)
 - **Preferred:** GitHub Release v1.1.3 — https://github.com/vybesforge/trackupdates_forge/releases/tag/v1.1.3
   - Asset: `I-29_Speedway_v1.1.3.zip` (~214 MB)
-  - SHA-256: published with that tag as `I-29_Speedway_v1.1.3.zip.sha256`. Paste it into `$Sha` below before installing. Do not reuse the v1.1.2 hash `b57716140e1c2a11798a69889655723f166868c32b2534b272480750e4c8d59c`. **Verify before installing; abort on mismatch.**
+  - SHA-256: `967ae33a41a6e6db39f0c978220f09e3a6a46af20544b6eeb92ca8bb90f3fe27` — **verify before installing; abort on mismatch.** Do not reuse the v1.1.2 hash `b57716140e1c2a11798a69889655723f166868c32b2534b272480750e4c8d59c`.
   - Zip layout: `content/tracks/vf_i29_speedway/`, `apps/python/i29_dragtree/`, `server/` (track-params snippet + `add_track_params.py`), `I-29_Speedway_docs/`.
 - **Alternative:** git + Git LFS from `main` or tag `v1.1.3` (not old feature branches). GitHub's "Download ZIP" of the repo contains LFS pointer files, not real data — do not use it.
   ```
@@ -62,8 +62,7 @@ Find AC: default `C:\Program Files (x86)\Steam\steamapps\common\assettocorsa`; o
 $ErrorActionPreference = "Stop"
 $AC   = "C:\Program Files (x86)\Steam\steamapps\common\assettocorsa"   # adjust
 $Ver  = "v1.1.3"
-$Sha  = ""   # paste the published v1.1.3 SHA-256 (64 hex chars) before running
-if ($Sha.Length -ne 64) { throw "Paste the published v1.1.3 SHA-256 into `$Sha before installing" }
+$Sha  = "967ae33a41a6e6db39f0c978220f09e3a6a46af20544b6eeb92ca8bb90f3fe27"
 $Work = Join-Path $env:TEMP "i29_$Ver"; New-Item -ItemType Directory -Force $Work | Out-Null
 $Zip  = Join-Path $Work "I-29_Speedway_$Ver.zip"
 Invoke-WebRequest "https://github.com/vybesforge/trackupdates_forge/releases/download/$Ver/I-29_Speedway_$Ver.zip" -OutFile $Zip
@@ -91,7 +90,7 @@ Verify:
 
 ## Server install (Linux and Windows)
 The server needs the **same** track folder as the clients (it checksums `*.kn5`, `surfaces.ini`, `models*.ini`).
-1. Download and verify the v1.1.3 zip exactly as above (Linux: `curl -LO <url> && sha256sum I-29_Speedway_v1.1.3.zip`; compare with the published hash).
+1. Download and verify the v1.1.3 zip exactly as above (Linux: `curl -LO <url> && sha256sum I-29_Speedway_v1.1.3.zip`; compare with the hash above).
 2. Stop the server.
 3. Clean replace the track:
    - Linux: `TS=$(date +%Y%m%d_%H%M%S); cd <server>/content/tracks && { [ -d vf_i29_speedway ] && mv vf_i29_speedway vf_i29_speedway.bak_$TS; true; } && cp -r <unzipped>/content/tracks/vf_i29_speedway .`
