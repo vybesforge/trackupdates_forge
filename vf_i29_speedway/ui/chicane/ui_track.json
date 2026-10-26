@@ -1,0 +1,27 @@
+{
+  "name": "I-29 Speedway Long Course Chicane",
+  "description": "Long course of I-29 Speedway with two track-day cone chicanes on the west double-straight: right-then-left on the southbound main straight, left-then-right on the northbound return. Driving through a chicane is off-track (soft SCUT); the cone line stays valid. The short-course T1 hairpin stays closed. 36 paddock pit boxes. Length is the fast_lane closed loop (3.556 km).",
+  "tags": [
+    "circuit",
+    "drag",
+    "drift",
+    "Vybes Forge",
+    "zwiss",
+    "USA",
+    "open source"
+  ],
+  "geotags": [
+    "41\u00b0 01\u2032 27\u2033 N",
+    "95\u00b0 49\u2032 58\u2033 W"
+  ],
+  "country": "USA",
+  "city": "Pacific Junction",
+  "length": "3.556 km",
+  "width": "12 m",
+  "pitboxes": "36",
+  "run": "clockwise",
+  "author": "Vybes Forge",
+  "version": "1.1.2",
+  "url": "https://vybesforge.com",
+  "year": 2026
+}

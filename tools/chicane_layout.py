@@ -1,0 +1,872 @@
+"""Long Course Chicane layout.
+
+Clones `main` into layout id `chicane` and adds two track-day cone chicanes on the
+west double-straight, where Dylan marked them on the Content Manager outline.
+
+Mark registration (screenshot 347x194, outline.png 365x192):
+  outline px = z * 0.293033 + 323.344
+  outline py = -x * 0.293033 + 87.117
+  shot px = outline_px * 0.97 - 3.1
+  shot py = outline_py * 0.97 + 5.1
+The two orange-red ticks (RGB 255,85,0) sit on the white straights at shot x≈139:
+  main/drag straight (southbound)  world (-230.07, -601.75)
+  return straight (northbound)     world (-112.92, -602.81)
+Driver's left is the AC left normal (tz, -tx). Main entrance is to the right
+(east), exit to the left (west). Return entrance is to the left (east), exit
+to the right (west). Soft cut is an invisible 1SCUT_* ribbon (KEY=SCUT) over
+the shortcut; cones are visual only.
+
+Run from the repo root: python3 tools/chicane_layout.py
+"""
+import io, os, re, shutil, struct, sys
+import numpy as np
+from PIL import Image, ImageDraw, ImageFont
+
+ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, os.path.join(ROOT, 'tools'))
+import kn5patch as K
+import kn5write as W
+import vr5_meshlib as ML
+import vr7_common as C
+
+Z = os.path.join(ROOT, 'vf_i29_speedway') + os.sep
+LAY = 'chicane'
+# Gate centres, metres along the spline from the mark. Positive = downstream.
+GATE = 14.0
+FAR = 36.0
+HW = 1.90          # valid-channel half-width in the core (m)
+WHEEL = 0.90       # half the width that must stay on ROAD / on SCUT
+EDGE = 1.25        # keep the AI line at least this far from the asphalt edge
+MU, G, VMAX, BRK = 1.55, 9.81, 72.0, 11.0
+MAIN_MARK = np.array([-230.07, -601.75])
+RETURN_MARK = np.array([-112.92, -602.81])
+# Designed lateral offsets (metres, driver's left positive) at the two gates.
+# Main road is ~2 m to the left of the AI line and ~10 m to the right, so the
+# right-then-left weave uses the wide side first and returns to the left edge.
+PLAN = {
+    'main': dict(mark=MAIN_MARK, enter=-6.2, exit=0.55, mesh='1SCUT_chicane_main'),
+    'return': dict(mark=RETURN_MARK, enter=3.6, exit=-4.0, mesh='1SCUT_chicane_return'),
+}
+
+
+def smoother(t):
+    t = np.clip(t, 0.0, 1.0)
+    return t * t * t * (t * (t * 6.0 - 15.0) + 10.0)
+
+
+def path_offset(s, enter, exit):
+    s = float(s)
+    if s <= -FAR or s >= FAR:
+        return 0.0
+    if s < -GATE:
+        return enter * smoother((s - (-FAR)) / (-GATE - (-FAR)))
+    if s < GATE:
+        return enter + (exit - enter) * smoother((s - (-GATE)) / (GATE - (-GATE)))
+    return exit + (0.0 - exit) * smoother((s - GATE) / (FAR - GATE))
+
+
+def clamp_off(off, le, re):
+    """Stay on asphalt. The return straight narrows on the entrance side."""
+    if le is None or re is None or le - re < 2 * EDGE + 0.5:
+        return off
+    return float(np.clip(off, re + EDGE, le - EDGE))
+
+
+def channel_half(s):
+    """Core width inside the gates, flaring out to 'full road' by ±FAR."""
+    a = abs(float(s))
+    if a <= GATE + 4.0:
+        return HW
+    if a >= FAR:
+        return 80.0
+    return HW + (40.0 - HW) * smoother((a - (GATE + 4.0)) / (FAR - (GATE + 4.0)))
+
+
+def load_roads():
+    p = Z + 'vf_i29_speedway_physical.kn5'
+    d = open(p, 'rb').read()
+    tris = []
+    for nm, o, l, c in K.scan(p)[1]:
+        if c != 2 or not nm.startswith('1ROAD'):
+            continue
+        q = o + l + 8
+        nv, = struct.unpack_from('<I', d, q)
+        V = np.frombuffer(d, '<f4', nv * 11, q + 4).reshape(nv, 11)[:, :3]
+        q2 = q + 4 + nv * 44
+        ni, = struct.unpack_from('<I', d, q2)
+        I = np.frombuffer(d, '<u2', ni, q2 + 4).reshape(-1, 3)
+        P = V[I]
+        tris.append((P[:, :, [0, 2]].astype(np.float64), P[:, :, 1].astype(np.float64)))
+    XZ = np.concatenate([t[0] for t in tris])
+    Y = np.concatenate([t[1] for t in tris])
+    mn = XZ.min(1)
+    mx = XZ.max(1)
+    return XZ, Y, mn, mx
+
+
+def height_at(x, z, XZ, Y, mn, mx):
+    m = (mn[:, 0] <= x) & (mx[:, 0] >= x) & (mn[:, 1] <= z) & (mx[:, 1] >= z)
+    best = None
+    for tri, yv in zip(XZ[m], Y[m]):
+        p0, p1, p2 = tri
+        v0, v1 = p1 - p0, p2 - p0
+        v2 = np.array([x, z]) - p0
+        den = v0[0] * v1[1] - v1[0] * v0[1]
+        if abs(den) < 1e-12:
+            continue
+        a = (v2[0] * v1[1] - v1[0] * v2[1]) / den
+        b = (v0[0] * v2[1] - v2[0] * v0[1]) / den
+        if a >= -1e-3 and b >= -1e-3 and a + b <= 1.001:
+            y = (1 - a - b) * yv[0] + a * yv[1] + b * yv[2]
+            best = y if best is None else max(best, y)
+    return best
+
+
+def edges_at(origin, left, XZ, Y, mn, mx, reach=14.0, step=0.15):
+    """Outermost continuous road, metres along `left` (positive = driver's left)."""
+    def walk(sign):
+        off, gap, edge, hy = 0.0, 0.0, None, None
+        while off < reach:
+            off += step
+            q = origin + sign * off * left
+            h = height_at(q[0], q[1], XZ, Y, mn, mx)
+            if h is None:
+                gap += step
+                if edge is not None and gap > 0.75:
+                    break
+            else:
+                gap = 0.0
+                edge = sign * off
+                hy = h
+        return edge, hy
+    le, _ = walk(+1)
+    re, _ = walk(-1)
+    return le, re
+
+
+def local_polyline(xz, anchor, reach):
+    """Indices and signed arc from anchor, walking both ways up to `reach` metres."""
+    n = len(xz)
+    back, fwd = [anchor], [anchor]
+    acc = 0.0
+    i = anchor
+    while acc < reach:
+        j = (i - 1) % n
+        acc += np.linalg.norm(xz[i] - xz[j])
+        back.append(j)
+        i = j
+    acc = 0.0
+    i = anchor
+    while acc < reach:
+        j = (i + 1) % n
+        acc += np.linalg.norm(xz[j] - xz[i])
+        fwd.append(j)
+        i = j
+    idxs = list(reversed(back[1:])) + fwd
+    s = np.zeros(len(idxs))
+    for k in range(1, len(idxs)):
+        step = np.linalg.norm(xz[idxs[k]] - xz[idxs[k - 1]])
+        s[k] = s[k - 1] + step
+    s -= s[idxs.index(anchor)]
+    return np.array(idxs), s
+
+
+def tangent_left(xz, idxs):
+    n = len(xz)
+    out = np.zeros((len(idxs), 2))
+    for k, i in enumerate(idxs):
+        t = xz[(i + 6) % n] - xz[(i - 6) % n]
+        t = t / np.linalg.norm(t)
+        out[k] = (t[1], -t[0])
+    # keep the normal continuous (no flips)
+    for k in range(1, len(out)):
+        if np.dot(out[k], out[k - 1]) < 0:
+            out[k] *= -1
+    return out
+
+
+def sample_at(xz, idxs, s, left, query):
+    """Interpolate origin + left at signed arc `query`."""
+    k = int(np.clip(np.searchsorted(s, query), 1, len(s) - 1))
+    span = s[k] - s[k - 1]
+    f = 0.0 if span < 1e-9 else (query - s[k - 1]) / span
+    o = (1 - f) * xz[idxs[k - 1]] + f * xz[idxs[k]]
+    nrm = (1 - f) * left[k - 1] + f * left[k]
+    nrm = nrm / np.linalg.norm(nrm)
+    return o, nrm
+
+
+def build_zone(name, spec, xz, XZ, Y, mn, mx):
+    anchor = int(np.argmin(np.hypot(xz[:, 0] - spec['mark'][0], xz[:, 1] - spec['mark'][1])))
+    dist = np.hypot(*(xz[anchor] - spec['mark']))
+    idxs, s = local_polyline(xz, anchor, FAR + 25)
+    left = tangent_left(xz, idxs)
+    # edges at the AI samples (cached)
+    edge = {}
+    for i, k in enumerate(idxs):
+        if abs(s[i]) > FAR + 8:
+            continue
+        edge[int(k)] = edges_at(xz[k], left[i], XZ, Y, mn, mx)
+    stations = np.arange(-FAR, FAR + 1e-6, 1.0)
+    rows = []
+    for q in stations:
+        o, nrm = sample_at(xz, idxs, s, left, q)
+        # edges from the nearest cached sample, walked from the interpolated origin
+        le, re = edges_at(o, nrm, XZ, Y, mn, mx)
+        hy = height_at(o[0], o[1], XZ, Y, mn, mx)
+        off = clamp_off(path_offset(q, spec['enter'], spec['exit']), le, re)
+        rows.append(dict(s=q, o=o, n=nrm, le=le, re=re, y=hy, off=off, hw=channel_half(q)))
+    print(f'{name}: anchor idx {anchor} at {xz[anchor]}  mark miss {dist:.2f} m')
+    le0 = rows[len(rows) // 2]
+    print(f'  edges at mark  left {le0["le"]:.2f}  right {le0["re"]:.2f}  road y {le0["y"]:.3f}')
+    print(f'  offset enter {path_offset(-GATE, spec["enter"], spec["exit"]):+.2f}  '
+          f'mid {path_offset(0, spec["enter"], spec["exit"]):+.2f}  '
+          f'exit {path_offset(GATE, spec["enter"], spec["exit"]):+.2f}')
+    return dict(name=name, spec=spec, anchor=anchor, idxs=idxs, s=s, left=left, edge=edge, rows=rows)
+
+
+def on_road_lat(row, lat):
+    if row['le'] is None or row['re'] is None or row['y'] is None:
+        return False
+    return row['re'] + 0.05 <= lat <= row['le'] - 0.05
+
+
+def scut_intervals(row):
+    """Lateral intervals (left-positive) covered by SCUT. Channel is the gap."""
+    if row['le'] is None or row['re'] is None:
+        return []
+    lo, hi = row['off'] - row['hw'], row['off'] + row['hw']
+    spans = []
+    if row['re'] < lo:
+        spans.append((row['re'], min(lo, row['le'])))
+    if hi < row['le']:
+        spans.append((max(hi, row['re']), row['le']))
+    return [(a, b) for a, b in spans if b - a > 0.25]
+
+
+def ribbon(a_xz, b_xz, ya, yb, lift=0.012):
+    """Triangle strip between two polylines. a/b are Nx2, ya/yb are heights."""
+    parts = []
+    for i in range(len(a_xz) - 1):
+        p = []
+        for ii, sd in ((i, 0), (i + 1, 0), (i + 1, 1), (i, 1)):
+            xz = a_xz[ii] if sd == 0 else b_xz[ii]
+            y = (ya[ii] if sd == 0 else yb[ii]) + lift
+            p.append((xz[0], y, xz[1]))
+        V, I = ML.quad(*p)
+        if V[0, 4] < 0:
+            V[:, 3:6] *= -1
+        parts.append((V, I))
+    if not parts:
+        return None
+    V, I = ML.merge(parts)
+    return V, ML.fix_winding(V, I)
+
+
+def zone_meshes(zone, XZ, Y, mn, mx):
+    """SCUT ribbons + cone positions for one chicane."""
+    rows = zone['rows']
+    # lateral samples of each SCUT span, matched station-to-station by side
+    left_rib = []   # (xz Nx2, y N) outer=road edge, inner=channel
+    right_rib = []
+    cones = []
+    for row in rows:
+        spans = scut_intervals(row)
+        # classify: a span whose centre is left of the path is the left block
+        L = R = None
+        for a, b in spans:
+            if (a + b) / 2 >= row['off']:
+                L = (a, b)  # higher lat = driver's left
+            else:
+                R = (a, b)
+        def line(span, inset=0.0):
+            if span is None:
+                return None
+            a, b = span
+            if b - a < 0.3:
+                return None
+            # keep a small inset from the road edge so the strip sits on asphalt
+            if abs(a - row['re']) < 0.2:
+                a += 0.15
+            if abs(b - row['le']) < 0.2:
+                b -= 0.15
+            if b - a < 0.3:
+                return None
+            xs, ys = [], []
+            for lat in (a + inset, b - inset):
+                q = row['o'] + lat * row['n']
+                h = height_at(q[0], q[1], XZ, Y, mn, mx)
+                if h is None:
+                    return None
+                xs.append(q)
+                ys.append(h)
+            return np.array(xs), np.array(ys)
+        # store inner (channel side) and outer
+        left_rib.append(line(L))
+        right_rib.append(line(R))
+        # cones: gate rows and corridor edges
+        s = row['s']
+        if abs(abs(s) - GATE) < 0.51 or (abs(s) <= GATE and abs(s) % 4.0 < 0.51):
+            for side, span in (('L', L), ('R', R)):
+                if span is None:
+                    continue
+                a, b = span
+                # corridor-edge cone, just inside the block
+                edge_lat = b - 0.75 if side == 'L' else a + 0.75
+                if a + 0.4 < edge_lat < b - 0.2 or side == 'R' and a + 0.2 < edge_lat < b - 0.4:
+                    q = row['o'] + edge_lat * row['n']
+                    h = height_at(q[0], q[1], XZ, Y, mn, mx)
+                    if h is not None:
+                        cones.append((q[0], h, q[1]))
+        if abs(abs(s) - GATE) < 0.51:
+            for a, b in scut_intervals(row):
+                lat = a + 0.9
+                while lat < b - 0.9:
+                    q = row['o'] + lat * row['n']
+                    h = height_at(q[0], q[1], XZ, Y, mn, mx)
+                    if h is not None:
+                        cones.append((q[0], h, q[1]))
+                    lat += 1.75
+    def pack(seq):
+        # seq items are None or ((outer_xz, inner_xz) wait line() returns (xs[2], ys[2])
+        # xs[0] is outer-ish (a), xs[1] is inner (b) depending on side. Build from consecutive.
+        A, B, YA, YB = [], [], [], []
+        for item in seq:
+            if item is None:
+                if len(A) >= 2:
+                    yield np.array(A), np.array(B), np.array(YA), np.array(YB)
+                A, B, YA, YB = [], [], [], []
+                continue
+            xz, yv = item
+            A.append(xz[0]); B.append(xz[1]); YA.append(yv[0]); YB.append(yv[1])
+        if len(A) >= 2:
+            yield np.array(A), np.array(B), np.array(YA), np.array(YB)
+    parts = []
+    for seq in (left_rib, right_rib):
+        for A, B, YA, YB in pack(seq):
+            r = ribbon(A, B, YA, YB)
+            if r is not None:
+                parts.append(r)
+    scut = ML.merge(parts) if parts else None
+    # dedupe cones
+    kept = []
+    for c in cones:
+        if all(np.hypot(c[0] - k[0], c[2] - k[2]) > 1.25 for k in kept):
+            kept.append(c)
+    return scut, kept
+
+
+def cone_mesh(x, y, z):
+    """Same taper as the drift-course cones in tools/tents_v11.py."""
+    V, I = ML.cyl((x, y, z), 0.15, 0.70, n=10, cap=False)
+    V = V.astype(float)
+    top = V[:, 1] > y + 0.35
+    V[top, 0] = x + (V[top, 0] - x) * 0.15
+    V[top, 2] = z + (V[top, 2] - z) * 0.15
+    base = ML.box((x, y + 0.02, z), (0.38, 0.03, 0.38))
+    return ML.merge([(V.astype('<f4'), I), base])
+
+
+def solid_dds(rgb, n=8):
+    im = Image.new('RGBA', (n, n), tuple(rgb) + (255,))
+    buf = io.BytesIO()
+    im.save(buf, 'DDS', pixel_format='DXT1')
+    bb = buf.getvalue()
+    hdr = bytearray(bb[:128])
+    bs = 8
+    struct.pack_into('<I', hdr, 20, max(1, (n + 3) // 4) * max(1, (n + 3) // 4) * bs)
+    struct.pack_into('<I', hdr, 88, 0)
+    struct.pack_into('<I', hdr, 8, 0x1 | 0x2 | 0x4 | 0x1000 | 0x80000)
+    return bytes(hdr) + bb[128:]
+
+
+def apply_weave(xz, y_ai, zones, XZ, Y, mn, mx):
+    new = xz.copy()
+    new_y = y_ai.copy()
+    moved = np.zeros(len(xz), bool)
+    s_of = np.full(len(xz), np.nan)
+    info = np.zeros(len(xz), dtype=[('le', 'f8'), ('re', 'f8'), ('off', 'f8'), ('zone', 'i4')])
+    for zi, zone in enumerate(zones):
+        for i, k in enumerate(zone['idxs']):
+            if abs(zone['s'][i]) > FAR + 1:
+                continue
+            s_of[k] = zone['s'][i]
+            spec = zone['spec']
+            le, re = zone['edge'].get(int(k), (None, None))
+            off = clamp_off(path_offset(zone['s'][i], spec['enter'], spec['exit']), le, re)
+            nrm = zone['left'][i]
+            p = xz[k] + off * nrm
+            h = height_at(p[0], p[1], XZ, Y, mn, mx)
+            if h is None:
+                raise SystemExit(f'{zone["name"]} idx {k} left the road at offset {off:+.2f}')
+            new[k] = p
+            new_y[k] = h + 0.40
+            moved[k] = abs(off) > 0.02
+            info[k] = (le if le is not None else np.nan, re if re is not None else np.nan, off, zi)
+    return new, new_y, moved, s_of, info
+
+
+def speeds(xz, v0):
+    n = len(xz)
+    seg = np.linalg.norm(np.diff(np.vstack([xz, xz[:1]]), axis=0), axis=1)
+    kap = np.abs(_curvature(xz))
+    cap = np.minimum(v0, np.minimum(VMAX, np.sqrt(MU * G / np.maximum(kap, 1e-6))))
+    v = cap.copy()
+    for _ in range(4):
+        for i in range(n):
+            j = (i + 1) % n
+            a = max(1.2, 7.5 * (1 - v[i] / 75.0))
+            v[j] = min(v[j], np.sqrt(max(v[i] ** 2 + 2 * a * seg[i], 0.0)))
+        for i in range(n):
+            j = (i - 1) % n
+            v[j] = min(v[j], np.sqrt(max(v[i] ** 2 + 2 * BRK * seg[j], 0.0)))
+        v = np.minimum(v, cap)
+    return v, kap, seg
+
+
+def _curvature(p, k=4):
+    a = np.roll(p, k, 0)
+    c = np.roll(p, -k, 0)
+    ab = np.linalg.norm(p - a, axis=1)
+    bc = np.linalg.norm(c - p, axis=1)
+    ac = np.linalg.norm(c - a, axis=1)
+    cr = (p[:, 0] - a[:, 0]) * (c[:, 1] - a[:, 1]) - (p[:, 1] - a[:, 1]) * (c[:, 0] - a[:, 0])
+    return 2 * cr / np.maximum(ab * bc * ac, 1e-9)
+
+
+def point_in_mesh(x, z, V, I):
+    tri = V[I][:, :, [0, 2]]
+    yy = V[I][:, :, 1]
+    mn, mx = tri.min(1), tri.max(1)
+    m = (mn[:, 0] <= x) & (mx[:, 0] >= x) & (mn[:, 1] <= z) & (mx[:, 1] >= z)
+    for p, yv in zip(tri[m], yy[m]):
+        v0, v1 = p[1] - p[0], p[2] - p[0]
+        v2 = np.array([x - p[0, 0], z - p[0, 1]])
+        den = v0[0] * v1[1] - v1[0] * v0[1]
+        if abs(den) < 1e-12:
+            continue
+        a = (v2[0] * v1[1] - v1[0] * v2[1]) / den
+        b = (v0[0] * v2[1] - v2[0] * v0[1]) / den
+        if a >= -1e-3 and b >= -1e-3 and a + b <= 1.001:
+            return True
+    return False
+
+
+def validate(zones, xz_old, xz_new, meshes, XZ, Y, mn, mx):
+    fails = []
+    for zone, (V, I) in zip(zones, meshes):
+        # straight-through: original line, both wheel tracks on SCUT for a long run
+        run = best = 0.0
+        prev = None
+        weave_bad = 0
+        weave_n = 0
+        straight_hit = 0
+        straight_n = 0
+        for row in zone['rows']:
+            if abs(row['s']) > GATE + 8:
+                continue
+            for lat, kind in ((0.0, 'c'), (-WHEEL, 'w'), (WHEEL, 'w')):
+                q = row['o'] + lat * row['n']
+                hit = point_in_mesh(q[0], q[1], V, I)
+                if kind == 'c':
+                    straight_n += 1
+                    straight_hit += int(hit)
+                    if hit:
+                        best = best + (0 if prev is None else abs(row['s'] - prev))
+                        run = max(run, best)
+                    else:
+                        best = 0.0
+                    prev = row['s'] if hit or best == 0 else prev
+            # weave centre ± wheels must miss SCUT and stay on road
+            if abs(row['s']) <= FAR - 2:
+                for lat in (row['off'] - WHEEL, row['off'], row['off'] + WHEEL):
+                    q = row['o'] + lat * row['n']
+                    weave_n += 1
+                    on = height_at(q[0], q[1], XZ, Y, mn, mx) is not None
+                    hit = point_in_mesh(q[0], q[1], V, I)
+                    if hit or not on:
+                        weave_bad += 1
+        print(f'  {zone["name"]}: straight centre samples on SCUT {straight_hit}/{straight_n}, '
+              f'longest fully-covered approach run tracked separately')
+        # recompute a clean run length of the centre being on SCUT
+        on = []
+        for row in zone['rows']:
+            q = row['o']
+            on.append((row['s'], point_in_mesh(q[0], q[1], V, I)))
+        longest, cur, s_prev, open_run = 0.0, 0.0, None, False
+        for s, hit in on:
+            if hit and open_run:
+                cur += s - s_prev
+            elif hit:
+                cur, open_run = 0.0, True
+            else:
+                longest = max(longest, cur)
+                open_run = False
+            s_prev = s
+        longest = max(longest, cur)
+        # both wheels of the straight car
+        both = []
+        for row in zone['rows']:
+            ok = True
+            for lat in (-WHEEL, WHEEL):
+                q = row['o'] + lat * row['n']
+                if not point_in_mesh(q[0], q[1], V, I):
+                    ok = False
+            both.append((row['s'], ok))
+        longest_w, cur, s_prev, open_run = 0.0, 0.0, None, False
+        for s, hit in both:
+            if hit and open_run:
+                cur += s - s_prev
+            elif hit:
+                cur, open_run = 0.0, True
+            else:
+                longest_w = max(longest_w, cur)
+                open_run = False
+            s_prev = s
+        longest_w = max(longest_w, cur)
+        print(f'    centre-on-SCUT run {longest:.1f} m, both-wheels-on-SCUT run {longest_w:.1f} m, '
+              f'weave samples off road or on SCUT {weave_bad}/{weave_n}')
+        if longest_w < 8.0:
+            fails.append(f'{zone["name"]}: straight car is not on SCUT for 8 m ({longest_w:.1f} m)')
+        if weave_bad:
+            fails.append(f'{zone["name"]}: {weave_bad} weave samples hit SCUT or left the road')
+        ai_bad = 0
+        for i, k in enumerate(zone['idxs']):
+            if abs(zone['s'][i]) > FAR - 2:
+                continue
+            for lat in (-WHEEL, 0.0, WHEEL):
+                q = xz_new[k] + lat * zone['left'][i]
+                on = height_at(q[0], q[1], XZ, Y, mn, mx) is not None
+                hit = point_in_mesh(q[0], q[1], V, I)
+                if hit or not on:
+                    ai_bad += 1
+        print(f'    AI samples off road or on SCUT {ai_bad}')
+        if ai_bad:
+            fails.append(f'{zone["name"]}: {ai_bad} AI-line samples hit SCUT or left the road')
+        # direction check uses the clamped line the car actually drives
+        ent = min(zone['rows'], key=lambda r: abs(r['s'] + GATE))['off']
+        ex = min(zone['rows'], key=lambda r: abs(r['s'] - GATE))['off']
+        print(f'    clamped gate offsets {ent:+.2f} -> {ex:+.2f}')
+        if zone['name'] == 'main' and not (ent < -4 and ex > 0.2):
+            fails.append(f'main weave is not right-then-left ({ent:+.2f} -> {ex:+.2f})')
+        if zone['name'] == 'return' and not (ent > 2 and ex < -2):
+            fails.append(f'return weave is not left-then-right ({ent:+.2f} -> {ex:+.2f})')
+        tris = len(I)
+        print(f'    {zone["spec"]["mesh"]} tris {tris}')
+        if tris > 30000:
+            fails.append(f'{zone["spec"]["mesh"]} has {tris} tris')
+        if V[:, 4].mean() < 0.5:
+            fails.append(f'{zone["spec"]["mesh"]} normals are not up')
+    return fails
+
+
+def closed_cum(xz):
+    seg = np.linalg.norm(np.diff(np.vstack([xz, xz[:1]]), axis=0), axis=1)
+    return np.r_[0.0, np.cumsum(seg)]
+
+
+def remap_u(u, cum_old, cum_new):
+    if u <= 0:
+        return 0.0
+    if u >= 1:
+        return 1.0
+    arc = u * cum_old[-1]
+    i = int(np.clip(np.searchsorted(cum_old, arc, side='right') - 1, 0, len(cum_old) - 2))
+    span = cum_old[i + 1] - cum_old[i]
+    f = 0.0 if span < 1e-9 else (arc - cum_old[i]) / span
+    neu = cum_new[i] + f * (cum_new[i + 1] - cum_new[i])
+    return float(neu / cum_new[-1])
+
+
+def rewrite_norm(path, cum_old, cum_new, keys):
+    raw = open(path, 'rb').read()
+    nl = '\r\n' if b'\r\n' in raw else '\n'
+    text = raw.decode('utf-8')
+    def sub(m):
+        u = float(m.group(2))
+        return f'{m.group(1)}{remap_u(u, cum_old, cum_new):.6f}'
+    # '=' sits outside the alternation; otherwise only the last key is rewritten.
+    pat = re.compile(r'^((?:' + '|'.join(re.escape(k) for k in keys) + r')=)([0-9.]+)', re.M)
+    text = pat.sub(sub, text.replace('\r\n', '\n')).replace('\n', nl)
+    open(path, 'wb').write(text.encode('utf-8'))
+    if 'IN_POINT' in keys:
+        ins = [float(x) for x in re.findall(r'^IN_POINT=([0-9.]+)', text.replace('\r\n', '\n'), re.M)]
+        outs = [float(x) for x in re.findall(r'^OUT_POINT=([0-9.]+)', text.replace('\r\n', '\n'), re.M)]
+        if not ins or ins[0] != 0 or abs(outs[-1] - 1) > 1e-6:
+            raise SystemExit(f'{path}: camera window does not cover 0..1')
+        for a, b, c in zip(ins, outs, ins[1:]):
+            if b <= a or abs(b - c) > 1e-6:
+                raise SystemExit(f'{path}: camera windows do not tile ({a}, {b}, next {c})')
+
+
+def clone_layout(cum_old, cum_new, length_km):
+    dest = Z + LAY
+    if os.path.isdir(dest):
+        shutil.rmtree(dest)
+    shutil.copytree(Z + 'main/data', dest + '/data')
+    os.makedirs(dest + '/ai', exist_ok=True)
+    shutil.copy(Z + 'main/ai/pit_lane.ai', dest + '/ai/pit_lane.ai')
+    shutil.copy(Z + 'main/map.png', dest + '/map.png')
+    ui = Z + 'ui/' + LAY
+    if os.path.isdir(ui):
+        shutil.rmtree(ui)
+    shutil.copytree(Z + 'ui/main', ui)
+    for fn in ('cameras.ini', 'cameras_1.ini', 'cameras_2.ini', 'cameras_3.ini'):
+        rewrite_norm(dest + '/data/' + fn, cum_old, cum_new, ['IN_POINT', 'OUT_POINT'])
+    rewrite_norm(dest + '/data/sections.ini', cum_old, cum_new, ['IN', 'OUT'])
+    surf = dest + '/data/surfaces.ini'
+    with open(surf, 'a', encoding='utf-8', newline='\n') as fh:
+        fh.write('\n; chicane layout: 1SCUT_chicane_main / 1SCUT_chicane_return in vf_chicane.kn5\n')
+        fh.write('; use this KEY=SCUT. Cone meshes in that kn5 are visual only.\n')
+    models = open(Z + 'models_main.ini', encoding='utf-8').read()
+    if not models.endswith('\n'):
+        models += '\n'
+    models += '\n[MODEL_17]\nFILE=vf_chicane.kn5\nPOSITION=0,0,0\nROTATION=0,0,0\n'
+    open(Z + 'models_chicane.ini', 'w', encoding='utf-8', newline='\n').write(models)
+    ui_json = {
+        'name': 'I-29 Speedway Long Course Chicane',
+        'description': (
+            'Long course of I-29 Speedway with two track-day cone chicanes on the west '
+            'double-straight: right-then-left on the southbound main straight, left-then-right '
+            'on the northbound return. Driving through a chicane is off-track (soft SCUT); '
+            'the cone line stays valid. The short-course T1 hairpin stays closed. 36 paddock pit boxes. '
+            f'Length is the fast_lane closed loop ({length_km:.3f} km).'
+        ),
+        'tags': ['circuit', 'drag', 'drift', 'Vybes Forge', 'zwiss', 'USA', 'open source'],
+        'geotags': ['41° 01′ 27″ N', '95° 49′ 58″ W'],
+        'country': 'USA', 'city': 'Pacific Junction',
+        'length': f'{length_km:.3f} km', 'width': '12 m', 'pitboxes': '36',
+        'run': 'clockwise', 'author': 'Vybes Forge', 'version': '1.1.2',
+        'url': 'https://vybesforge.com', 'year': 2026,
+    }
+    import json
+    open(ui + '/ui_track.json', 'w', encoding='utf-8', newline='\n').write(json.dumps(ui_json, indent=2) + '\n')
+
+
+def render_preview(xz_old, xz_new, zones, meshes, cones, length_m, out_path):
+    # overview + two zooms
+    Wd, H = 1680, 980
+    im = Image.new('RGBA', (Wd, H), (236, 232, 220, 255))
+    dr = ImageDraw.Draw(im)
+    try:
+        font = ImageFont.truetype('/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf', 16)
+        font_s = ImageFont.truetype('/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf', 13)
+    except Exception:
+        font = font_s = ImageFont.load_default()
+
+    def panel(box, pts_for_fit, title):
+        x0, y0, x1, y1 = box
+        dr.rectangle([x0, y0, x1, y1], fill=(248, 246, 238, 255), outline=(60, 60, 60))
+        pad = 36
+        xs = np.concatenate([p[:, 0] for p in pts_for_fit])
+        zs = np.concatenate([p[:, 1] for p in pts_for_fit])
+        span = max(xs.max() - xs.min(), zs.max() - zs.min(), 1)
+        sc = min((x1 - x0 - 2 * pad) / (xs.max() - xs.min() + 4), (y1 - y0 - 2 * pad) / (zs.max() - zs.min() + 4))
+        cx, cz = (xs.min() + xs.max()) / 2, (zs.min() + zs.max()) / 2
+        ox, oy = (x0 + x1) / 2, (y0 + y1) / 2
+
+        def P(x, z):
+            return ox + (x - cx) * sc, oy - (z - cz) * sc
+
+        def poly(pts, fill=None, outline=None, width=1):
+            xy = [P(p[0], p[1]) for p in pts]
+            if len(xy) >= 2:
+                dr.line(xy, fill=outline or fill, width=width)
+
+        # road edges
+        for zone in zones:
+            el, er = [], []
+            for i, k in enumerate(zone['idxs']):
+                if abs(zone['s'][i]) > FAR + 2:
+                    continue
+                le, re = zone['edge'].get(int(k), (None, None))
+                if le is None:
+                    continue
+                el.append(xz_old[k] + le * zone['left'][i])
+                er.append(xz_old[k] + re * zone['left'][i])
+            if len(el) > 2:
+                poly(el, outline=(90, 130, 90, 255), width=2)
+                poly(er, outline=(90, 130, 90, 255), width=2)
+        # SCUT
+        for V, I in meshes:
+            for tri in V[I][:, :, [0, 2]]:
+                xy = [P(p[0], p[1]) for p in tri]
+                dr.polygon(xy, fill=(210, 40, 40, 170))
+        poly(xz_old, outline=(70, 70, 70, 255), width=2)
+        poly(xz_new, outline=(0, 90, 190, 255), width=4)
+        for (x, y, z) in cones:
+            px, py = P(x, z)
+            r = max(3, int(0.45 * sc))
+            dr.ellipse([px - r, py - r, px + r, py + r], fill=(235, 90, 20), outline=(40, 20, 0))
+        for zone in zones:
+            o = xz_old[zone['anchor']]
+            nrm = zone['left'][list(zone['idxs']).index(zone['anchor'])]
+            a, b = o - 8 * nrm, o + 8 * nrm
+            dr.line([P(*a), P(*b)], fill=(255, 40, 40), width=3)
+            # travel arrow at the mark, downstream
+            t = xz_old[(zone['anchor'] + 8) % len(xz_old)] - xz_old[(zone['anchor'] - 8) % len(xz_old)]
+            t = t / np.linalg.norm(t)
+            tip = o + 18 * t
+            dr.line([P(*o), P(*tip)], fill=(255, 230, 80), width=3)
+            dr.ellipse([*np.array(P(*tip)) - 4, *np.array(P(*tip)) + 4], fill=(255, 230, 80))
+        dr.text((x0 + 10, y0 + 8), title, font=font, fill=(20, 20, 20, 255))
+        # scale bar 20 m
+        bar = 20 * sc
+        dr.line([(x0 + 12, y1 - 16), (x0 + 12 + bar, y1 - 16)], fill=(20, 20, 20, 255), width=3)
+        dr.text((x0 + 14, y1 - 34), '20 m', font=font_s, fill=(20, 20, 20, 255))
+
+    def around(zone, rad=58):
+        o = xz_old[zone['anchor']]
+        ring = []
+        for i, k in enumerate(zone['idxs']):
+            if abs(zone['s'][i]) <= rad:
+                ring.append(xz_old[k])
+        return [np.array(ring)]
+    panel((10, 40, 830, 960), around(zones[0]),
+          'Main straight  southbound   entrance RIGHT, exit LEFT')
+    panel((850, 40, 1670, 960), around(zones[1]),
+          'Return straight  northbound   entrance LEFT, exit RIGHT')
+    dr.text((12, 6),
+            f'I-29 Long Course Chicane   closed loop {length_m:.1f} m    '
+            f'grey = old straight    blue = cone line (valid)    red = SCUT shortcut (invalid)    '
+            f'orange = cones    yellow arrow = travel',
+            font=font, fill=(20, 20, 20, 255))
+    # inset full lap
+    ix0, iy0, ix1, iy1 = 1280, 740, 1655, 950
+    dr.rectangle([ix0, iy0, ix1, iy1], fill=(255, 255, 255, 230), outline=(40, 40, 40))
+    xs, zs = xz_new[:, 0], xz_new[:, 1]
+    sc = min((ix1 - ix0 - 16) / (xs.max() - xs.min()), (iy1 - iy0 - 16) / (zs.max() - zs.min()))
+    cx, cz = (xs.min() + xs.max()) / 2, (zs.min() + zs.max()) / 2
+    ox, oy = (ix0 + ix1) / 2, (iy0 + iy1) / 2
+
+    def Pi(x, z):
+        return ox + (x - cx) * sc, oy - (z - cz) * sc
+    dr.line([Pi(p[0], p[1]) for p in xz_new], fill=(0, 90, 190, 255), width=1)
+    for zone in zones:
+        px, py = Pi(*xz_old[zone['anchor']])
+        dr.ellipse([px - 4, py - 4, px + 4, py + 4], fill=(255, 60, 40))
+    dr.text((ix0 + 6, iy0 + 4), 'full lap', font=font_s, fill=(20, 20, 20, 255))
+    os.makedirs(os.path.dirname(out_path), exist_ok=True)
+    im.save(out_path)
+    print('preview', out_path)
+
+
+def main():
+    ai = C.read_ai(Z + 'main/ai/fast_lane.ai')
+    pos = ai['P']['p'].astype(np.float64)
+    xz = pos[:, [0, 2]].copy()
+    E = ai['E'].astype(np.float64)
+    print('loading road collision...')
+    XZ, Y, mn, mx = load_roads()
+    print(f'  {len(XZ)} road tris')
+    zones = [build_zone(n, PLAN[n], xz, XZ, Y, mn, mx) for n in ('main', 'return')]
+    xz_new, y_new, moved, s_of, info = apply_weave(xz, pos[:, 1], zones, XZ, Y, mn, mx)
+    v, kap, seg = speeds(xz_new, E[:, 0].copy())
+    changed = np.abs(v - E[:, 0]) > 0.35
+    cap = np.minimum(E[:, 0], np.minimum(VMAX, np.sqrt(MU * G / np.maximum(kap, 1e-6))))
+    brake = np.clip((cap - v) / np.maximum(cap, 1) * 6, 0, 1)
+    gas = np.where(brake > 0.02, 0.0, np.where(v < cap - 0.3, 1.0, np.clip(0.35 + v / VMAX * 0.4, 0, 1)))
+    E2 = E.copy()
+    E2[changed, 0] = v[changed]
+    E2[changed, 1] = gas[changed]
+    E2[changed, 2] = brake[changed]
+    E2[changed, 4] = np.minimum(1 / np.maximum(kap[changed], 1e-7), 9e5)
+    for i in np.nonzero(moved)[0]:
+        le, re, off = info[i]['le'], info[i]['re'], info[i]['off']
+        if np.isnan(le):
+            continue
+        E2[i, 5] = max(0.2, le - off)
+        E2[i, 6] = max(0.2, off - re)
+        if E2[i, 5] < EDGE - 0.05 or E2[i, 6] < EDGE - 0.05:
+            raise SystemExit(f'idx {i} too close to the road edge (sideL {E2[i,5]:.2f} sideR {E2[i,6]:.2f})')
+    pos_new = np.c_[xz_new[:, 0], y_new, xz_new[:, 1]]
+    # y for unmoved points stays the original AI height
+    pos_new[~moved, 1] = pos[~moved, 1]
+
+    scuts, cones = [], []
+    mesh_list = []
+    for zone in zones:
+        scut, cs = zone_meshes(zone, XZ, Y, mn, mx)
+        if scut is None:
+            raise SystemExit(f'no SCUT for {zone["name"]}')
+        scuts.append(scut)
+        cones.extend(cs)
+        mesh_list.append(scut)
+        print(f'{zone["name"]}: {len(cs)} cones, scut tris {len(scut[1])}')
+    fails = validate(zones, xz, xz_new, mesh_list, XZ, Y, mn, mx)
+    if fails:
+        print('VALIDATION FAILED')
+        for f in fails:
+            print(' -', f)
+        sys.exit(1)
+    print('validation ok,', len(cones), 'cones')
+
+    cone_parts = [cone_mesh(x, y + 0.02, z) for x, y, z in cones]
+    coneV, coneI = ML.merge(cone_parts)
+    print(f'cone mesh tris {len(coneI)} verts {len(coneV)}')
+
+    base = W.read_materials(Z + 'vf_vr7_longcut.kn5')['vr7_cut_invisible']
+    def mat(name, tex=None, amb=0.4, diff=0.5, spec=0.2, exp=20):
+        m = dict(name=name, shader='ksPerPixel', ab=0, at=0, dm=int(base['dm']),
+                 props=ML.props(base['props'], ksAmbient=amb, ksDiffuse=diff, ksSpecular=spec, ksSpecularEXP=exp),
+                 samplers=[('txDiffuse', 0, tex)] if tex else [])
+        return m
+    texs = [('vfc_cone.dds', solid_dds((235, 90, 20)))]
+    mats = [mat('vr7_cut_invisible'), mat('vfc_cone', 'vfc_cone.dds', 0.45, 0.55, 0.2, 20)]
+    meshes = []
+    for zone, (V, I) in zip(zones, mesh_list):
+        meshes.append(dict(name=zone['spec']['mesh'], mat_index=0, verts=V, idx=I, lod_out=0))
+    meshes.append(dict(name='cone_chicane', mat_index=1, verts=coneV, idx=coneI, lod_out=0))
+    kn5 = Z + 'vf_chicane.kn5'
+    W.write_kn5(kn5, texs, mats, meshes, rootname='vf_chicane')
+    hidden = W.hide_nodes(kn5, kn5, [z['spec']['mesh'] for z in zones])
+    print('hid SCUT nodes', hidden)
+    # reparse
+    K.scan(kn5)
+
+    cum_old, cum_new = closed_cum(xz), closed_cum(xz_new)
+    print(f'length main {cum_old[-1]:.2f} m  chicane {cum_new[-1]:.2f} m  delta {cum_new[-1]-cum_old[-1]:+.2f} m')
+    print(f'min speed through moved points {E2[moved,0].min()*3.6:.0f} km/h  '
+          f'(was {E[moved,0].min()*3.6:.0f}..{E[moved,0].max()*3.6:.0f})')
+    # braking reach
+    for zone in zones:
+        i = zone['anchor']
+        print(f'  {zone["name"]} apex speed {E2[i,0]*3.6:.0f} km/h (was {E[i,0]*3.6:.0f})')
+
+    os.makedirs(Z + LAY + '/ai', exist_ok=True)
+    C.write_ai(Z + LAY + '/ai/fast_lane.ai', pos_new, E2.astype(np.float32))
+    # layout folders are cloned after the AI exists; write_ai above is into a folder
+    # created by clone. Order: clone first would wipe ai. Clone now, then rewrite ai.
+    length_km = cum_new[-1] / 1000.0
+    clone_layout(cum_old, cum_new, length_km)
+    C.write_ai(Z + LAY + '/ai/fast_lane.ai', pos_new, E2.astype(np.float32))
+    C.write_ai(Z + LAY + '/data/ideal_line.ai', pos_new, E2.astype(np.float32))
+
+    # pit lane must not run through either chicane
+    pit = C.read_ai(Z + 'main/ai/pit_lane.ai')['P']['p'][:, [0, 2]]
+    from scipy.spatial import cKDTree
+    for zone in zones:
+        d, _ = cKDTree(pit).query(xz_new[zone['idxs']])
+        print(f'pit clearance {zone["name"]} {d.min():.1f} m')
+        if d.min() < 8:
+            raise SystemExit('pit lane conflicts with a chicane')
+
+    prev = os.path.join(ROOT, 'docs', 'previews', 'chicane_layout.png')
+    render_preview(xz, xz_new, zones, mesh_list, cones, cum_new[-1], prev)
+    art = '/opt/cursor/artifacts'
+    if os.path.isdir(art):
+        shutil.copy(prev, os.path.join(art, 'chicane_layout.png'))
+    # stash numbers for the changelog
+    open('/tmp/chicane_stats.txt', 'w').write(
+        f'length_m {cum_new[-1]:.2f}\nmain_m {cum_old[-1]:.2f}\n'
+        f'delta_m {cum_new[-1]-cum_old[-1]:+.2f}\ncones {len(cones)}\n'
+        f'apex_main {E2[zones[0]["anchor"],0]*3.6:.1f}\n'
+        f'apex_return {E2[zones[1]["anchor"],0]*3.6:.1f}\n'
+        + '\n'.join(f'tris_{z["name"]} {len(m[1])}' for z, m in zip(zones, mesh_list))
+        + f'\ncone_tris {len(coneI)}\n'
+    )
+    print('done')
+
+
+if __name__ == '__main__':
+    main()

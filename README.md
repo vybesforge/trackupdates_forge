@@ -3,7 +3,7 @@
 An open-source Assetto Corsa track of **I-29 Speedway** (formerly Raceway Park of the Midlands / Mid America Motorplex) in Pacific Junction, Iowa.
 
 ## Features
-- Two layouts: **Long Course** (`main`, 3.644 km) and **Short Course** (`short`, 2.380 km), both with AI lines and 36 pit boxes.
+- Three layouts: **Long Course** (`main`, 3.644 km), **Short Course** (`short`, 2.380 km), and **Long Course Chicane** (`chicane`, the long course plus two cone chicanes on the west double-straight). All three have AI lines and 36 pit boxes.
 - Elevation re-draped to real USGS lidar ground.
 - 1/8-mile drag strip with a reactive two-lane tree. It runs on the pole with CSP; without CSP, the bundled Python app shows it on the monitor.
 - Paddock, north extension roads to the fuel stations and US-34, and night lights (CSP).

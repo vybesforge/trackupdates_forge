@@ -616,5 +616,25 @@ Backup: `/workspace/rpotm/backup/pre_vr9b_holefix/zw_rpm.kn5` (004b983 state).
 ## v1.1 – v9 sample ads
 - Two more sample advertisers placed with tools/make_ad.py, in skins/default only (no kn5 changes): Pepper Ahi (pepperahi.com) on tent slot 18 and RANDOMLY UNCONVENTIONAL / Chaos Energy Inc. (randomlyunconventional.com) on tent slot 13, which was reserved as pending. Both are text-only: neither site has a usable logo mark. brands.json updated. Preview script: tools/samples_v9_preview.py.
 
+## Long Course Chicane layout (`chicane`)
+
+Third selectable layout, cloned from `main`. It is the long course with two track-day cone chicanes on the west double-straight, where a real track day ran the long course because the short-course cut-off was closed. `main` and `short` are unchanged. Version stays 1.1.2; a release zip can pick this up later.
+
+Dylan's Content Manager screenshot (long-course outline over the preview) has two orange-red ticks on the parallel straights. Registered against `ui/main/outline.png` (fit to the fast_lane: image x = z·0.29303+323.34, image y = −x·0.29303+87.12, then the screenshot places that image at scale 0.97, offset (−3.1, +5.1)):
+
+- Southbound main/drag straight, anchor fast_lane index 207, world (−229.86, −602.17). Entrance to the driver's right, exit to the left. The asphalt is only ~2 m to the left of the racing line and ~10 m to the right, so the weave goes right by 6.2 m and comes back to 0.55 m left of the old line.
+- Northbound return straight, anchor index 809, world (−113.39, −603.58). Entrance to the driver's left, exit to the right (clamped to +3.25 m / −4.00 m so the line stays 1.25 m inside the asphalt; that straight narrows on the entrance side).
+
+Both marks are the same station, z ≈ −602.
+
+- `vf_chicane.kn5` is listed only in `models_chicane.ini` (MODEL_17). `1SCUT_chicane_main` (146 tris) and `1SCUT_chicane_return` (122 tris) are invisible physics ribbons, KEY `SCUT` (already IS_VALID_TRACK=0 in the cloned `surfaces.ini`), 1.2 cm above the road over the shortcut. A straight car has both wheels on SCUT for 21 m (main) and 14 m (return). The cone line stays on ROAD.
+- `cone_chicane` (1,280 tris, renderable) is the same orange tapered cone as the drift-course cones (`tools/tents_v11.py`: radius 0.15→0.02, height 0.70, square base, `vfc_cone` 235,90,20). Cones are visual only. 20 per chicane, on the gate and along the blocked edge.
+- `vf_vr7_longcut.kn5` / `Cones_gp` stay in this layout, so the short-course hairpin is still closed.
+- `chicane/ai/fast_lane.ai` follows the weaves. Apex speed drops to about 78 km/h on the main straight (was 218) and 71 km/h on the return (was 123). Pit lane is the main pit lane (clearance > 300 m). `data/ideal_line.ai` matches the new fast lane.
+- Closed-loop length 3,556.37 m, which is 4.57 m longer than the main fast_lane (3,551.80 m). `ui/chicane/ui_track.json` says 3.556 km from that spline. The main card still says 3.644 km, which is the older corridor figure, not the current main fast_lane.
+- Cameras and sections are the main set with spline positions moved so the same corners keep their windows after the extra length. Outline and preview images are the long-course ones; a 6 m weave is about two pixels on the outline.
+
+Rebuild with `python3 tools/chicane_layout.py`. Top-down check: `docs/previews/chicane_layout.png`.
+
 ## v1.1 – v10 paddock cameras
 - cameras_3.ini (Paddock Drift, both layouts): down from 7 drift cameras to 3 elevated wide ones (pd_west 12 m, pd_overview 26 m as the primary, pd_east 12 m), with FOV 34-56 and one long window each (25/50/25 % of the drift band). The rest of the TV High copy is unchanged; LF endings.
