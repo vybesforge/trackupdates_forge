@@ -911,7 +911,7 @@ def clone_layout(cum_old, cum_new, length_km):
         'geotags': ['41° 01′ 27″ N', '95° 49′ 58″ W'],
         'country': 'USA', 'city': 'Pacific Junction',
         'length': f'{length_km:.3f} km', 'width': '12 m', 'pitboxes': '36',
-        'run': 'clockwise', 'author': 'Vybes Forge', 'version': '1.1.2',
+        'run': 'clockwise', 'author': 'Vybes Forge', 'version': '1.1.3',
         'url': 'https://vybesforge.com', 'year': 2026,
     }
     import json
