@@ -14,7 +14,7 @@ Current release: **v1.1.4** (exit soft-cut flush with the remaining exit cone; c
 ## Source (prefer the release zip)
 - **Preferred:** GitHub Release v1.1.4 — https://github.com/vybesforge/trackupdates_forge/releases/tag/v1.1.4
   - Asset: `I-29_Speedway_v1.1.4.zip` (~214 MB)
-  - SHA-256: published with that tag as `I-29_Speedway_v1.1.4.zip.sha256`. Paste it into `$Sha` below before installing. Do not reuse the v1.1.3 hash `967ae33a41a6e6db39f0c978220f09e3a6a46af20544b6eeb92ca8bb90f3fe27` or the v1.1.2 hash `b57716140e1c2a11798a69889655723f166868c32b2534b272480750e4c8d59c`. **Verify before installing; abort on mismatch.**
+  - SHA-256: `0e08b04cd74f202402456919ba30c98daca94af5d1a7f1cd455c8557a90b4a79` — **verify before installing; abort on mismatch.** Do not reuse the v1.1.3 hash `967ae33a41a6e6db39f0c978220f09e3a6a46af20544b6eeb92ca8bb90f3fe27` or the v1.1.2 hash `b57716140e1c2a11798a69889655723f166868c32b2534b272480750e4c8d59c`.
   - Zip layout: `content/tracks/vf_i29_speedway/`, `apps/python/i29_dragtree/`, `server/` (track-params snippet + `add_track_params.py`), `I-29_Speedway_docs/`.
 - **Alternative:** git + Git LFS from `main` or tag `v1.1.4` (not old feature branches). GitHub's "Download ZIP" of the repo contains LFS pointer files, not real data — do not use it.
   ```
@@ -62,8 +62,7 @@ Find AC: default `C:\Program Files (x86)\Steam\steamapps\common\assettocorsa`; o
 $ErrorActionPreference = "Stop"
 $AC   = "C:\Program Files (x86)\Steam\steamapps\common\assettocorsa"   # adjust
 $Ver  = "v1.1.4"
-$Sha  = ""   # paste the published v1.1.4 SHA-256 (64 hex chars) before running
-if ($Sha.Length -ne 64) { throw "Paste the published v1.1.4 SHA-256 into `$Sha before installing" }
+$Sha  = "0e08b04cd74f202402456919ba30c98daca94af5d1a7f1cd455c8557a90b4a79"
 $Work = Join-Path $env:TEMP "i29_$Ver"; New-Item -ItemType Directory -Force $Work | Out-Null
 $Zip  = Join-Path $Work "I-29_Speedway_$Ver.zip"
 Invoke-WebRequest "https://github.com/vybesforge/trackupdates_forge/releases/download/$Ver/I-29_Speedway_$Ver.zip" -OutFile $Zip
